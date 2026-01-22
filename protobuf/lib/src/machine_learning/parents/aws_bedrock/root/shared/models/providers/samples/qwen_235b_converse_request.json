@@ -1,0 +1,17 @@
+{
+  "modelId": "qwen.qwen3-235b-a22b-2507-v1:0",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "Explain quantum entanglement in exactly two sentences."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 100,
+    "temperature": 0.7
+  }
+}

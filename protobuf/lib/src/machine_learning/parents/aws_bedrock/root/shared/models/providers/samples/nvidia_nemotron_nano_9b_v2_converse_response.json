@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "Okay, the user is asking \"What is 2+2? Just give the number.\" So they want a straightforward answer without any extra explanation. Let me make sure I understand correctly. The question is simple arithmetic. 2 plus 2 equals 4. I should just state the number 4. No need for any additional text or formatting. Just the number. Let me double-check to avoid any mistakes. Yep, 2+2 is definitely 4. Alright, I'll respond with 4.\n</think>\n\n4\n"
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 24,
+    "outputTokens": 112,
+    "totalTokens": 136
+  },
+  "metrics": {
+    "latencyMs": 1659
+  }
+}

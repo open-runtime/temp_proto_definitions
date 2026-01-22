@@ -1,0 +1,34 @@
+{
+    "id": "chatcmpl-b8c55ab910a44bc79f0b144d227e5c93",
+    "object": "chat.completion",
+    "created": 1768939125,
+    "model": "writer.palmyra-x5-v1:0",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "Quantum computing harnesses the principles of quantum mechanics\u2014like superposition, entanglement, and interference\u2014to process information in ways fundamentally different from classical computers. Instead of bits, which represent data as 0s or 1s, quantum computers use qubits that can exist in multiple states simultaneously, enabling them to explore many possibilities at once. When qubits become entangled, the state of one instantly influences the other, no matter the distance, allowing for highly correlated computations. This makes quantum computers potentially powerful for solving certain complex problems\u2014like factoring large numbers, simulating molecular behavior, or optimizing large systems\u2014much faster than classical machines. However, building and maintaining stable qubits is extremely challenging due to decoherence and noise, so",
+                "refusal": null,
+                "annotations": null,
+                "audio": null,
+                "function_call": null,
+                "tool_calls": [],
+                "reasoning_content": null
+            },
+            "logprobs": null,
+            "finish_reason": "length",
+            "stop_reason": null
+        }
+    ],
+    "service_tier": null,
+    "system_fingerprint": null,
+    "usage": {
+        "prompt_tokens": 248,
+        "total_tokens": 398,
+        "completion_tokens": 150,
+        "prompt_tokens_details": null
+    },
+    "prompt_logprobs": null,
+    "kv_transfer_params": null
+}

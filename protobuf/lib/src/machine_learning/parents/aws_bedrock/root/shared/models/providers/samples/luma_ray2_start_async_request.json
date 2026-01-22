@@ -1,0 +1,15 @@
+{
+  "modelId": "luma.ray-v2:0",
+  "modelInput": {
+    "prompt": "A cat playing with a ball of yarn in a sunny living room, cinematic lighting",
+    "aspect_ratio": "16:9",
+    "loop": false,
+    "duration": "5s",
+    "resolution": "720p"
+  },
+  "outputDataConfig": {
+    "s3OutputDataConfig": {
+      "s3Uri": "s3://your-bucket-name/output-path/"
+    }
+  }
+}

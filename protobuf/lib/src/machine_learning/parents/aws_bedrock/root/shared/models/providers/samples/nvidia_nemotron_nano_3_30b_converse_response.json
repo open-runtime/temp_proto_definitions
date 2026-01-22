@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "The square root of 144 is **12**.\n\n**Explanation:**  \n- A square root of a number is a value that, when multiplied by itself, equals the original number.  \n- Since \\( 12 \\times 12 = 144 \\), the principal (positive) square root of 144 is **12**.  \n- Note: \\(-12\\) is also a square root of 144 (because \\("
+        }
+      ]
+    }
+  },
+  "stopReason": "max_tokens",
+  "usage": {
+    "inputTokens": 27,
+    "outputTokens": 100,
+    "totalTokens": 127
+  },
+  "metrics": {
+    "latencyMs": 1534
+  }
+}

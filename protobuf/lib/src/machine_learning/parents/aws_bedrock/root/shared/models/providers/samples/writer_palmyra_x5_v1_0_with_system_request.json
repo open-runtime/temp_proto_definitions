@@ -1,0 +1,14 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful financial analyst. Be concise and use bullet points."
+    },
+    {
+      "role": "user",
+      "content": "What are the key metrics to watch in quarterly earnings?"
+    }
+  ],
+  "temperature": 0.3,
+  "max_tokens": 200
+}

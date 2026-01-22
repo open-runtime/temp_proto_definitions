@@ -1,0 +1,31 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "[00:00:00] Speaker 1: Hello, I am the first speaker. How are you today?\n[00:00:03] Speaker 2: Hello, I am the second speaker. I am doing well, thank you."
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 401,
+    "outputTokens": 58,
+    "totalTokens": 459
+  },
+  "metrics": {
+    "latencyMs": 2500
+  },
+  "_notes": {
+    "request_prompt": "Please transcribe this audio with BOTH timestamps and speaker labels. Format: [timestamp] Speaker X: text",
+    "additionalModelRequestFields": {
+      "timestamp_granularities": ["segment"]
+    },
+    "model_behavior": "Voxtral Small 24B supports both timestamps and speaker diarization when prompted explicitly",
+    "timestamp_format": "Flexible - [00:00:00] or [ 0m0s110ms - 0m0s420ms ] based on prompt",
+    "speaker_format": "Speaker 1, Speaker 2, etc.",
+    "output_type": "All features embedded in text response, no structured JSON fields"
+  }
+}

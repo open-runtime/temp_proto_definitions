@@ -1,0 +1,25 @@
+{
+  "modelId": "qwen.qwen3-vl-235b-a22b",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What do you see in this image? Be brief."
+        },
+        {
+          "image": {
+            "format": "png",
+            "source": {
+              "bytes": "<base64-encoded-png-image>"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 100,
+    "temperature": 0.7
+  }
+}

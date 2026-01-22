@@ -1,0 +1,26 @@
+{
+  "message": "Based on the documents, what are the key features of RAG?",
+  "chat_history": [
+    {
+      "role": "USER",
+      "message": "What is RAG in the context of LLMs?"
+    },
+    {
+      "role": "CHATBOT",
+      "message": "RAG stands for Retrieval Augmented Generation. It's a technique that enhances LLM responses by grounding them in external knowledge sources."
+    }
+  ],
+  "documents": [
+    {
+      "title": "RAG Overview",
+      "snippet": "Retrieval Augmented Generation combines the power of large language models with external knowledge retrieval systems."
+    },
+    {
+      "title": "RAG Benefits",
+      "snippet": "RAG reduces hallucinations by grounding responses in verified documents and enables inline citations."
+    }
+  ],
+  "max_tokens": 500,
+  "temperature": 0.3,
+  "p": 0.75
+}

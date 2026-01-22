@@ -1,0 +1,23 @@
+{
+  "id": "chatcmpl-ee0cf952-c0a3-4485-9c61-619532a21303",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": " The capital of France is Paris.",
+        "tool_calls": null
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 22,
+    "completion_tokens": 8,
+    "total_tokens": 30
+  },
+  "meta": {
+    "requestDurationMillis": 275
+  },
+  "model": "jamba-1.5-large"
+}

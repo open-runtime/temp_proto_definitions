@@ -1,0 +1,20 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "data:image/png;base64,<BASE64_ENCODED_IMAGE_DATA>"
+          }
+        },
+        {
+          "type": "text",
+          "text": "What is in this image? Be brief."
+        }
+      ]
+    }
+  ],
+  "max_tokens": 100
+}

@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "Quantum entanglement is a phenomenon where two or more particles become linked in such a way that the state of one instantly influences the state of the other, no matter how far apart they are. This connection persists even if the particles are separated by vast distances, defying classical intuitions about locality and leading to what Einstein famously called \"spooky action at a distance.\""
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 19,
+    "outputTokens": 77,
+    "totalTokens": 96
+  },
+  "metrics": {
+    "latencyMs": 5733
+  }
+}

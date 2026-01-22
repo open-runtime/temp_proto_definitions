@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "A function is a reusable block of code designed to perform a specific task. You call it by its name to execute that code, often passing it data to work with and receiving a result in return.",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768944173,
+  "id": "chatcmpl-acef6fa2-bc69-42b3-8c72-b5fc8ed13941",
+  "model": "deepseek.v3-v1:0",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 41,
+    "prompt_tokens": 16,
+    "total_tokens": 57
+  }
+}

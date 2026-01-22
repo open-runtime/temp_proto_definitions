@@ -1,0 +1,17 @@
+{
+  "modelId": "nvidia.nemotron-nano-3-30b",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is the square root of 144?"
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 100,
+    "temperature": 0.3
+  }
+}

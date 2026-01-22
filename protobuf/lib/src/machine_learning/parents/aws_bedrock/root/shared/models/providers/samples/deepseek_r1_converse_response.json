@@ -1,0 +1,28 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "\n\n15 + 27 can be calculated as follows:\n\n1. **Break down the numbers**:\n   - 15 = 10 + 5\n   - 27 = 20 + 7\n\n2. **Add the tens**:  \n   \\(10 + 20 = 30\\)\n\n3. **Add the ones**:  \n   \\(5 + 7 = 12\\)\n\n4. **Combine the results**:  \n   \\(30 + 12 = 42\\)\n\n**Answer**: 42."
+        },
+        {
+          "reasoningContent": {
+            "reasoningText": {
+              "text": "Okay, let's see, I need to figure out what 15 plus 27 is. Hmm, addition. Alright, so starting with the numbers 15 and 27. Let me break it down. Maybe I can add the tens and the ones separately. \n\n15 is made up of 10 and 5, right? And 27 is 20 and 7. So if I add the tens together, 10 plus 20 is 30. Then the ones, 5 plus 7. Wait, 5 plus 7 is 12. So now I have 30 from the tens and 12 from the ones. If I add those together, 30 plus 12. Hmm, 30 plus 10 is 40, and then plus 2 more is 42. So does that mean 15 plus 27 is 42? Let me check another way to make sure I didn't make a mistake.\n\nAlternatively, I can use the standard addition method. Let's line them up vertically:\n\n  15\n+27\n------\nStart adding from the rightmost digit, which is the ones place. 5 plus 7 is 12. Write down 2 and carry over 1. Then move to the tens place: 1 plus 2 is 3, plus the carried over 1 makes 4. So putting it together, it's 42. Yep, same result. \n\nWait, just to be thorough, maybe I can count on my fingers. Starting at 15, add 27. So 15 plus 20 is 35, and then plus 7 more. 35 plus 7 is 42. Yep, that checks out too. \n\nI think that's consistent across different methods. So the answer should be 42.\n"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 18,
+    "outputTokens": 477,
+    "totalTokens": 495
+  },
+  "metrics": {
+    "latencyMs": 2500
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "The meaning of life is to seek purpose, connection, and growth—creating value, nurturing relationships, and evolving toward greater understanding. It's personal, not universal. (28 words)",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768943728,
+  "id": "chatcmpl-000a974d-00da-48e3-a290-697ef7cc8bbc",
+  "model": "nvidia.nemotron-nano-3-30b",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 40,
+    "prompt_tokens": 26,
+    "total_tokens": 66
+  }
+}

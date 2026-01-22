@@ -1,0 +1,17 @@
+{
+  "modelId": "moonshot.kimi-k2-thinking",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is 2+2? Just give me the number."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 1000,
+    "temperature": 0.3
+  }
+}

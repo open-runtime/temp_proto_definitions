@@ -1,0 +1,43 @@
+{
+  "response_id": "379ed018/e12da7b5-468f-474d-82a4-1d44c3b16c24",
+  "text": "The capital of Arcadia, a fictional country, is Luminara, a city known for its floating gardens.",
+  "generation_id": "aefd531b-f513-45a4-aa2a-f13207092282",
+  "chat_history": [
+    {
+      "role": "USER",
+      "message": "What is the capital of Arcadia?"
+    },
+    {
+      "role": "CHATBOT",
+      "message": "The capital of Arcadia, a fictional country, is Luminara, a city known for its floating gardens."
+    }
+  ],
+  "finish_reason": "COMPLETE",
+  "citations": [
+    {
+      "start": 15,
+      "end": 43,
+      "text": "Arcadia, a fictional country",
+      "document_ids": ["doc_0"]
+    },
+    {
+      "start": 48,
+      "end": 56,
+      "text": "Luminara",
+      "document_ids": ["doc_0"]
+    },
+    {
+      "start": 65,
+      "end": 96,
+      "text": "known for its floating gardens.",
+      "document_ids": ["doc_0"]
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc_0",
+      "snippet": "Arcadia is a fictional country. Its capital is Luminara, a city known for its floating gardens.",
+      "title": "Arcadia Facts"
+    }
+  ]
+}

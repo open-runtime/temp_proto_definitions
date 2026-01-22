@@ -1,0 +1,10 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Explain quantum computing in one paragraph."
+    }
+  ],
+  "top_p": 0.9,
+  "max_tokens": 150
+}

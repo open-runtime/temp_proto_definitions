@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "Hello there – it's lovely to meet you! 😊",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768940632,
+  "id": "chatcmpl-fff848e2-c837-4944-b702-ff9aad067d04",
+  "model": "google.gemma-3-27b-it",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 15,
+    "prompt_tokens": 14,
+    "total_tokens": 29
+  }
+}

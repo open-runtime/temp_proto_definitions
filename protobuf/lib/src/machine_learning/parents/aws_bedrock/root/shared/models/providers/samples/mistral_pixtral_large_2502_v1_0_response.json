@@ -1,0 +1,30 @@
+{
+  "id": "a335119b-79b1-40b0-b000-93d8c6a04de2",
+  "object": "chat.completion",
+  "created": 1768945134,
+  "model": "pixtral-large-2502",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "tool_calls": null,
+        "index": null,
+        "tool_call_id": null,
+        "content": "The capital of France is Paris.",
+        "audio": null,
+        "metadata": null
+      },
+      "finish_reason": "stop",
+      "logprobs": null,
+      "context_logits": null,
+      "generation_logits": null
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 15,
+    "total_tokens": 23,
+    "completion_tokens": 8,
+    "request_count": null
+  }
+}

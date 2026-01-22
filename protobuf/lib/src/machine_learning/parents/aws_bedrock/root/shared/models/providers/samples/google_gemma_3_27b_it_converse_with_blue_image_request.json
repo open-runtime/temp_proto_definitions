@@ -1,0 +1,21 @@
+{
+  "modelId": "google.gemma-3-27b-it",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "image": {
+            "format": "png",
+            "source": {
+              "bytes": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAAkElEQVR42u3QMQEAAAgDoL+/YgpPEScDAA=="
+            }
+          }
+        },
+        {
+          "text": "What color is this image? Answer with just the color name."
+        }
+      ]
+    }
+  ]
+}

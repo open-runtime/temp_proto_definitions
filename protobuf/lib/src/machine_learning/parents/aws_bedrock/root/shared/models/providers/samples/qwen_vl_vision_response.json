@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "A tabby cat lounging on a blue cat tree near a window, with a toy and a tube nearby."
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 91,
+    "outputTokens": 24,
+    "totalTokens": 115
+  },
+  "metrics": {
+    "latencyMs": 735
+  }
+}

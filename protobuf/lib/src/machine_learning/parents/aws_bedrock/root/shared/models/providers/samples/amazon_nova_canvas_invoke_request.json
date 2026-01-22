@@ -1,0 +1,12 @@
+{
+  "taskType": "TEXT_IMAGE",
+  "textToImageParams": {
+    "text": "A futuristic city at sunset with flying cars"
+  },
+  "imageGenerationConfig": {
+    "numberOfImages": 1,
+    "quality": "standard",
+    "height": 512,
+    "width": 512
+  }
+}

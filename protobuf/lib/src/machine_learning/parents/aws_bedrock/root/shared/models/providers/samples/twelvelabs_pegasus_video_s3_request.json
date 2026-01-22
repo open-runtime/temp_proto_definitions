@@ -1,0 +1,11 @@
+{
+  "inputPrompt": "Describe the key events, objects, and actions shown in this video. Provide a detailed summary.",
+  "mediaSource": {
+    "s3Location": {
+      "uri": "s3://my-video-bucket/demo-video.mp4",
+      "bucketOwner": "123456789012"
+    }
+  },
+  "temperature": 0.2,
+  "maxOutputTokens": 2000
+}

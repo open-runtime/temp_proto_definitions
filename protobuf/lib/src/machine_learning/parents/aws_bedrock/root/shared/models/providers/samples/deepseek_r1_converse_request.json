@@ -1,0 +1,17 @@
+{
+  "modelId": "us.deepseek.r1-v1:0",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is 15 + 27? Think step by step."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 500,
+    "temperature": 1.0
+  }
+}

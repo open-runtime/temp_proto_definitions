@@ -1,0 +1,17 @@
+{
+  "modelId": "openai.gpt-oss-120b-1:0",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is the derivative of x^2? Answer briefly."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 150,
+    "temperature": 0.7
+  }
+}

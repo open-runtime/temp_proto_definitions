@@ -1,0 +1,12 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Write a short poem about the ocean using varied vocabulary."
+    }
+  ],
+  "temperature": 0.8,
+  "max_tokens": 150,
+  "presence_penalty": 0.5,
+  "frequency_penalty": 0.5
+}

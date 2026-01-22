@@ -1,0 +1,50 @@
+{
+  "_description": "Voxtral output format examples - format is 100% prompt-driven (Verified January 2026)",
+  "_model": "mistral.voxtral-small-24b-2507",
+  "_region": "ap-northeast-1",
+  
+  "formats": {
+    "plain_verbatim": {
+      "prompt": "Transcribe this audio verbatim.",
+      "response": "Hello, I am the first speaker. How are you today? Hello, I am the second speaker. I am doing well, thank you."
+    },
+    
+    "json_structured": {
+      "prompt": "Transcribe this audio and return the output as JSON with this structure:\n{\"segments\": [{\"speaker\": \"...\", \"text\": \"...\", \"start_ms\": 0, \"end_ms\": 0}]}",
+      "response": {
+        "segments": [
+          {"speaker": "Speaker 1", "text": "Hello, I am the first speaker. How are you today?", "start_ms": 0, "end_ms": 3000},
+          {"speaker": "Speaker 2", "text": "Hello, I am the second speaker. I am doing well, thank you.", "start_ms": 3000, "end_ms": 6000}
+        ]
+      }
+    },
+    
+    "srt_subtitle": {
+      "prompt": "Transcribe this audio in standard SRT subtitle format.\nExample SRT format:\n1\n00:00:00,000 --> 00:00:03,000\nFirst subtitle text",
+      "response": "1\n00:00:00,000 --> 00:00:02,000\nHello, I am the first speaker.\n\n2\n00:00:02,000 --> 00:00:03,000\nHow are you today?\n\n3\n00:00:03,000 --> 00:00:05,000\nHello, I am the second speaker.\n\n4\n00:00:05,000 --> 00:00:07,000\nI am doing well, thank you."
+    },
+    
+    "markdown_table": {
+      "prompt": "Transcribe this audio and return as a markdown table with columns:\n| Start Time | End Time | Speaker | Text |",
+      "response": "| Start Time | End Time | Speaker | Text |\n|---|---|---|---|\n| 00:00:00.672 | 00:00:01.812 | Speaker 1 | Hello, I am the first speaker. |\n| 00:00:01.812 | 00:00:03.112 | Speaker 1 | How are you today? |\n| 00:00:03.542 | 00:00:05.152 | Speaker 2 | Hello, I am the second speaker. |\n| 00:00:05.152 | 00:00:06.662 | Speaker 2 | I am doing well, thank you. |"
+    },
+    
+    "detailed_analysis": {
+      "prompt": "Analyze this audio and provide:\n1. Full transcription\n2. Number of unique speakers detected\n3. Duration of each speaker's speech\n4. Overall sentiment\nReturn as structured analysis.",
+      "response": "1. **Full transcription:**\n   - Speaker 1: \"Hello, I am the first speaker. How are you today?\"\n   - Speaker 2: \"Hello, I am the second speaker. I am doing well, thank you.\"\n\n2. **Number of unique speakers detected:** 2\n\n3. **Duration of each speaker's speech:**\n   - Speaker 1: 4 seconds\n   - Speaker 2: 3 seconds\n\n4. **Overall sentiment:** Positive. Both speakers are polite and engaging in a friendly conversation."
+    },
+    
+    "native_timestamps": {
+      "prompt": "Transcribe with timestamps and speaker labels.",
+      "additionalModelRequestFields": {"timestamp_granularities": ["segment"]},
+      "response": "[00:00:00] Speaker 1: Hello, I am the first speaker. How are you today?\n[00:00:03] Speaker 2: Hello, I am the second speaker. I am doing well, thank you."
+    }
+  },
+  
+  "_notes": {
+    "key_insight": "Output format is COMPLETELY prompt-driven - no special parameters needed",
+    "timestamp_granularities": "Less important than we thought - prompts control timestamps better",
+    "recommendation": "Use output_format_instructions in proto for maximum flexibility",
+    "limitation": "timestamp_granularities and language params are mutually exclusive"
+  }
+}

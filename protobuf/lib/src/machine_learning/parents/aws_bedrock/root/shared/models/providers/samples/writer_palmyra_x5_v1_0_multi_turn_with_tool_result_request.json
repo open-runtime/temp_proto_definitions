@@ -1,0 +1,46 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "What orders has customer C12345 placed in the last 30 days?"
+    },
+    {
+      "role": "assistant",
+      "content": null,
+      "tool_calls": [
+        {
+          "id": "chatcmpl-tool-93d9d1048431471abc429a556af78e66",
+          "type": "function",
+          "function": {
+            "name": "get_customer_orders",
+            "arguments": "{\"customer_id\": \"C12345\", \"days\": 30}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "chatcmpl-tool-93d9d1048431471abc429a556af78e66",
+      "content": "{\"orders\": [{\"order_id\": \"ORD-98765\", \"date\": \"2025-01-15\", \"total\": 1250.00, \"status\": \"delivered\", \"items\": [\"Widget Pro\", \"Cable Set\"]}, {\"order_id\": \"ORD-98801\", \"date\": \"2025-01-18\", \"total\": 89.99, \"status\": \"shipped\", \"items\": [\"Accessory Pack\"]}], \"total_orders\": 2, \"total_spent\": 1339.99}"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_customer_orders",
+        "description": "Retrieves all orders for a specified customer within a date range",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "customer_id": { "type": "string", "description": "The unique customer identifier" },
+            "days": { "type": "integer", "description": "Number of days to look back" }
+          },
+          "required": ["customer_id"]
+        }
+      }
+    }
+  ],
+  "temperature": 0.5,
+  "max_tokens": 1024
+}

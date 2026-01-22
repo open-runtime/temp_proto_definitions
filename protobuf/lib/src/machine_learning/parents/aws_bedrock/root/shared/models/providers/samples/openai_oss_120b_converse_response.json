@@ -1,0 +1,28 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "reasoningContent": {
+            "reasoningText": {
+              "text": "The user asks: \"What is the derivative of x^2? Answer briefly.\" That's a straightforward math question, allowed. Provide brief answer: 2x."
+            }
+          }
+        },
+        {
+          "text": "The derivative of \\(x^2\\) with respect to \\(x\\) is \\(2x\\)."
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 81,
+    "outputTokens": 65,
+    "totalTokens": 146
+  },
+  "metrics": {
+    "latencyMs": 467
+  }
+}

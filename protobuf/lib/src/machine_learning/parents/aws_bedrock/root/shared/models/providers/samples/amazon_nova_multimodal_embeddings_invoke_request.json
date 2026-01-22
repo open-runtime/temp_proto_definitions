@@ -1,0 +1,11 @@
+{
+  "taskType": "SINGLE_EMBEDDING",
+  "singleEmbeddingParams": {
+    "embeddingPurpose": "GENERIC_INDEX",
+    "embeddingDimension": 256,
+    "text": {
+      "truncationMode": "END",
+      "value": "What is the capital of France?"
+    }
+  }
+}

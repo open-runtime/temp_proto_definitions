@@ -1,0 +1,18 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "This is a test audio file containing a simple tone. What do you hear? Please describe the audio briefly."
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 401,
+    "outputTokens": 23,
+    "totalTokens": 424
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "1. Answering Questions: I can provide information and answer questions on a wide range of topics, from general knowledge to specific subject areas.\n\n2. Text Generation: I can generate human-like text based on a given prompt or topic, which can be useful for creating content, writing stories, or generating responses in a chatbot.\n\n3. Language Translation: I can translate text between multiple languages, making it easier for people to communicate and understand each other across language barriers.\n",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768943715,
+  "id": "chatcmpl-12a5a103-cb7b-45d9-ab75-1edec047f4f2",
+  "model": "nvidia.nemotron-nano-12b-v2",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 95,
+    "prompt_tokens": 26,
+    "total_tokens": 121
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "<reasoning>We need to answer the user question: \"What is the capital of France? Answer in one sentence.\" The user wants a single sentence answer. The correct answer: The capital of France is Paris. So we can answer: \"The capital of France is Paris.\" That is a single sentence. Should we include anything else? The user explicitly asked for one sentence. So we need to comply. There's no policy violation. It's a simple factual answer. So final answer: \"The capital of France is Paris.\"\n\nWe need to ensure we are concise. That is all.\n</reasoning>\n\nThe capital of France is Paris.",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768943822,
+  "id": "chatcmpl-597d3e9c-92a9-4a35-ab71-243d7f6f730f",
+  "model": "minimax.minimax-m2",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 124,
+    "prompt_tokens": 34,
+    "total_tokens": 158
+  }
+}

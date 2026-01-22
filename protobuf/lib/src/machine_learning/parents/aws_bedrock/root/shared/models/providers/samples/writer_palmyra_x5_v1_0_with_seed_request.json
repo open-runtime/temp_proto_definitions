@@ -1,0 +1,11 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Generate a product name for a smart home device."
+    }
+  ],
+  "temperature": 0.8,
+  "max_tokens": 50,
+  "seed": 42
+}

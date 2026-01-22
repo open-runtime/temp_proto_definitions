@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "Okay, the user is asking for the capital of France in one sentence. Let me make sure I know the correct answer. France's capital is Paris. I should confirm that there's no recent change, but I'm pretty sure it's still Paris. The answer needs to be concise, so just stating \"The capital of France is Paris.\" That should cover it without any extra details.\n</think>\n\nThe capital of France is Paris.\n",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768943698,
+  "id": "chatcmpl-8e870dff-6c59-4de3-90b7-b9e2bed9a3f2",
+  "model": "nvidia.nemotron-nano-9b-v2",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 89,
+    "prompt_tokens": 24,
+    "total_tokens": 113
+  }
+}

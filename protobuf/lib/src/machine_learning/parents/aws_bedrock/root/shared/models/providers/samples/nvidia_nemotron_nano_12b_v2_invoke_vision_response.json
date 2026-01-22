@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "Kitten.\n",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768943631,
+  "id": "chatcmpl-9de4c7e2-d5c1-4ce9-8523-bc0fc2582f98",
+  "model": "nvidia.nemotron-nano-12b-v2",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 4,
+    "prompt_tokens": 3355,
+    "total_tokens": 3359
+  }
+}

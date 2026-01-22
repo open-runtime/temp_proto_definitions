@@ -1,0 +1,11 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "List the first 5 planets in order from the Sun. Use this format: 1. Planet\n2. Planet\netc."
+    }
+  ],
+  "temperature": 0.3,
+  "max_tokens": 200,
+  "stop": ["4."]
+}

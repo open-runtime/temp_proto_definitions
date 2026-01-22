@@ -1,0 +1,17 @@
+{
+  "modelId": "qwen.qwen3-coder-30b-a3b-v1:0",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "Write a Python function that calculates factorial. Keep it simple."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 200,
+    "temperature": 0.3
+  }
+}

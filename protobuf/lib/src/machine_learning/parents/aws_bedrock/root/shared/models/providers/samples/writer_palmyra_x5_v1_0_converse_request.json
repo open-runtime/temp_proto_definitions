@@ -1,0 +1,17 @@
+{
+  "modelId": "us.writer.palmyra-x5-v1:0",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What are the key features of AWS Bedrock?"
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "temperature": 0.5,
+    "maxTokens": 200
+  }
+}

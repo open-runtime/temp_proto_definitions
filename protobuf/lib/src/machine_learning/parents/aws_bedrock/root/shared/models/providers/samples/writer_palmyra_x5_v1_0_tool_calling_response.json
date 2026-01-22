@@ -1,0 +1,43 @@
+{
+    "id": "chatcmpl-f2cf7ac2c58048dfa788ad8ae5be2ad9",
+    "object": "chat.completion",
+    "created": 1768939045,
+    "model": "writer.palmyra-x5-v1:0",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": null,
+                "refusal": null,
+                "annotations": null,
+                "audio": null,
+                "function_call": null,
+                "tool_calls": [
+                    {
+                        "id": "chatcmpl-tool-93d9d1048431471abc429a556af78e66",
+                        "type": "function",
+                        "function": {
+                            "name": "get_customer_orders",
+                            "arguments": "{\"customer_id\": \"C12345\", \"days\": 30}"
+                        }
+                    }
+                ],
+                "reasoning_content": null
+            },
+            "logprobs": null,
+            "finish_reason": "tool_calls",
+            "stop_reason": null
+        }
+    ],
+    "service_tier": null,
+    "system_fingerprint": null,
+    "usage": {
+        "prompt_tokens": 850,
+        "total_tokens": 884,
+        "completion_tokens": 34,
+        "prompt_tokens_details": null
+    },
+    "prompt_logprobs": null,
+    "kv_transfer_params": null
+}

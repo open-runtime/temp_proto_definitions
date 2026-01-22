@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "4.",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768944029,
+  "id": "chatcmpl-e5f76623-d9a9-4145-b7c2-b56cb2fc223f",
+  "model": "qwen.qwen3-32b-v1:0",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 3,
+    "prompt_tokens": 22,
+    "total_tokens": 25
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "What orders has customer C12345 placed in the last 30 days?"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_customer_orders",
+        "description": "Retrieves all orders for a specified customer within a date range",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "customer_id": {
+              "type": "string",
+              "description": "The unique customer identifier"
+            },
+            "days": {
+              "type": "integer",
+              "description": "Number of days to look back"
+            }
+          },
+          "required": ["customer_id"]
+        }
+      }
+    }
+  ],
+  "temperature": 0.5,
+  "max_tokens": 1024
+}

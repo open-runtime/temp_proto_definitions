@@ -1,0 +1,24 @@
+{
+  "id": "chatcmpl-5dbe03d5-fca1-4b65-a917-6239f05c3f66",
+  "object": "chat.completion",
+  "created": 1768942633,
+  "model": "moonshot.kimi-k2-thinking",
+  "service_tier": "default",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "<reasoning> The user is asking me to say hello in one sentence. This is a very simple request. I should respond with a friendly greeting that is exactly one sentence long. I need to make sure it's just one sentence - no extra punctuation that could be interpreted as multiple sentences.\n\nA simple \"Hello!\" or \"Hello, how are you?\" would work. \"Hello, it's nice to meet you!\" is also one sentence. I should keep it concise and natural.\n\nLet me make sure it's exactly one sentence:\n- \"Hello!\" - This is one sentence (an exclamatory sentence).\n- \"Hello, how are you today?\" - This is one sentence.\n- \"Greetings and salutations!\" - Also one sentence.\n\nI think a simple, warm greeting is best. I'll go with something like \"Hello, it's a pleasure to meet you!\" This is friendly, complete, and definitively one sentence.</reasoning> Hello, it's a pleasure to meet you!",
+        "refusal": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 30,
+    "completion_tokens": 194,
+    "total_tokens": 224
+  }
+}

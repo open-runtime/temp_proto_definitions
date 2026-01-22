@@ -1,0 +1,28 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "reasoningContent": {
+            "reasoningText": {
+              "text": " The user asks \"What is 2+2? Just give me the number.\"\n\nThis is a simple arithmetic question. 2+2 equals 4.\n\nThe user explicitly says \"Just give me the number.\" So I should only respond with \"4\" and nothing else. No explanation, no extra text.\n\nI need to follow the instruction precisely. The answer is just the number."
+            }
+          }
+        },
+        {
+          "text": " 4"
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 38,
+    "outputTokens": 82,
+    "totalTokens": 120
+  },
+  "metrics": {
+    "latencyMs": 1561
+  }
+}

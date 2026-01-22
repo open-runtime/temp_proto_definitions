@@ -1,0 +1,16 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is the capital of Germany? Answer briefly."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 100,
+    "temperature": 0.7
+  }
+}

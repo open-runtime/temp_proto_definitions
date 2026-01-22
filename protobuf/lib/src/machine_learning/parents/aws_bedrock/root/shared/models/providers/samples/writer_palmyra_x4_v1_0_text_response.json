@@ -1,0 +1,27 @@
+{
+    "id": "chatcmpl-0f1d3ff2f1bb438a919cad3feeb1a23b",
+    "object": "chat.completion",
+    "created": 1768939138,
+    "model": "writer.palmyra-x4-v1:0",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "reasoning_content": null,
+                "content": "Machine learning is a subset of artificial intelligence that involves algorithms enabling computers to learn from and make decisions or predictions based on data, improving their performance with experience without being explicitly programmed.",
+                "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop",
+            "stop_reason": null
+        }
+    ],
+    "usage": {
+        "prompt_tokens": 39,
+        "total_tokens": 75,
+        "completion_tokens": 36,
+        "prompt_tokens_details": null
+    },
+    "prompt_logprobs": null
+}

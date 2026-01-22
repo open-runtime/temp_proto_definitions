@@ -1,0 +1,16 @@
+{
+  "response_id": "379ed018/ddd8affa-d1ed-4e6c-9542-3ed4832eff11",
+  "text": "Four.",
+  "generation_id": "5893287f-6bf0-48df-8d97-662648da80bf",
+  "chat_history": [
+    {
+      "role": "USER",
+      "message": "What is 2+2? Reply in one word."
+    },
+    {
+      "role": "CHATBOT",
+      "message": "Four."
+    }
+  ],
+  "finish_reason": "COMPLETE"
+}

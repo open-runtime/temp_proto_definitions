@@ -1,0 +1,18 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "The audio file contains a single, steady tone."
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 401,
+    "outputTokens": 11,
+    "totalTokens": 412
+  }
+}

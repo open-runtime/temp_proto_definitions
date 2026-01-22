@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "Here's a simple Python function to calculate factorial:\n\n```python\ndef factorial(n):\n    if n < 0:\n        raise ValueError(\"Factorial is not defined for negative numbers\")\n    if n == 0 or n == 1:\n        return 1\n    result = 1\n    for i in range(2, n + 1):\n        result *= i\n    return result\n```\n\nThis function:\n- Handles edge cases (0! = 1, 1! = 1)\n- Raises an error for negative numbers\n- Uses a simple loop to multiply all numbers from 2 to n\n- Returns the final result\n\nExample usage:\n```python\nprint(factorial(5))  # Output: 120\nprint(factorial(0))  # Output: 1\n```"
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 20,
+    "outputTokens": 170,
+    "totalTokens": 190
+  },
+  "metrics": {
+    "latencyMs": 791
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "reasoningContent": {
+            "reasoningText": {
+              "text": "The user asks: \"What is 5 + 3?\" Simple arithmetic: 5+3=8. We should answer: 8."
+            }
+          }
+        },
+        {
+          "text": "5 + 3 equals **8**."
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 77,
+    "outputTokens": 50,
+    "totalTokens": 127
+  },
+  "metrics": {
+    "latencyMs": 447
+  }
+}

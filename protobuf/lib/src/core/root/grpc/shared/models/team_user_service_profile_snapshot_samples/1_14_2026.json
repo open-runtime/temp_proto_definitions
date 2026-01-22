@@ -1,0 +1,1417 @@
+{
+    "id": "7a5155e0-3ecb-4e55-8ee0-819e6fe7513f",
+    "userId": "U2vWebPXQXwiSzaJKkspS2jrOSy7",
+    "autho_id": "google-oauth2|107873995935443411600",
+    "name": "Tsavo Knott",
+    "givenName": "Tsavo",
+    "middleName": "",
+    "familyName": "Knott",
+    "paddle_id": "ctm_01jz0yvxx4mn4s1kzncbwkqhw6",
+    "paddle_last_webhook_at": "2026-01-03T22:10:06.466501Z",
+    "email": "tsavo@pieces.app",
+    "phone": "",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocLXhER7daPvM3aTuzVMKbr0-mWTSbl7dz0WA7qllw18VKU1-TEU=s96-c",
+    "createdTime": 1625725844,
+    "updatedTime": 1768408405,
+    "loginIds": [
+        "tsavo@pieces.app",
+        "google-107873995935443411600",
+        "github-102485237"
+    ],
+    "roleNames": null,
+    "ssoAppIds": null,
+    "oauth": null,
+    "isVerifiedEmail": false,
+    "isVerifiedPhone": false,
+    "password": true,
+    "status": "enabled",
+    "welcome_email": true,
+    "vanity": "tsavo",
+    "cloud_key": "",
+    "open_ai": null,
+    "beta": {
+        "from": {
+            "value": "2024-04-16T04:00Z"
+        },
+        "to": {
+            "value": "2025-05-31T04:00Z"
+        },
+        "continous": false,
+        "between": false
+    },
+    "allocation": {
+        "project": "runtime-user-cloud-group-0",
+        "region": "us-west1"
+    },
+    "orgs": [
+        {
+            "id": "org_20598756839437442969334692817437",
+            "name": "Pieces",
+            "paddle_id": "ctm_01jz0sg2t5a6gsdg9hd35v283b",
+            "subscriptions": [
+                {
+                    "product_id": "pro_01k6xekwpg5ehc9wcc9dbnaa04",
+                    "price_id": "pri_01k6xer1vdrdxfrbdd10mj4gt3",
+                    "name": "Enterprise Seat Yearly",
+                    "price": "27599",
+                    "subscription_id": "sub_01kaednewrwbn4dntbnc5rdva0",
+                    "billing_term": "year",
+                    "quantity": 20,
+                    "created_at": "2025-11-19T16:01:36.590336Z",
+                    "nextbilled_at": "2026-11-19T16:02:51.923Z",
+                    "paused_at": null,
+                    "canceled_at": null,
+                    "active": true
+                }
+            ],
+            "configuration": {
+                "open_ai": null,
+                "gemini": null,
+                "claude": null,
+                "bedrock": {
+                    "access_credentials": null,
+                    "api_keys": [
+                        {
+                            "name": "BedrockAPIKey-jeft-at-605134436431",
+                            "key": "ABSK****cz0=",
+                            "inference_profile_models": {
+                                "anthropic.claude-3-5-haiku-20241022-v1:0": [
+                                    {
+                                        "inference_profile_id": "xuicdsjlgdgf",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/xuicdsjlgdgf",
+                                        "inference_profile_name": "developer-team-claude-haiku-3-5",
+                                        "model_id": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                                        "model_name": "Claude 3 5 Haiku",
+                                        "description": "Claude Haiku 3.5 for Developer Team",
+                                        "created_at": 1768403550
+                                    },
+                                    {
+                                        "inference_profile_id": "cz12h0ppqo4u",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/cz12h0ppqo4u",
+                                        "inference_profile_name": "marketing-team-claude-haiku-3-5",
+                                        "model_id": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                                        "model_name": "Claude 3 5 Haiku",
+                                        "description": "Claude Haiku 3.5 for Marketing Team",
+                                        "created_at": 1768403562
+                                    }
+                                ],
+                                "anthropic.claude-haiku-4-5-20251001-v1:0": [
+                                    {
+                                        "inference_profile_id": "k30vi7ox8usg",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/k30vi7ox8usg",
+                                        "inference_profile_name": "developer-team-claude-haiku-4-5",
+                                        "model_id": "anthropic.claude-haiku-4-5-20251001-v1:0",
+                                        "model_name": "Claude haiku 4 5 20251001",
+                                        "description": "Claude Haiku 4.5 for Developer Team",
+                                        "created_at": 1768403618
+                                    },
+                                    {
+                                        "inference_profile_id": "z72lzr78ig26",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/z72lzr78ig26",
+                                        "inference_profile_name": "marketing-team-claude-haiku-4-5",
+                                        "model_id": "anthropic.claude-haiku-4-5-20251001-v1:0",
+                                        "model_name": "Claude haiku 4 5 20251001",
+                                        "description": "Claude Haiku 4.5 for Marketing Team",
+                                        "created_at": 1768403626
+                                    }
+                                ],
+                                "anthropic.claude-opus-4-20250514-v1:0": [
+                                    {
+                                        "inference_profile_id": "l51ey4jeqkk5",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/l51ey4jeqkk5",
+                                        "inference_profile_name": "developer-team-claude-opus-4",
+                                        "model_id": "anthropic.claude-opus-4-20250514-v1:0",
+                                        "model_name": "Claude opus 4 20250514",
+                                        "description": "Claude Opus 4 for Developer Team",
+                                        "created_at": 1768403576
+                                    },
+                                    {
+                                        "inference_profile_id": "2jxgqk96wb26",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/2jxgqk96wb26",
+                                        "inference_profile_name": "marketing-team-claude-opus-4",
+                                        "model_id": "anthropic.claude-opus-4-20250514-v1:0",
+                                        "model_name": "Claude opus 4 20250514",
+                                        "description": "Claude Opus 4 for Marketing Team",
+                                        "created_at": 1768403587
+                                    }
+                                ],
+                                "anthropic.claude-sonnet-4-20250514-v1:0": [
+                                    {
+                                        "inference_profile_id": "nygr6pepo36k",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/nygr6pepo36k",
+                                        "inference_profile_name": "developer-team-claude-sonnet-4",
+                                        "model_id": "anthropic.claude-sonnet-4-20250514-v1:0",
+                                        "model_name": "Claude sonnet 4 20250514",
+                                        "description": "Claude Sonnet 4 for Developer Team",
+                                        "created_at": 1768403595
+                                    },
+                                    {
+                                        "inference_profile_id": "kzb4pik7s6w8",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/kzb4pik7s6w8",
+                                        "inference_profile_name": "marketing-team-claude-sonnet-4",
+                                        "model_id": "anthropic.claude-sonnet-4-20250514-v1:0",
+                                        "model_name": "Claude sonnet 4 20250514",
+                                        "description": "Claude Sonnet 4 for Marketing Team",
+                                        "created_at": 1768403603
+                                    }
+                                ],
+                                "anthropic.claude-sonnet-4-5-20250929-v1:0": [
+                                    {
+                                        "inference_profile_id": "5o63oo8uzo4m",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/5o63oo8uzo4m",
+                                        "inference_profile_name": "developer-team-claude-sonnet-4-5",
+                                        "model_id": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+                                        "model_name": "Claude sonnet 4 5 20250929",
+                                        "description": "Claude Sonnet 4.5 for Developer Team",
+                                        "created_at": 1768403525
+                                    },
+                                    {
+                                        "inference_profile_id": "cccistmlgf35",
+                                        "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/cccistmlgf35",
+                                        "inference_profile_name": "marketing-team-claude-sonnet-4-5",
+                                        "model_id": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+                                        "model_name": "Claude sonnet 4 5 20250929",
+                                        "description": "Claude Sonnet 4.5 for Marketing Team",
+                                        "created_at": 1768403537
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "is_stored": true,
+                    "updated_at": 1768403638,
+                    "config_hash": "c73eb07d2569e89e1192fea09e9ea1ad"
+                },
+                "azure": null,
+                "toggles": {
+                    "InstanceConfiguration.analytics.bigQuery.enabled": true,
+                    "InstanceConfiguration.analytics.segment.enabled": true,
+                    "InstanceConfiguration.analytics.sendInternalSummaryReportsToUserTeamService.enabled": true,
+                    "InstanceConfiguration.externalCloud.cloudBackupCreation.enabled": true,
+                    "InstanceConfiguration.externalCloud.connectToCloud.enabled": true,
+                    "InstanceConfiguration.externalCloud.deleteCloudBackup.enabled": true,
+                    "InstanceConfiguration.externalCloud.listCloudBackups.enabled": true,
+                    "InstanceConfiguration.externalCloud.listSpecificCloudBackup.enabled": true,
+                    "InstanceConfiguration.externalCloud.reconnectToCloud.enabled": true,
+                    "InstanceConfiguration.externalCloud.restoreCloudBackup.enabled": true,
+                    "InstanceConfiguration.externalCloud.shareSnippet.enabled": true,
+                    "InstanceConfiguration.externalCloud.updateAllocationCloud.enabled": true,
+                    "InstanceConfiguration.externalProvider.customizedAllowedModels.enabled": true,
+                    "InstanceConfiguration.externalProvider.deniedWorkstreamPatternEngineSources.enabled": true,
+                    "InstanceConfiguration.externalProvider.deniedWorkstreamPatternEngineWebsites.enabled": true,
+                    "InstanceConfiguration.externalProvider.processing.enabled": true
+                },
+                "processing": "",
+                "modelAccess": [
+                    {
+                        "name": "Claude Sonnet 4",
+                        "unique": "anthropic.claude-sonnet-4-20250514-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude Sonnet 4",
+                        "modelDescription": "Claude 4 Sonnet - Balanced performance",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true,
+                        "inference_profile_models": [
+                            {
+                                "inference_profile_id": "nygr6pepo36k",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/nygr6pepo36k",
+                                "inference_profile_name": "developer-team-claude-sonnet-4",
+                                "model_id": "anthropic.claude-sonnet-4-20250514-v1:0",
+                                "model_name": "Claude sonnet 4 20250514",
+                                "description": "Claude Sonnet 4 for Developer Team",
+                                "created_at": 1768403595
+                            },
+                            {
+                                "inference_profile_id": "kzb4pik7s6w8",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/kzb4pik7s6w8",
+                                "inference_profile_name": "marketing-team-claude-sonnet-4",
+                                "model_id": "anthropic.claude-sonnet-4-20250514-v1:0",
+                                "model_name": "Claude sonnet 4 20250514",
+                                "description": "Claude Sonnet 4 for Marketing Team",
+                                "created_at": 1768403603
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Claude Haiku 4.5",
+                        "unique": "anthropic.claude-haiku-4-5-20251001-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude Haiku 4.5",
+                        "modelDescription": "Claude Haiku 4.5 - Fast and efficient",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true,
+                        "inference_profile_models": [
+                            {
+                                "inference_profile_id": "k30vi7ox8usg",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/k30vi7ox8usg",
+                                "inference_profile_name": "developer-team-claude-haiku-4-5",
+                                "model_id": "anthropic.claude-haiku-4-5-20251001-v1:0",
+                                "model_name": "Claude haiku 4 5 20251001",
+                                "description": "Claude Haiku 4.5 for Developer Team",
+                                "created_at": 1768403618
+                            },
+                            {
+                                "inference_profile_id": "z72lzr78ig26",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/z72lzr78ig26",
+                                "inference_profile_name": "marketing-team-claude-haiku-4-5",
+                                "model_id": "anthropic.claude-haiku-4-5-20251001-v1:0",
+                                "model_name": "Claude haiku 4 5 20251001",
+                                "description": "Claude Haiku 4.5 for Marketing Team",
+                                "created_at": 1768403626
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Claude Sonnet 4.5",
+                        "unique": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude Sonnet 4.5",
+                        "modelDescription": "Claude Sonnet 4.5 - High performance",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true,
+                        "inference_profile_models": [
+                            {
+                                "inference_profile_id": "5o63oo8uzo4m",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/5o63oo8uzo4m",
+                                "inference_profile_name": "developer-team-claude-sonnet-4-5",
+                                "model_id": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+                                "model_name": "Claude sonnet 4 5 20250929",
+                                "description": "Claude Sonnet 4.5 for Developer Team",
+                                "created_at": 1768403525
+                            },
+                            {
+                                "inference_profile_id": "cccistmlgf35",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/cccistmlgf35",
+                                "inference_profile_name": "marketing-team-claude-sonnet-4-5",
+                                "model_id": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+                                "model_name": "Claude sonnet 4 5 20250929",
+                                "description": "Claude Sonnet 4.5 for Marketing Team",
+                                "created_at": 1768403537
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Claude Opus 4.1",
+                        "unique": "anthropic.claude-opus-4-1-20250805-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude Opus 4.1",
+                        "modelDescription": "Claude 4 Opus - Most capable",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude Opus 4.5",
+                        "unique": "anthropic.claude-opus-4-5-20251101-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude Opus 4.5",
+                        "modelDescription": "Claude Opus 4.5 - Most capable",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Sonnet",
+                        "unique": "anthropic.claude-3-sonnet-20240229-v1:0:28k",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Sonnet",
+                        "modelDescription": "Claude 3 Sonnet - Balanced",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Sonnet",
+                        "unique": "anthropic.claude-3-sonnet-20240229-v1:0:200k",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Sonnet",
+                        "modelDescription": "Claude 3 Sonnet - Balanced",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Sonnet",
+                        "unique": "anthropic.claude-3-sonnet-20240229-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Sonnet",
+                        "modelDescription": "Claude 3 Sonnet - Balanced",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Haiku",
+                        "unique": "anthropic.claude-3-haiku-20240307-v1:0:48k",
+                        "version": "",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Haiku",
+                        "modelDescription": "Claude 3 Haiku - Fast",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Haiku",
+                        "unique": "anthropic.claude-3-haiku-20240307-v1:0:200k",
+                        "version": "",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Haiku",
+                        "modelDescription": "Claude 3 Haiku - Fast",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Haiku",
+                        "unique": "anthropic.claude-3-haiku-20240307-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Haiku",
+                        "modelDescription": "Claude 3 Haiku - Fast",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Opus",
+                        "unique": "anthropic.claude-3-opus-20240229-v1:0:12k",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Opus",
+                        "modelDescription": "Claude 3 Opus - Most capable",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Opus",
+                        "unique": "anthropic.claude-3-opus-20240229-v1:0:28k",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Opus",
+                        "modelDescription": "Claude 3 Opus - Most capable",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Opus",
+                        "unique": "anthropic.claude-3-opus-20240229-v1:0:200k",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Opus",
+                        "modelDescription": "Claude 3 Opus - Most capable",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3 Opus",
+                        "unique": "anthropic.claude-3-opus-20240229-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Opus",
+                        "modelDescription": "Claude 3 Opus - Most capable",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3.5 Sonnet",
+                        "unique": "anthropic.claude-3-5-sonnet-20240620-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3.5",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3.5 Sonnet",
+                        "modelDescription": "Claude 3.5 Sonnet - Balanced",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3.5 Sonnet v2",
+                        "unique": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3.5",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3.5 Sonnet v2",
+                        "modelDescription": "Claude 3.5 Sonnet - Balanced",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3.5 Haiku",
+                        "unique": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3.5",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3.5 Haiku",
+                        "modelDescription": "Claude 3.5 Haiku - Fast",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true,
+                        "inference_profile_models": [
+                            {
+                                "inference_profile_id": "xuicdsjlgdgf",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/xuicdsjlgdgf",
+                                "inference_profile_name": "developer-team-claude-haiku-3-5",
+                                "model_id": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                                "model_name": "Claude 3 5 Haiku",
+                                "description": "Claude Haiku 3.5 for Developer Team",
+                                "created_at": 1768403550
+                            },
+                            {
+                                "inference_profile_id": "cz12h0ppqo4u",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/cz12h0ppqo4u",
+                                "inference_profile_name": "marketing-team-claude-haiku-3-5",
+                                "model_id": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                                "model_name": "Claude 3 5 Haiku",
+                                "description": "Claude Haiku 3.5 for Marketing Team",
+                                "created_at": 1768403562
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Claude Opus 4",
+                        "unique": "anthropic.claude-opus-4-20250514-v1:0",
+                        "version": "",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude Opus 4",
+                        "modelDescription": "Claude 4 Opus - Most capable",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 200000
+                        },
+                        "custom": true,
+                        "inference_profile_models": [
+                            {
+                                "inference_profile_id": "l51ey4jeqkk5",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/l51ey4jeqkk5",
+                                "inference_profile_name": "developer-team-claude-opus-4",
+                                "model_id": "anthropic.claude-opus-4-20250514-v1:0",
+                                "model_name": "Claude opus 4 20250514",
+                                "description": "Claude Opus 4 for Developer Team",
+                                "created_at": 1768403576
+                            },
+                            {
+                                "inference_profile_id": "2jxgqk96wb26",
+                                "inference_profile_arn": "arn:aws:bedrock:us-east-1:605134436431:application-inference-profile/2jxgqk96wb26",
+                                "inference_profile_name": "marketing-team-claude-opus-4",
+                                "model_id": "anthropic.claude-opus-4-20250514-v1:0",
+                                "model_name": "Claude opus 4 20250514",
+                                "description": "Claude Opus 4 for Marketing Team",
+                                "created_at": 1768403587
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Gemini-3 Flash Preview Chat Model",
+                        "unique": "gemini-3-flash-preview",
+                        "version": "t48-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GEMINI_LATEST",
+                        "provider": "GOOGLE",
+                        "cpu": false,
+                        "modelLabel": "Gemini-3 Flash Preview Chat Model",
+                        "modelDescription": "Gemini-3 Flash Preview Chat Model with 1M-token context window and larger output context window",
+                        "modelFamily": "google",
+                        "maxTokens": {
+                            "total": 250000,
+                            "input": 250000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Gemini-2.5 Flash Lite Chat Model",
+                        "unique": "gemini-2.5-flash-lite",
+                        "version": "t44-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GEMINI_LATEST",
+                        "provider": "GOOGLE",
+                        "cpu": false,
+                        "modelLabel": "Gemini-2.5 Flash Lite Chat Model",
+                        "modelDescription": "Gemini-2.5 Flash Lite Chat Model, cloud-based, optimized for balanced",
+                        "modelFamily": "google",
+                        "maxTokens": {
+                            "total": 314000,
+                            "input": 250000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Gemini-2.5 Flash Chat Model",
+                        "unique": "gemini-2.5-flash",
+                        "version": "t45-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GEMINI_LATEST",
+                        "provider": "GOOGLE",
+                        "cpu": false,
+                        "modelLabel": "Gemini-2.5 Flash Chat Model",
+                        "modelDescription": "Fast and efficient multimodal model delivering strong performance across text, code, and image tasks with exceptional speed and 1M-token context window.",
+                        "modelFamily": "google",
+                        "maxTokens": {
+                            "total": 314000,
+                            "input": 250000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Gemini-2.5 Pro Chat Model",
+                        "unique": "gemini-2.5-pro",
+                        "version": "t43-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GEMINI_LATEST",
+                        "provider": "GOOGLE",
+                        "cpu": false,
+                        "modelLabel": "Gemini-2.5 Pro Chat Model",
+                        "modelDescription": "Google's flagship multimodal model with enhanced reasoning capabilities, superior coding performance, and a 1M-token context window for complex tasks.",
+                        "modelFamily": "google",
+                        "maxTokens": {
+                            "total": 314000,
+                            "input": 250000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Gemini-2.0 Flash Lite Chat Model",
+                        "unique": "gemini-2.0-flash-lite-001",
+                        "version": "t34-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GEMINI_2",
+                        "provider": "GOOGLE",
+                        "cpu": false,
+                        "modelLabel": "Gemini-2.0 Flash Lite Chat Model",
+                        "modelDescription": "Gemini-2.0 Flash Lite Chat Model, cloud-based, optimized for balanced",
+                        "modelFamily": "google",
+                        "maxTokens": {
+                            "total": 258192,
+                            "input": 250000,
+                            "output": 8192
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Gemini-3 Pro Preview Chat Model",
+                        "unique": "gemini-3-pro-preview",
+                        "version": "t47-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GEMINI_LATEST",
+                        "provider": "GOOGLE",
+                        "cpu": false,
+                        "modelLabel": "Gemini-3 Pro Preview Chat Model",
+                        "modelDescription": "Gemini-3 Pro Preview with enhanced capabilities and larger output context window",
+                        "modelFamily": "google",
+                        "maxTokens": {
+                            "total": 250000,
+                            "input": 250000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-4o Mini Chat Model",
+                        "unique": "gpt-4o-mini",
+                        "version": "t31-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_4",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-4o Mini Chat Model",
+                        "modelDescription": "A more compact version of GPT-4o with a 128k-token context window, balancing capacity and efficiency.",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 80384,
+                            "input": 64000,
+                            "output": 16384
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-5.1 Chat Model",
+                        "unique": "gpt-5.1-2025-11-13",
+                        "version": "t46-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-5.1 Chat Model",
+                        "modelDescription": "GPT-5.1 with 400k context window and enhanced capabilities",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 250000,
+                            "input": 250000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-5 Mini Chat Model",
+                        "unique": "gpt-5-mini-2025-08-07",
+                        "version": "t40-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-5 Mini Chat Model",
+                        "modelDescription": "GPT-5 Mini Chat Model, cloud-based, optimized for speed with 160k-token context window",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 250000,
+                            "input": 250000,
+                            "output": 32768
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-5 Chat Model",
+                        "unique": "gpt-5-2025-08-07",
+                        "version": "t40-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-5 Chat Model",
+                        "modelDescription": "GPT-5 Chat Model, cloud-based, optimized for speed with 160k-token context window",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 250000,
+                            "input": 250000,
+                            "output": 32768
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-5 Nano Chat Model",
+                        "unique": "gpt-5-nano-2025-08-07",
+                        "version": "t40-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-5 Nano Chat Model",
+                        "modelDescription": "GPT-5 Nano Chat Model, cloud-based, optimized for speed with 160k-token context window",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 250000,
+                            "input": 250000,
+                            "output": 32768
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "o3 Pro Chat Model",
+                        "unique": "o3-pro-2025-06-10",
+                        "version": "t40-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "o3 Pro Chat Model",
+                        "modelDescription": "o3 Pro Chat Model, cloud-based, optimized for speed",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 128000,
+                            "output": 65536
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "o4 Mini Chat Model",
+                        "unique": "o4-mini-2025-04-16",
+                        "version": "t38-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "o4 Mini Chat Model",
+                        "modelDescription": "o4 Mini Chat Model, cloud-based, optimized for speed",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 62000,
+                            "output": 65536
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "o3 Chat Model",
+                        "unique": "o3-2025-04-16",
+                        "version": "t39-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "o3 Chat Model",
+                        "modelDescription": "o3 Chat Model, cloud-based, optimized for speed",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 62000,
+                            "output": 65536
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-4.1 Chat Model",
+                        "unique": "gpt-4.1-2025-04-14",
+                        "version": "t40-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-4.1 Chat Model",
+                        "modelDescription": "GPT-4.1 Chat Model, cloud-based, optimized for speed",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 160768,
+                            "input": 128000,
+                            "output": 32768
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "o3 Mini Chat Model",
+                        "unique": "o3-mini-2025-01-31",
+                        "version": "t40-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "o3 Mini Chat Model",
+                        "modelDescription": "o3 Mini Chat Model, cloud-based, optimized for speed",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 62000,
+                            "output": 65536
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "o1 Chat Model",
+                        "unique": "o1-2024-12-17",
+                        "version": "t40-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "o1 Chat Model",
+                        "modelDescription": "An advanced model optimized for performing complex reasoning utilizing chain-of-thought technique, featuring a 200k-token context window.",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 62000,
+                            "output": 65536
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-4o Chat Model",
+                        "unique": "gpt-4o",
+                        "version": "t24-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_4",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-4o Chat Model",
+                        "modelDescription": "A high-output GPT-4 variant optimized for extended tasks, featuring a 128k-token context window.",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 68096,
+                            "input": 64000,
+                            "output": 4096
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-4 Turbo Chat Model",
+                        "unique": "gpt-4-turbo",
+                        "version": "t23-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_4",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-4 Turbo Chat Model",
+                        "modelDescription": "GPT-4 Turbo Chat Model, cloud-based, optimized for balanced",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 68096,
+                            "input": 64000,
+                            "output": 4096
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-4 Chat Model",
+                        "unique": "gpt-4",
+                        "version": "t14-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_4",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-4 Chat Model",
+                        "modelDescription": "GPT-4 Chat Model, cloud-based, optimized for balanced",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 8000,
+                            "input": 4100,
+                            "output": 3900
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 4.5 Sonnet Chat Model",
+                        "unique": "claude-sonnet-4-5-20250929",
+                        "version": "t43-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_LATEST",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 4.5 Sonnet Chat Model",
+                        "modelDescription": "Claude 4.5 Sonnet with advanced reasoning capabilities",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 4.5 Opus Chat Model",
+                        "unique": "claude-opus-4-5-20251101",
+                        "version": "t44-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_LATEST",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 4.5 Opus Chat Model",
+                        "modelDescription": "Claude 4.5 Opus with exceptional reasoning and analysis capabilities",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 4.5 Haiku Chat Model",
+                        "unique": "claude-haiku-4-5-20251001",
+                        "version": "t45-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_LATEST",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 4.5 Haiku Chat Model",
+                        "modelDescription": "Claude 4.5 Haiku fast and efficient model optimized for speed",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 4.1 Opus Chat Model",
+                        "unique": "claude-opus-4-1-20250805",
+                        "version": "t42-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_LATEST",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 4.1 Opus Chat Model",
+                        "modelDescription": "Claude 4.1 Opus Chat Model, cloud-based, optimized for speed",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 100000,
+                            "input": 100000,
+                            "output": 32000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 4 Opus Chat Model",
+                        "unique": "claude-opus-4-20250514",
+                        "version": "t41-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_4",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 4 Opus Chat Model",
+                        "modelDescription": "Anthropic's most powerful model featuring groundbreaking hybrid reasoning capabilities, exceptional performance on complex analysis, and state-of-the-art coding abilities.",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 100000,
+                            "input": 100000,
+                            "output": 32000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 4 Sonnet Chat Model",
+                        "unique": "claude-sonnet-4-20250514",
+                        "version": "t42-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_4",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 4 Sonnet Chat Model",
+                        "modelDescription": "Balanced Claude 4 model offering advanced hybrid reasoning with optimized performance-to-cost ratio, excelling in coding, analysis, and creative tasks.",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 100000,
+                            "input": 100000,
+                            "output": 32000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 3.7 Sonnet Chat Model",
+                        "unique": "claude-3-7-sonnet-20250219",
+                        "version": "t32-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_LATEST",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 3.7 Sonnet Chat Model",
+                        "modelDescription": "Claude 3.7 Sonnet Chat Model, cloud-based, optimized for speed",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 100000,
+                            "input": 100000,
+                            "output": 32000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 3.5 Haiku Chat Model",
+                        "unique": "claude-3-5-haiku-20241022",
+                        "version": "t33-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3.5",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 3.5 Haiku Chat Model",
+                        "modelDescription": "Anthropic's fastest model, delivering advanced coding, tool use, and reasoning.",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 100000,
+                            "input": 100000,
+                            "output": 8000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 3.5 Sonnet Chat Model",
+                        "unique": "claude-3-5-sonnet-20241022",
+                        "version": "t27-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3.5",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 3.5 Sonnet Chat Model",
+                        "modelDescription": "An upgrade to Claude 3 Sonnet, retaining the 40k-token context window but with improved reasoning.",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 100000,
+                            "input": 100000,
+                            "output": 32000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 3 Haiku Chat Model",
+                        "unique": "claude-3-haiku-20240307",
+                        "version": "t30-v01-i01",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Haiku Chat Model",
+                        "modelDescription": "A concise, creative LLM with a 40k-token context window for shorter tasks requiring precision.",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 100000,
+                            "input": 100000,
+                            "output": 4000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "Claude 3 Opus Chat Model",
+                        "unique": "claude-3-opus-20240229",
+                        "version": "t29-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "CLAUDE_3",
+                        "provider": "ANTHROPIC",
+                        "cpu": false,
+                        "modelLabel": "Claude 3 Opus Chat Model",
+                        "modelDescription": "A high-capacity model designed for detailed analysis and creation, supporting a 40k-token context window.",
+                        "modelFamily": "anthropic",
+                        "maxTokens": {
+                            "total": 80000,
+                            "input": 75904,
+                            "output": 4096
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-5.2 Chat Model",
+                        "unique": "gpt-5.2-2025-12-11",
+                        "version": "t49-v01-i01",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-5.2 Chat Model",
+                        "modelDescription": "GPT-5.2 with 400k context window and 128k max output",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 250000,
+                            "input": 250000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    },
+                    {
+                        "name": "GPT-5.2 Pro Chat Model",
+                        "unique": "gpt-5.2-pro-2025-12-11",
+                        "version": "t50-v01-i01",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "OPENAI",
+                        "cpu": false,
+                        "modelLabel": "GPT-5.2 Pro Chat Model",
+                        "modelDescription": "GPT-5.2 Pro with 400k context window and 128k max output",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 250000,
+                            "input": 250000,
+                            "output": 64000
+                        },
+                        "custom": false
+                    }
+                ]
+            },
+            "tenant_id": "",
+            "domains": [],
+            "createdTime": 1763568078,
+            "updatedTime": 1768403639
+        }
+    ],
+    "subscriptions": [
+        {
+            "product_id": "pro_01jp5e6gt307j7abht0rh3yz3g",
+            "price_id": "pri_01jp5e99eep24299j801mc6pch",
+            "name": "Pieces Pro Plan Monthly",
+            "price": "1600",
+            "subscription_id": "sub_01jz0yws1japgnmjen6s1sy54z",
+            "billing_term": "month",
+            "quantity": 1,
+            "created_at": "2025-06-30T17:41:55.378Z",
+            "nextbilled_at": "",
+            "paused_at": null,
+            "canceled_at": "2025-10-29T17:42:41.5Z",
+            "active": false
+        },
+        {
+            "product_id": "pro_01jp5e6gt307j7abht0rh3yz3g",
+            "price_id": "pri_01jp5e99eep24299j801mc6pch",
+            "name": "Pieces Pro Plan Monthly",
+            "price": "1899",
+            "subscription_id": "sub_01k6dw67eq33yn28pyxpaxsnyk",
+            "billing_term": "month",
+            "quantity": 1,
+            "created_at": "2025-09-30T17:54:39.703Z",
+            "nextbilled_at": "",
+            "paused_at": null,
+            "canceled_at": "2025-12-29T17:55:33.983Z",
+            "active": false
+        },
+        {
+            "product_id": "pro_01jp5e6gt307j7abht0rh3yz3g",
+            "price_id": "pri_01jp5e99eep24299j801mc6pch",
+            "name": "Pieces Pro Plan Monthly",
+            "price": "1899",
+            "subscription_id": "sub_01kbk45zq0tt9yrg44ve5svb8e",
+            "billing_term": "month",
+            "quantity": 1,
+            "created_at": "2026-01-03T22:10:02.654264Z",
+            "nextbilled_at": "2026-02-03T22:09:01.130446Z",
+            "paused_at": null,
+            "canceled_at": null,
+            "active": true
+        }
+    ],
+    "api_keys": [
+        "81d2b459-****-****-****-1f1c2bca313f",
+        "014ddb16-****-****-****-140ba02579f5",
+        "8b8175d8-****-****-****-53306f68291a",
+        "3a47696a-****-****-****-120e1128dde5",
+        "289127b2-****-****-****-f94d1db7d4c0",
+        "d6c3b3cc-****-****-****-ffc35f934ac5",
+        "890ebf77-****-****-****-1d748351f0b6",
+        "5850dc0e-****-****-****-6867f949b173",
+        "6b562254-****-****-****-6eb05497780b",
+        "de1a3ea7-****-****-****-769b17c4408c",
+        "1fa3b40c-****-****-****-652cce4a603b",
+        "4d11dc7b-****-****-****-411bec4cb5c5",
+        "1bf82de9-****-****-****-6723dde025bc"
+    ],
+    "created_at": 1625725844,
+    "updated_at": 1768408405,
+    "productivity_score": 0,
+    "last_summary_at": 0
+}

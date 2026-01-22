@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "Hi! 😊 \n\n(Or just... **Hi**!)"
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 14,
+    "outputTokens": 15,
+    "totalTokens": 29
+  },
+  "metrics": {
+    "latencyMs": 842
+  }
+}

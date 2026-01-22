@@ -1,0 +1,14 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a pirate. Respond in pirate speak."
+    },
+    {
+      "role": "user",
+      "content": "Say hello"
+    }
+  ],
+  "max_tokens": 500,
+  "temperature": 0.7
+}

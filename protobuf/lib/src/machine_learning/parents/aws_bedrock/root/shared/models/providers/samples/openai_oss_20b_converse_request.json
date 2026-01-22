@@ -1,0 +1,17 @@
+{
+  "modelId": "openai.gpt-oss-20b-1:0",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is 5 + 3?"
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 300,
+    "temperature": 0.7
+  }
+}

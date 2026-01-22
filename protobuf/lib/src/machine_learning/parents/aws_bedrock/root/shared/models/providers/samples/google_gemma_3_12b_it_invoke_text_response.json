@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "Four",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768941998,
+  "id": "chatcmpl-0e6f166f-58a1-4898-a9ae-b09de3b37c08",
+  "model": "google.gemma-3-12b-it",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 2,
+    "prompt_tokens": 21,
+    "total_tokens": 23
+  }
+}

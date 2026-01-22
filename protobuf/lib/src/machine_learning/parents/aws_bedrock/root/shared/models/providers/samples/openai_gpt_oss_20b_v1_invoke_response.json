@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "<reasoning>The user asks: \"What is 2+2? Answer briefly.\" The answer is 4. Provide brief.</reasoning>4",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768944048,
+  "id": "chatcmpl-a8b94ebb-a573-45f3-bf4f-4c2bbf1321f1",
+  "model": "openai.gpt-oss-20b-1:0",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 35,
+    "prompt_tokens": 79,
+    "total_tokens": 114
+  }
+}

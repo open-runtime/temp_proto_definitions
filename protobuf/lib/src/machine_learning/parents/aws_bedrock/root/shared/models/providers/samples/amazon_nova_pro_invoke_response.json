@@ -1,0 +1,20 @@
+{
+  "output": {
+    "message": {
+      "content": [
+        {
+          "text": "Quantum computing uses the principles of quantum mechanics to perform calculations much faster than classical computers for certain tasks."
+        }
+      ],
+      "role": "assistant"
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 18,
+    "outputTokens": 21,
+    "totalTokens": 39,
+    "cacheReadInputTokenCount": 0,
+    "cacheWriteInputTokenCount": 0
+  }
+}

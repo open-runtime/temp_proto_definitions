@@ -1,0 +1,17 @@
+{
+  "modelId": "deepseek.v3-v1:0",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is 2+2? Answer briefly."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 100,
+    "temperature": 0.7
+  }
+}

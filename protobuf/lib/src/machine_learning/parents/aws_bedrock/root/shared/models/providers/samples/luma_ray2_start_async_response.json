@@ -1,0 +1,4 @@
+{
+  "invocationArn": "arn:aws:bedrock:us-west-2:123456789012:async-inference-job/abc123def456...",
+  "status": "IN_PROGRESS"
+}

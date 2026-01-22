@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "The color of the image is red. This is determined by examining the hexadecimal color code (#FF0000) which is commonly used in digital color representation. In this format, the first two digits represent the red component, the next two the green, and the last two the blue. Since the red component is at its maximum value (FF in hexadecimal, which is 255 in decimal) and the green and blue components are at zero (00 in hexadecimal), the color displayed is pure red without any contribution from green or blue.\n"
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 280,
+    "outputTokens": 118,
+    "totalTokens": 398
+  },
+  "metrics": {
+    "latencyMs": 1217
+  }
+}

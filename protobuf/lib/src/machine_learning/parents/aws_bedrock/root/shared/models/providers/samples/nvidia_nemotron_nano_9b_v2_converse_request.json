@@ -1,0 +1,17 @@
+{
+  "modelId": "nvidia.nemotron-nano-9b-v2",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is 2+2? Just give the number."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 200,
+    "temperature": 0.1
+  }
+}

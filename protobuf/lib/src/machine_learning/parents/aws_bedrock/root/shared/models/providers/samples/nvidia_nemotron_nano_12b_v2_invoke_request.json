@@ -1,0 +1,10 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "What are you capable of? List 3 things."
+    }
+  ],
+  "max_tokens": 150,
+  "temperature": 0.6
+}

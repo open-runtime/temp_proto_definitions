@@ -1,0 +1,21 @@
+{
+  "modelId": "nvidia.nemotron-nano-12b-v2",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "image": {
+            "format": "png",
+            "source": {
+              "bytes": "<BASE64_ENCODED_IMAGE_DATA>"
+            }
+          }
+        },
+        {
+          "text": "What color is this image?"
+        }
+      ]
+    }
+  ]
+}

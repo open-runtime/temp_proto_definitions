@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "Explain quantum computing in one sentence."
+        }
+      ]
+    }
+  ],
+  "system": [
+    {
+      "text": "You are a helpful assistant that explains complex topics simply."
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 200,
+    "temperature": 0.5,
+    "topP": 0.9
+  }
+}

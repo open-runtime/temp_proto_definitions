@@ -1,0 +1,28 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "reasoningContent": {
+            "reasoningText": {
+              "text": "User asks: \"What is the capital of Japan?\" This is a simple factual question. We need to answer: Tokyo. Use polite. Also be concise. This is a straightforward response. Probably we can provide additional context? But simple answer: Tokyo. Also mention it's the largest city. But keep it succinct."
+            }
+          }
+        },
+        {
+          "text": "The capital of Japan is **Tokyo**."
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 76,
+    "outputTokens": 82,
+    "totalTokens": 158
+  },
+  "metrics": {
+    "latencyMs": 593
+  }
+}

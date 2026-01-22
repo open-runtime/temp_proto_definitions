@@ -1,0 +1,17 @@
+{
+  "modelId": "nvidia.nemotron-nano-12b-v2",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "Name three planets in our solar system."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 100,
+    "temperature": 0.5
+  }
+}

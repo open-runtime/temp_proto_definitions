@@ -1,0 +1,34 @@
+{
+    "id": "chatcmpl-551f721113cd414386389c2fa35c4ceb",
+    "object": "chat.completion",
+    "created": 1768939059,
+    "model": "writer.palmyra-x5-v1:0",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "Customer C12345 has placed 2 orders in the last 30 days, with a total spent of $1,339.99.\n\n1. **Order ID:** ORD-98765  \n   **Date:** January 15, 2025  \n   **Items:** Widget Pro, Cable Set  \n   **Total:** $1,250.00  \n   **Status:** Delivered  \n\n2. **Order ID:** ORD-98801  \n   **Date:** January 18, 2025  \n   **Items:** Accessory Pack  \n   **Total:** $89.99  \n   **Status:** Shipped  \n\nLet me know if you'd like details on a specific order or need help with anything else!",
+                "refusal": null,
+                "annotations": null,
+                "audio": null,
+                "function_call": null,
+                "tool_calls": [],
+                "reasoning_content": null
+            },
+            "logprobs": null,
+            "finish_reason": "stop",
+            "stop_reason": null
+        }
+    ],
+    "service_tier": null,
+    "system_fingerprint": null,
+    "usage": {
+        "prompt_tokens": 1033,
+        "total_tokens": 1203,
+        "completion_tokens": 170,
+        "prompt_tokens_details": null
+    },
+    "prompt_logprobs": null,
+    "kv_transfer_params": null
+}

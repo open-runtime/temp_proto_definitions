@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "[ 0m0s110ms - 0m0s420ms ] Hello.\n[ 0m0s770ms - 0m3s890ms ] This is a test of the Voxtral speech recognition system.\n[ 0m4s180ms - 0m7s160ms ] I am testing timestamps and speaker identification."
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 395,
+    "outputTokens": 87,
+    "totalTokens": 482
+  },
+  "metrics": {
+    "latencyMs": 3049
+  }
+}

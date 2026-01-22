@@ -1,0 +1,21 @@
+{
+    "output": {
+        "message": {
+            "role": "assistant",
+            "content": [
+                {
+                    "text": "AWS Bedrock is a fully managed service that makes it easy to build and scale generative AI applications using foundation models (FMs) from leading AI companies and Amazon. Here are its key features:\n\n1. **Access to Multiple Foundation Models**: Bedrock offers a choice of high-performing FMs for tasks like text generation, image creation, and embeddings\u2014from providers like Anthropic, Meta, Mistral AI, Stability AI, and Amazon\u2019s own Titan models.\n\n2. **Serverless Experience**: It\u2019s fully serverless, so you don\u2019t need to manage infrastructure. You can quickly prototype and scale applications without worrying about provisioning or maintenance.\n\n3. **Ease of Customization**: You can customize FMs using your data via techniques like fine-tuning and Retrieval Augmented Generation (RAG), enabling models to generate responses based on your private knowledge sources.\n\n4. **Security and Privacy**: Data is encrypted in transit and at rest, and AWS ensures your prompts and data aren\u2019t used to"
+                }
+            ]
+        }
+    },
+    "stopReason": "max_tokens",
+    "usage": {
+        "inputTokens": 247,
+        "outputTokens": 200,
+        "totalTokens": 447
+    },
+    "metrics": {
+        "latencyMs": 2534
+    }
+}

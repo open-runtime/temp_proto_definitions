@@ -1,0 +1,8 @@
+{
+  "choices": [
+    {
+      "text": "Okay, so the user is asking \"What is 2+2?\" and wants a brief answer. Let me think. Well, 2 plus 2 is a basic arithmetic problem. Let me visualize two objects and then adding another two. If I have two apples and someone gives me two more, I end up with four apples. So, 2 + 2 equals 4. I should make sure there's no trick here, like in some riddles where they use different number bases, but the question doesn't mention anything like that. It's straightforward. Yeah, the answer is definitely 4.\n</think>\n\n2+2=4.",
+      "stop_reason": "stop"
+    }
+  ]
+}

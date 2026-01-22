@@ -1,0 +1,34 @@
+{
+    "id": "chatcmpl-e10a6b82bfb44c44847e14219e58f2df",
+    "object": "chat.completion",
+    "created": 1768939080,
+    "model": "writer.palmyra-x5-v1:0",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "- **Revenue (Top Line):** Measures total sales; indicates growth and market demand.  \n- **Earnings Per Share (EPS):** Profit allocated to each share; key indicator of profitability.  \n- **Net Income (Bottom Line):** Total profit after all expenses; reflects overall performance.  \n- **Gross Margin:** Revenue minus COGS, divided by revenue; shows production efficiency.  \n- **Operating Margin:** Operating income divided by revenue; measures operational efficiency.  \n- **Guidance:** Forward-looking projections; sets expectations for future performance.  \n- **Cash Flow (Operating, Free):** Cash generated from operations and after capital expenditures; indicates financial health.  \n- **Year-over-Year (YoY) & Quarter-over-Quarter (QoQ) Growth:** Compares performance across periods.  \n- **Expenses (R&D, SG&A):** Tracks cost management and investment in growth.  \n- **Share Buybacks / Dividends:** Signals capital return strategy",
+                "refusal": null,
+                "annotations": null,
+                "audio": null,
+                "function_call": null,
+                "tool_calls": [],
+                "reasoning_content": null
+            },
+            "logprobs": null,
+            "finish_reason": "length",
+            "stop_reason": null
+        }
+    ],
+    "service_tier": null,
+    "system_fingerprint": null,
+    "usage": {
+        "prompt_tokens": 38,
+        "total_tokens": 238,
+        "completion_tokens": 200,
+        "prompt_tokens_details": null
+    },
+    "prompt_logprobs": null,
+    "kv_transfer_params": null
+}

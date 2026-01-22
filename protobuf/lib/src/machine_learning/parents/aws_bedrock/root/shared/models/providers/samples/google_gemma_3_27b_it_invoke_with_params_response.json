@@ -1,0 +1,24 @@
+{
+  "choices": [
+    {
+      "finish_reason": "length",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "Here are a few haiku about coding:\n\n**Option 1 (Focus on problem solving):**\n\nLogic takes its hold,\nErrors bloom, then fade to green,\nJoy in working code.\n\n**Option 2 (Focus on the process):**\n\nKeys click, lines appear,\nBuilding worlds with careful thought,\nDigital dreams rise.",
+        "refusal": null,
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1768940666,
+  "id": "chatcmpl-55667324-6f22-400e-a668-6c20d8952aad",
+  "model": "google.gemma-3-27b-it",
+  "object": "chat.completion",
+  "service_tier": "default",
+  "usage": {
+    "completion_tokens": 100,
+    "prompt_tokens": 15,
+    "total_tokens": 115
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "Paris"
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 24,
+    "outputTokens": 2,
+    "totalTokens": 26
+  },
+  "metrics": {
+    "latencyMs": 252
+  }
+}

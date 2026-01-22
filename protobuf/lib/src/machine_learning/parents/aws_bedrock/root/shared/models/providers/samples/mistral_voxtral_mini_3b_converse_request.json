@@ -1,0 +1,25 @@
+{
+  "modelId": "mistral.voxtral-mini-3b-2507",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "audio": {
+            "format": "wav",
+            "source": {
+              "bytes": "<base64-encoded-wav-audio-data>"
+            }
+          }
+        },
+        {
+          "text": "This is a test audio file containing a simple tone. What do you hear? Please describe the audio briefly."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 500,
+    "temperature": 0.3
+  }
+}

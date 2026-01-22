@@ -1,0 +1,14 @@
+{
+  "invocationArn": "arn:aws:bedrock:us-west-2:123456789012:async-inference-job/abc123def456...",
+  "modelArn": "arn:aws:bedrock:us-west-2::foundation-model/luma.ray-v2:0",
+  "clientRequestToken": null,
+  "status": "COMPLETED",
+  "submitTime": "2026-01-20T16:30:00.000Z",
+  "endTime": "2026-01-20T16:32:15.000Z",
+  "lastModifiedTime": "2026-01-20T16:32:15.000Z",
+  "outputDataConfig": {
+    "s3OutputDataConfig": {
+      "s3Uri": "s3://your-bucket-name/output-path/"
+    }
+  }
+}

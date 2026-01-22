@@ -1,0 +1,26 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "Here's the transcription of your audio:\n\n\"Hello, this is a test of the VoxTroll speech recognition system. I am testing timestamps and speaker identification.\""
+        }
+      ]
+    }
+  },
+  "stopReason": "end_turn",
+  "usage": {
+    "inputTokens": 395,
+    "outputTokens": 34,
+    "totalTokens": 429
+  },
+  "metrics": {
+    "latencyMs": 1976
+  },
+  "_notes": {
+    "model_behavior": "Voxtral Mini does NOT return timestamps even when timestamp_granularities is requested",
+    "timestamp_support": false,
+    "response_format": "Plain text transcription without timing information"
+  }
+}

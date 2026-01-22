@@ -1,0 +1,21 @@
+{
+  "output": {
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "text": "Sure! Here are three planets in our solar system:\n\n1. **Earth** – The third planet from the Sun, known for having liquid water and supporting life.  \n2. **Mars** – The fourth planet from the Sun, often called the \"Red Planet\" due to its reddish appearance.  \n3. **Jupiter** – The largest planet in our solar system, known for its Great Red Spot, a giant storm.  \n\nLet me know if you'd like more"
+        }
+      ]
+    }
+  },
+  "stopReason": "max_tokens",
+  "usage": {
+    "inputTokens": 23,
+    "outputTokens": 100,
+    "totalTokens": 123
+  },
+  "metrics": {
+    "latencyMs": 3710
+  }
+}

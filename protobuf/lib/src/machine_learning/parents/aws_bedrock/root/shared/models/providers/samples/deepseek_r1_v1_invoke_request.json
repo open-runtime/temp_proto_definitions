@@ -1,0 +1,5 @@
+{
+  "prompt": "<｜begin▁of▁sentence｜><｜User｜>What is 2+2? Answer briefly.<｜Assistant｜><think>\n",
+  "max_tokens": 200,
+  "temperature": 0.5
+}

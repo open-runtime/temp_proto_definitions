@@ -1,0 +1,31 @@
+{
+  "modelId": "writer.palmyra-x5-v1:0",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "document": {
+            "format": "pdf",
+            "name": "quarterly_report_q3_2025.pdf",
+            "source": {
+              "bytes": "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvTWVkaWFCb3hbMCAwIDYxMiA3OTJdL1BhcmVudCAyIDAgUj4+CmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMDA2MSAwMDAwMCBuIAowMDAwMDAwMTEyIDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA0L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKMTgyCiUlRU9GCg=="
+            }
+          }
+        },
+        {
+          "text": "Summarize the key financial metrics from this quarterly report and highlight any year-over-year changes."
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "temperature": 0.5,
+    "maxTokens": 2048
+  },
+  "system": [
+    {
+      "text": "You are an expert financial analyst. When analyzing documents, cite specific sections and provide quantitative insights."
+    }
+  ]
+}

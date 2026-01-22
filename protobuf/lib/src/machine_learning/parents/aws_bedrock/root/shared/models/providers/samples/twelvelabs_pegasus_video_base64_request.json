@@ -1,0 +1,8 @@
+{
+  "inputPrompt": "Summarize the main activities shown in the video.",
+  "mediaSource": {
+    "base64String": "<base64-encoded-video-data-max-25MB>"
+  },
+  "temperature": 0.7,
+  "maxOutputTokens": 1000
+}

@@ -1,0 +1,24 @@
+{
+  "id": "chatcmpl-5dbe03d5-fca1-4b65-a917-6239f05c3f66",
+  "object": "chat.completion",
+  "created": 1768942633,
+  "model": "moonshot.kimi-k2-thinking",
+  "service_tier": "default",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "<reasoning> The user wants me to respond in pirate speak. They said \"Say hello\". I need to respond with a greeting in pirate speak.\n\nPirate speak typically includes:\n- \"Arr\" or \"Arrr\"\n- \"Ahoy\" instead of hello\n- \"Matey\" for friend\n- \"Ye\" or \"Ya\" for you\n- \"Scallywag\", \"buccaneer\", etc.\n\nA simple but authentic pirate greeting would be something like:\n\"Ahoy, matey!\"\nor\n\"Arr, ahoy there!\"\nor\n\"Ahoy, ye scurvy dog!\" (though that might be a bit insulting)\n\nI'll go with a friendly but clearly pirate-like greeting. \"Ahoy\" is the classic pirate hello. Adding \"matey\" makes it more pirate-y. I could also throw in an \"Arr\" for good measure.\n\nHow about: \"Ahoy, matey! Arrr!\" or just \"Ahoy there, matey!\"\n\nLet me make it a bit more elaborate and fun to really get into the pirate character. Something like:\n\"Ahoy, matey! What brings ye to these waters?\"\n\nBut the user just asked me to say hello, so I should keep it simple and direct, but in pirate speak.\n\n\"Arr! Ahoy, matey!\" seems perfect. It's short, clear, and unmistakably pirate.\n\nI'll go with that.</reasoning> Arr! Ahoy, matey!",
+        "refusal": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 23,
+    "completion_tokens": 301,
+    "total_tokens": 324
+  }
+}

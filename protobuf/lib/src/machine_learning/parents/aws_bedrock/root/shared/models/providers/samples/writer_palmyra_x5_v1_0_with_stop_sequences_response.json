@@ -1,0 +1,34 @@
+{
+    "id": "chatcmpl-22df12228a3a4bd0a2ae8dfdfafadffa",
+    "object": "chat.completion",
+    "created": 1768939105,
+    "model": "writer.palmyra-x5-v1:0",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "1. Mercury  \n2. Venus  \n3. Earth  \n",
+                "refusal": null,
+                "annotations": null,
+                "audio": null,
+                "function_call": null,
+                "tool_calls": [],
+                "reasoning_content": null
+            },
+            "logprobs": null,
+            "finish_reason": "stop",
+            "stop_reason": "4."
+        }
+    ],
+    "service_tier": null,
+    "system_fingerprint": null,
+    "usage": {
+        "prompt_tokens": 267,
+        "total_tokens": 281,
+        "completion_tokens": 14,
+        "prompt_tokens_details": null
+    },
+    "prompt_logprobs": null,
+    "kv_transfer_params": null
+}

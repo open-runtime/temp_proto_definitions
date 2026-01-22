@@ -1,0 +1,17 @@
+{
+  "modelId": "openai.gpt-oss-safeguard-20b",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "text": "What is the capital of Japan?"
+        }
+      ]
+    }
+  ],
+  "inferenceConfig": {
+    "maxTokens": 150,
+    "temperature": 0.7
+  }
+}
