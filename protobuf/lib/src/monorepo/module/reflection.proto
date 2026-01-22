@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+import 'lib/src/monorepo/modules/modules.proto';
+import 'lib/src/monorepo/module/assets/reflection.proto';
+import 'lib/src/monorepo/module/tests/reflection.proto';
+
+package runtime.aot.monorepo.module.reflection;
+
+message ModuleMetadataReflection {
+  bool workingIsRoot = 1;
+  string os = 2;
+  string root = 3;
+  string name = 4;
+  string packed = 5;
+  string platform = 6;
+  string architecture = 7;
+  string executable = 8;
+  string binary = 9;
+  string working = 10;
+  string target = 11;
+  string current = 12;
+  string dist = 13;
+  string cli = 14;
+  string cache = 15;
+  runtime.aot.monorepo.modules.ModulesRegistrationEnum enumeration = 16;
+  string version = 17;
+  string tag = 18;
+  string repository = 19;
+  bool tidy = 20;
+  bool overwrite = 21;
+  bool scratch = 22;
+  bool multibuild = 23;
+  bool verbose = 24;
+  bool debug = 25;
+  string tool = 26;
+  string pack = 27;
+  string src = 28;
+  string assets = 29;
+  string tests = 30;
+  string lock = 31;
+  string pack_spec = 32;
+  string regex = 33;
+  string config = 34;
+}
+
+
+message ModuleReflection {
+  string package = 1;
+  ModuleMetadataReflection metadata = 2;
+  runtime.aot.monorepo.module.assets.reflection.ModuleAssetsReflection assets = 3;
+  runtime.aot.monorepo.module.tests.reflection.ModuleTestsReflection tests = 4;
+  string manager = 5;
+}
+
+
+

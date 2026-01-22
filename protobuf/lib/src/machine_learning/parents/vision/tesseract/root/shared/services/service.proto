@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+// =============================================================================
+// Tesseract OCR Service Protocol Buffer Definition
+// =============================================================================
+// This file defines the gRPC service interface for the Tesseract OCR service.
+// It follows strict naming and structure conventions for maintainability and
+// consistency.
+//
+// Best Practices Implemented:
+// 1. Clear Service Naming: Descriptive and hierarchical
+// 2. Symmetric Methods: Request/Response patterns
+// 3. Stream Support: Handles both unary and streaming responses
+// 4. Method Naming: Verb-first, clear purpose
+// 5. Documentation: Each method documented with purpose
+// =============================================================================
+
+package runtime.aot.machine_learning.parents.vision.tesseract;
+
+// Import the models used by this service.
+import "lib/src/machine_learning/parents/vision/tesseract/root/shared/modules/models.proto";
+
+// -----------------------------------------------------------------------------
+// Service definition
+// -----------------------------------------------------------------------------
+
+// TesseractInferenceService provides methods for interacting with the Tesseract OCR engine.
+service TesseractInferenceService {
+  // Initialize sets up the Tesseract OCR engine with the given configuration.
+  // This method should be called before using the Predict method.
+  rpc Initialize(TesseractInferenceInitialization) returns (InitializedTesseractInference);
+
+  // Predict generates a single OCR response for a given image input.
+  // This unary RPC takes a TesseractInferenceRequest and returns a TesseractInferenceResponse.
+  rpc Predict(TesseractInferenceRequest) returns (TesseractInferenceResponse);
+}

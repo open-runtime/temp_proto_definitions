@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/parents/msft_azure_openai/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.parents.msft_azure_openai;
+
+// =============================================================================
+// Microsoft Azure OpenAI Inference Service Protocol Buffer Definition
+// =============================================================================
+// This file defines the gRPC service interface for Microsoft Azure OpenAI inference.
+// It provides methods for interacting with OpenAI models deployed on Azure infrastructure.
+//
+// Best Practices Implemented:
+// 1. Clear Service Naming: Descriptive and hierarchical
+// 2. Symmetric Methods: Request/Response patterns
+// 3. Stream Support: Handles both unary and streaming responses
+// 4. Method Naming: Verb-first, clear purpose
+// 5. Documentation: Each method documented with purpose
+//
+// Azure OpenAI API Mapping:
+// This gRPC service proxies to Azure OpenAI HTTP REST API endpoints:
+// - Base URL: https://{resource-name}.openai.azure.com
+// - API Reference: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference
+// - Chat Completions: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference#chat-completions
+//
+// Authentication:
+// - API Key: Use "api-key" header (NOT Authorization: Bearer)
+// - Microsoft Entra ID: Use "Authorization: Bearer {token}" header
+// - Managed Identity: Automatic token acquisition for Azure-hosted apps
+// - Reference: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/managed-identity
+//
+// =============================================================================
+
+service MSFTAzureOpenAIInferenceService {
+  // Initialize initializes an Azure OpenAI inference service instance
+  // Best Practice: Optional initialization for consistency with other inference services
+  // Input: MSFTAzureOpenAIInferenceInitialization - Empty initialization message
+  // Output: InitializedMSFTAzureOpenAIInference - Confirmation of initialization
+  rpc Initialize(MSFTAzureOpenAIInferenceInitialization) returns (InitializedMSFTAzureOpenAIInference);
+  
+  // Predict generates a single response for a given inference request
+  // Best Practice: Unary method for simple request-response pattern
+  // Input: MSFTAzureOpenAIInferenceRequest - Contains org_id, model_identifier, messages
+  // Output: MSFTAzureOpenAIInferenceResponse - Contains model's response or error
+  // 
+  // Flow:
+  //   1. Extract org credentials from GCP (via interceptor with x-org-id header)
+  //   2. Map model_identifier to deployment using org's config
+  //   3. Make Azure OpenAI API request via openai_dart
+  //   4. Convert response to proto format
+  //
+  // Maps to Azure OpenAI Chat Completions HTTP operation:
+  // - Endpoint: POST https://{resource-name}.openai.azure.com/openai/deployments/{deployment-name}/chat/completions?api-version={version}
+  // - Header: api-key: {api_key}
+  // - Reference: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference#chat-completions
+  rpc Predict(MSFTAzureOpenAIInferenceRequest) returns (MSFTAzureOpenAIInferenceResponse);
+  
+  // PredictWithStream generates a stream of responses for a given inference request
+  // Best Practice: Streaming response for real-time/chunked output
+  // Input: MSFTAzureOpenAIInferenceRequest - Contains org_id, model_identifier, messages
+  // Output: Stream<MSFTAzureOpenAIInferenceResponse> - Stream of responses with delta and accumulated content
+  // Note: Returns same response type as Predict for consistency (delta field populated for streaming)
+  //
+  // Azure OpenAI uses Server-Sent Events (SSE) format handled by openai_dart package
+  // - Endpoint: POST https://{resource-name}.openai.azure.com/openai/deployments/{deployment-name}/chat/completions?api-version={version}
+  // - Header: api-key: {api_key}
+  // - Request body: {"stream": true, ...}
+  // - Response: text/event-stream
+  // - Reference: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference#chat-completions
+  rpc PredictWithStream(MSFTAzureOpenAIInferenceRequest) returns (stream MSFTAzureOpenAIInferenceResponse);
+  
+  // CountTokens estimates token usage before sending inference requests
+  // Best Practice: Cost estimation without incurring inference charges
+  // Input: MSFTAzureOpenAIInferenceRequest - Request to estimate tokens for
+  // Output: MSFTAzureOpenAITokenCount - Estimated input token count
+  // Note: Does not incur charges, useful for cost optimization
+  rpc CountTokens(MSFTAzureOpenAIInferenceRequest) returns (MSFTAzureOpenAITokenCount);
+}
+

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.module.test;
+
+enum ModuleTestCompilationTypeEnum {
+  UNKNOWN = 0;
+  JIT = 1;
+  ALL = 2;
+  AOT = 3;
+}

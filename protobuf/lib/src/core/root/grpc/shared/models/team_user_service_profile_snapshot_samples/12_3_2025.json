@@ -1,0 +1,403 @@
+{
+    "id": "7a5155e0-3ecb-4e55-8ee0-819e6fe7513f",
+    "userId": "U2vWebPXQXwiSzaJKkspS2jrOSy7",
+    "autho_id": "google-oauth2|107873995935443411600",
+    "name": "Tsavo Knott",
+    "givenName": "Tsavo",
+    "middleName": "",
+    "familyName": "Knott",
+    "paddle_id": "ctm_01jz0yvxx4mn4s1kzncbwkqhw6",
+    "paddle_last_webhook_at": "2025-11-30T17:55:25.861566Z",
+    "email": "tsavo@pieces.app",
+    "phone": "",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocLXhER7daPvM3aTuzVMKbr0-mWTSbl7dz0WA7qllw18VKU1-TEU=s96-c",
+    "createdTime": 1625725844,
+    "updatedTime": 1764743702,
+    "loginIds": [
+        "tsavo@pieces.app",
+        "google-107873995935443411600",
+        "github-102485237"
+    ],
+    "roleNames": null,
+    "ssoAppIds": null,
+    "oauth": null,
+    "isVerifiedEmail": false,
+    "isVerifiedPhone": false,
+    "password": false,
+    "status": "enabled",
+    "welcome_email": true,
+    "vanity": "tsavo",
+    "cloud_key": "",
+    "open_ai": null,
+    "beta": {
+        "from": {
+            "value": "2024-04-16T04:00Z"
+        },
+        "to": {
+            "value": "2025-05-31T04:00Z"
+        },
+        "continous": false,
+        "between": false
+    },
+    "allocation": {
+        "project": "runtime-user-cloud-group-0",
+        "region": "us-west1"
+    },
+    "orgs": [
+        {
+            "id": "org_20598756839437442969334692817437",
+            "name": "Pieces",
+            "paddle_id": "ctm_01jz0sg2t5a6gsdg9hd35v283b",
+            "subscriptions": [
+                {
+                    "product_id": "pro_01k6xekwpg5ehc9wcc9dbnaa04",
+                    "price_id": "pri_01k6xer1vdrdxfrbdd10mj4gt3",
+                    "name": "Enterprise Seat Yearly",
+                    "price": "27599",
+                    "subscription_id": "sub_01kaednewrwbn4dntbnc5rdva0",
+                    "billing_term": "year",
+                    "quantity": 20,
+                    "created_at": "2025-11-19T16:01:36.590336Z",
+                    "nextbilled_at": "2026-11-19T16:02:51.923Z",
+                    "paused_at": null,
+                    "canceled_at": null,
+                    "active": true
+                }
+            ],
+            "configuration": {
+                "open_ai": null,
+                "gemini": null,
+                "claude": null,
+                "bedrock": {
+                    "access_credentials": [
+                        {
+                            "name": "Test Creds",
+                            "key": "AKIA****NPWG",
+                            "secret": "7y45****J+xl",
+                            "region": "us-east-1"
+                        }
+                    ],
+                    "api_keys": [
+                        {
+                            "name": "BedrockAPIKey-tzf4-at-605134436431",
+                            "key": "ABSK****MD0="
+                        }
+                    ],
+                    "is_stored": true,
+                    "updated_at": 1764730024,
+                    "config_hash": "4d3d239523b08dce75b3b6e31d2738f1"
+                },
+                "azure": {
+                    "api_keys": [
+                        "B5UB****GYCT",
+                        "2Jxx****ku24"
+                    ],
+                    "base_url": "https://open-runtime-aot-azure-open-ai-services.openai.azure.com",
+                    "deployments": [
+                        "gpt-5-mini",
+                        "gpt-4.1",
+                        "embeddings",
+                        "gpt-4o-mini"
+                    ],
+                    "region": "eastus",
+                    "api_version": "2024-10-21",
+                    "is_stored": true,
+                    "updated_at": 1764730027,
+                    "config_hash": "658be6afd11a91c8e2172ae031bbcdfb"
+                },
+                "toggles": {
+                    "InstanceConfiguration.analytics.bigQuery.enabled": true,
+                    "InstanceConfiguration.analytics.segment.enabled": true,
+                    "InstanceConfiguration.analytics.sendInternalSummaryReportsToUserTeamService.enabled": true,
+                    "InstanceConfiguration.externalCloud.cloudBackupCreation.enabled": true,
+                    "InstanceConfiguration.externalCloud.connectToCloud.enabled": true,
+                    "InstanceConfiguration.externalCloud.deleteCloudBackup.enabled": true,
+                    "InstanceConfiguration.externalCloud.listCloudBackups.enabled": true,
+                    "InstanceConfiguration.externalCloud.listSpecificCloudBackup.enabled": true,
+                    "InstanceConfiguration.externalCloud.reconnectToCloud.enabled": true,
+                    "InstanceConfiguration.externalCloud.restoreCloudBackup.enabled": true,
+                    "InstanceConfiguration.externalCloud.shareSnippet.enabled": true,
+                    "InstanceConfiguration.externalCloud.updateAllocationCloud.enabled": true,
+                    "InstanceConfiguration.externalProvider.customizedAllowedModels.enabled": true,
+                    "InstanceConfiguration.externalProvider.deniedWorkstreamPatternEngineSources.enabled": true,
+                    "InstanceConfiguration.externalProvider.deniedWorkstreamPatternEngineWebsites.enabled": true,
+                    "InstanceConfiguration.externalProvider.processing.enabled": true
+                },
+                "processing": "",
+                "modelAccess": [
+                    {
+                        "name": "Claude Sonnet 4.5 Chat Model",
+                        "unique": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+                        "version": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude Sonnet 4.5 Chat Model",
+                        "modelDescription": "Claude Sonnet 4.5 via AWS Bedrock, latest high-performance model with advanced reasoning capabilities",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 64000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3.5 Sonnet v2 Chat Model",
+                        "unique": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                        "version": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3.5 Sonnet v2 Chat Model",
+                        "modelDescription": "Claude 3.5 Sonnet v2 via AWS Bedrock, fallback model with strong reasoning capabilities",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 8000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude Haiku 4.5 Chat Model",
+                        "unique": "anthropic.claude-haiku-4-5-20251001-v1:0",
+                        "version": "anthropic.claude-haiku-4-5-20251001-v1:0",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude Haiku 4.5 Chat Model",
+                        "modelDescription": "Claude Haiku 4.5 via AWS Bedrock, latest fast and efficient model optimized for speed",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 64000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "Claude 3.5 Haiku Chat Model",
+                        "unique": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                        "version": "anthropic.claude-3-5-haiku-20241022-v1:0",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "AWS_BEDROCK_LATEST",
+                        "provider": "AWS_BEDROCK",
+                        "cpu": false,
+                        "modelLabel": "Claude 3.5 Haiku Chat Model",
+                        "modelDescription": "Claude 3.5 Haiku via AWS Bedrock, fallback model optimized for speed and efficiency",
+                        "modelFamily": "bedrock",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 8000
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "gpt-5-mini",
+                        "unique": "gpt-5-mini",
+                        "version": "2025-08-07",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "MSFT_AZURE_OPEN_AI",
+                        "cpu": false,
+                        "modelLabel": "gpt-5-mini (2025-08-07)",
+                        "modelDescription": "GPT-5 Mini/Nano - Fast reasoning",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 128000,
+                            "output": 16384
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "gpt-4.1",
+                        "unique": "gpt-4.1",
+                        "version": "2025-04-14",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "MSFT_AZURE_OPEN_AI",
+                        "cpu": false,
+                        "modelLabel": "gpt-4.1 (2025-04-14)",
+                        "modelDescription": "GPT-4.1 - Latest GPT-4",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 160768,
+                            "input": 128000,
+                            "output": 32768
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "text-embedding-3-small",
+                        "unique": "embeddings",
+                        "version": "",
+                        "cloud": true,
+                        "type": "BALANCED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "MSFT_AZURE_OPEN_AI",
+                        "cpu": false,
+                        "modelLabel": "text-embedding-3-small",
+                        "modelDescription": "Vector embeddings for semantic search",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 128000,
+                            "output": 16384
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "gpt-4o-mini",
+                        "unique": "gpt-4o-mini",
+                        "version": "2024-07-18",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "MSFT_AZURE_OPEN_AI",
+                        "cpu": false,
+                        "modelLabel": "gpt-4o-mini (2024-07-18)",
+                        "modelDescription": "GPT-4o Mini - Fast multimodal",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 128000,
+                            "output": 16384
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "gpt-4o",
+                        "unique": "gpt-4o",
+                        "version": "2024-11-20",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "MSFT_AZURE_OPEN_AI",
+                        "cpu": false,
+                        "modelLabel": "gpt-4o (2024-11-20)",
+                        "modelDescription": "GPT-4o - Multimodal",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 128000,
+                            "input": 128000,
+                            "output": 16384
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "gpt-4.1-mini",
+                        "unique": "gpt-4.1-mini",
+                        "version": "2025-04-14",
+                        "cloud": true,
+                        "type": "SPEED",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "MSFT_AZURE_OPEN_AI",
+                        "cpu": false,
+                        "modelLabel": "gpt-4.1-mini (2025-04-14)",
+                        "modelDescription": "GPT-4.1 Mini/Nano - Fast",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 160768,
+                            "input": 128000,
+                            "output": 32768
+                        },
+                        "custom": true
+                    },
+                    {
+                        "name": "o3-mini",
+                        "unique": "o3-mini",
+                        "version": "2025-01-31",
+                        "cloud": true,
+                        "type": "ACCURACY",
+                        "usage": "CODE_CONVERSATION",
+                        "foundation": "GPT_LATEST",
+                        "provider": "MSFT_AZURE_OPEN_AI",
+                        "cpu": false,
+                        "modelLabel": "o3-mini (2025-01-31)",
+                        "modelDescription": "O3 - Advanced reasoning",
+                        "modelFamily": "openAI",
+                        "maxTokens": {
+                            "total": 200000,
+                            "input": 200000,
+                            "output": 100000
+                        },
+                        "custom": true
+                    }
+                ]
+            },
+            "tenant_id": "",
+            "domains": [],
+            "createdTime": 1763568078,
+            "updatedTime": 1764730027
+        }
+    ],
+    "subscriptions": [
+        {
+            "product_id": "pro_01jp5e6gt307j7abht0rh3yz3g",
+            "price_id": "pri_01jp5e99eep24299j801mc6pch",
+            "name": "Pieces Pro Plan Monthly",
+            "price": "1600",
+            "subscription_id": "sub_01jz0yws1japgnmjen6s1sy54z",
+            "billing_term": "month",
+            "quantity": 1,
+            "created_at": "2025-06-30T17:41:55.378Z",
+            "nextbilled_at": "",
+            "paused_at": null,
+            "canceled_at": "2025-10-29T17:42:41.5Z",
+            "active": false
+        },
+        {
+            "product_id": "pro_01jp5e6gt307j7abht0rh3yz3g",
+            "price_id": "pri_01jp5e99eep24299j801mc6pch",
+            "name": "Pieces Pro Plan Monthly",
+            "price": "1899",
+            "subscription_id": "sub_01k6dw67eq33yn28pyxpaxsnyk",
+            "billing_term": "month",
+            "quantity": 1,
+            "created_at": "2025-09-30T17:54:39.703Z",
+            "nextbilled_at": "2025-12-30T17:54:39.192694Z",
+            "paused_at": null,
+            "canceled_at": null,
+            "active": false
+        }
+    ],
+    "api_keys": [
+        "81d2b459-****-****-****-1f1c2bca313f",
+        "014ddb16-****-****-****-140ba02579f5",
+        "8b8175d8-****-****-****-53306f68291a",
+        "3a47696a-****-****-****-120e1128dde5",
+        "289127b2-****-****-****-f94d1db7d4c0",
+        "d6c3b3cc-****-****-****-ffc35f934ac5",
+        "890ebf77-****-****-****-1d748351f0b6",
+        "5850dc0e-****-****-****-6867f949b173",
+        "6b562254-****-****-****-6eb05497780b",
+        "de1a3ea7-****-****-****-769b17c4408c",
+        "1fa3b40c-****-****-****-652cce4a603b",
+        "4d11dc7b-****-****-****-411bec4cb5c5",
+        "1bf82de9-****-****-****-6723dde025bc"
+    ],
+    "created_at": 1625725844,
+    "updated_at": 1764743702
+}

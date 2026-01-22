@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.module.asset.compression;
+
+enum ModuleAssetCompressionEnum {
+  UNKNOWN = 0;
+  GZIP = 1;
+  ZIP = 2;
+  NONE = 3;
+}

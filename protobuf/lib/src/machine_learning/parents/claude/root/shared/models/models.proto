@@ -1,0 +1,687 @@
+syntax = "proto3";
+
+// ========================================================================
+// Anthropic Claude Models gRPC Specification
+// ========================================================================
+//
+// This proto file defines the gRPC interface for Anthropic Claude models
+// using the Messages API (https://api.anthropic.com/v1/messages).
+//
+// API REFERENCE: https://platform.claude.com/docs/en/api/messages
+//
+// ========================================================================
+// MODEL FAMILIES AND THEIR CAPABILITIES
+// ========================================================================
+//
+// Claude 3 Family (Free tier):
+//   - claude-3-haiku-20240307: Fast, cost-efficient, NO vision
+//   - claude-3-sonnet-20240229: Balanced performance
+//   - claude-3-opus-20240229: Most capable Claude 3
+//   - Context: 200K tokens
+//   - Max Output: 4,096 tokens
+//   - Capabilities: text (haiku) / text+vision (sonnet/opus)
+//
+// Claude 3.5 Family (Free tier):
+//   - claude-3-5-haiku-20241022: Faster Haiku, NO vision
+//   - claude-3-5-sonnet-20241022: Better reasoning, computer use
+//   - Context: 200K tokens
+//   - Max Output: 8,192 tokens
+//
+// Claude 3.7 Family (Free tier):
+//   - claude-3-7-sonnet-20250219: Extended thinking introduced
+//   - Context: 200K tokens
+//   - Max Output: 128K with extended thinking
+//   - Features: Extended thinking (budget_tokens)
+//
+// Claude 4 Family (Pro tier required):
+//   - claude-sonnet-4-20250514: 1M context beta, interleaved thinking
+//   - claude-opus-4-20250514: Most capable, web search
+//   - Context: 200K standard / 1M beta (Sonnet only)
+//   - Max Output: 16,384 tokens
+//   - Features: Extended thinking, interleaved thinking, structured outputs
+//
+// Claude 4.1 Family (Pro tier required):
+//   - claude-opus-4-1-20250805: Refined Opus 4
+//
+// Claude 4.5 Family (Pro tier required):
+//   - claude-haiku-4-5-20251001: First Haiku with extended thinking
+//   - claude-sonnet-4-5-20250929: 1M context beta, temp/top_p exclusive
+//   - claude-opus-4-5-20251101: Effort parameter support (ONLY model)
+//   - Features: Effort parameter (Opus 4.5 only), structured outputs
+//
+// ========================================================================
+// CLAUDE-SPECIFIC CONSTRAINTS
+// ========================================================================
+//
+// Temperature/top_p MUTUAL EXCLUSIVITY:
+//   - Claude Sonnet 4.5 and Haiku 4.5 ONLY support ONE of temperature OR top_p
+//   - Setting both causes API error
+//   - Other models can use both simultaneously
+//
+// Extended Thinking:
+//   - Minimum budget_tokens: 1024 (lower values cause API errors)
+//   - budget_tokens=0 disables thinking on capable models
+//   - Thinking tokens count toward max_tokens
+//   - Incompatible with forced tool_choice ("any" or "tool")
+//   - Incompatible with temperature/top_p/top_k modifications
+//
+// Interleaved Thinking (Claude 4+ only):
+//   - Requires beta header: interleaved-thinking-2025-05-14
+//   - Cannot modify temperature, top_p, or top_k
+//   - Cannot use forced tool use
+//
+// Beta Headers Required:
+//   - Interleaved thinking: interleaved-thinking-2025-05-14
+//   - Effort parameter: effort-2025-11-24
+//   - Structured outputs: structured-outputs-2025-11-13
+//   - 1M context: context-1m-2025-08-07
+//
+// ========================================================================
+// Last Updated: December 2025
+// ========================================================================
+
+import "lib/src/google/protobuf/struct.proto";
+
+package runtime.aot.machine_learning.parents.claude;
+
+// ============================================================================
+// NEW ENUMS (prefixed with "Claude" to avoid naming conflicts)
+// ============================================================================
+
+// Enum for thinking configuration types.
+enum ClaudeThinkingType {
+  CLAUDE_THINKING_TYPE_UNSPECIFIED = 0;
+  CLAUDE_THINKING_TYPE_ENABLED = 1;   // Enable extended thinking
+  CLAUDE_THINKING_TYPE_DISABLED = 2;  // Disable extended thinking (default)
+}
+
+// Enum for effort levels (Claude Opus 4.5 only).
+// Controls how liberally Claude spends tokens across thinking, tools, and output.
+enum ClaudeEffortLevel {
+  CLAUDE_EFFORT_LEVEL_UNSPECIFIED = 0;
+  CLAUDE_EFFORT_LEVEL_LOW = 1;     // Efficiency mode, significant token savings
+  CLAUDE_EFFORT_LEVEL_MEDIUM = 2;  // Balanced token usage, moderate savings
+  CLAUDE_EFFORT_LEVEL_HIGH = 3;    // Maximum capability (default)
+}
+
+// Enum for output format types.
+enum ClaudeOutputFormatType {
+  CLAUDE_OUTPUT_FORMAT_TYPE_UNSPECIFIED = 0;
+  CLAUDE_OUTPUT_FORMAT_TYPE_JSON_SCHEMA = 1;  // Structured JSON output with schema validation
+}
+
+// Enum for cache control types.
+enum ClaudeCacheControlType {
+  CLAUDE_CACHE_CONTROL_TYPE_UNSPECIFIED = 0;
+  CLAUDE_CACHE_CONTROL_TYPE_EPHEMERAL = 1;  // Temporary cache (currently the only supported type)
+}
+
+// Enum for cache TTL (time-to-live) values.
+enum ClaudeCacheTTL {
+  CLAUDE_CACHE_TTL_UNSPECIFIED = 0;
+  CLAUDE_CACHE_TTL_5M = 1;   // 5 minutes (default)
+  CLAUDE_CACHE_TTL_1H = 2;   // 1 hour (additional cost)
+}
+
+// Enum for document types.
+enum ClaudeDocumentType {
+  CLAUDE_DOCUMENT_TYPE_UNSPECIFIED = 0;
+  CLAUDE_DOCUMENT_TYPE_PDF = 1;  // PDF document
+}
+
+// Enum for tool choice types.
+enum ClaudeToolChoiceType {
+  CLAUDE_TOOL_CHOICE_TYPE_UNSPECIFIED = 0;
+  CLAUDE_TOOL_CHOICE_TYPE_AUTO = 1;   // Let Claude decide (default)
+  CLAUDE_TOOL_CHOICE_TYPE_ANY = 2;    // Must use one of the provided tools
+  CLAUDE_TOOL_CHOICE_TYPE_TOOL = 3;   // Must use a specific tool (requires name)
+  CLAUDE_TOOL_CHOICE_TYPE_NONE = 4;   // Prevent tool use
+}
+
+// Enum for content block types.
+enum ClaudeContentBlockType {
+  CLAUDE_CONTENT_BLOCK_TYPE_UNSPECIFIED = 0;
+  CLAUDE_CONTENT_BLOCK_TYPE_TEXT = 1;         // Text content
+  CLAUDE_CONTENT_BLOCK_TYPE_IMAGE = 2;        // Image content (vision)
+  CLAUDE_CONTENT_BLOCK_TYPE_TOOL_USE = 3;     // Tool use request from model
+  CLAUDE_CONTENT_BLOCK_TYPE_TOOL_RESULT = 4;  // Result of tool execution
+  CLAUDE_CONTENT_BLOCK_TYPE_THINKING = 5;     // Extended thinking content
+  CLAUDE_CONTENT_BLOCK_TYPE_DOCUMENT = 6;     // PDF document content
+}
+
+// Enum for content block delta types (streaming).
+enum ClaudeContentBlockDeltaType {
+  CLAUDE_CONTENT_BLOCK_DELTA_TYPE_UNSPECIFIED = 0;
+  CLAUDE_CONTENT_BLOCK_DELTA_TYPE_TEXT_DELTA = 1;       // Text content chunk
+  CLAUDE_CONTENT_BLOCK_DELTA_TYPE_INPUT_JSON_DELTA = 2; // Tool input JSON chunk
+  CLAUDE_CONTENT_BLOCK_DELTA_TYPE_THINKING_DELTA = 3;   // Thinking content chunk
+  CLAUDE_CONTENT_BLOCK_DELTA_TYPE_SIGNATURE_DELTA = 4;  // Thinking signature chunk
+}
+
+// Enum for native context mode (what the model itself supports).
+// Controls whether to enable extended context windows via beta headers.
+enum ClaudeNativeContextMode {
+  CLAUDE_NATIVE_CONTEXT_MODE_UNSPECIFIED = 0;
+  CLAUDE_NATIVE_CONTEXT_MODE_STANDARD = 1;    // Standard 200K context window
+  CLAUDE_NATIVE_CONTEXT_MODE_EXTENDED_1M = 2;  // Extended 1M context (beta, Sonnet 4/4.5 only)
+  // Future: EXTENDED_2M, EXTENDED_10M, etc.
+}
+
+// Enum for AOT-side context window augmentation strategies.
+// These are NOT native to the model - they are AOT infrastructure features
+// for handling long contexts when models have smaller context windows.
+enum ClaudeContextWindowAugmentation {
+  CLAUDE_CONTEXT_WINDOW_AUGMENTATION_NONE = 0;  // No augmentation, use model as-is
+  // Future implementations (placeholder for now):
+  // CLAUDE_CONTEXT_WINDOW_AUGMENTATION_HIERARCHICAL_SUMMARIZATION = 1;
+  // CLAUDE_CONTEXT_WINDOW_AUGMENTATION_COMPACTION = 2;
+  // CLAUDE_CONTEXT_WINDOW_AUGMENTATION_CONTEXT_FOLDING = 3;
+}
+
+// ============================================================================
+// REQUEST MESSAGES
+// ============================================================================
+
+// The request message for sending messages to the Claude API.
+//
+// Reference: https://platform.claude.com/docs/en/api/messages/create
+message SendMessageRequest {
+  // Required: The model to use for the request.
+  // Examples: "claude-sonnet-4-5", "claude-opus-4-5-20251101"
+  string model = 1;
+
+  // Required: Maximum number of tokens to generate.
+  // Note: Thinking tokens count toward this limit when extended thinking is enabled.
+  // Range depends on model (4K - 128K)
+  int32 max_tokens = 2;
+
+  // Required: List of input messages in alternating user/assistant order.
+  repeated Message messages = 3;
+
+  // Optional: Metadata about the request for logging and tracking.
+  Metadata metadata = 4;
+
+  // Optional: Custom stop sequences that will cause the model to stop generating.
+  // Maximum 4 sequences.
+  repeated string stop_sequences = 5;
+
+  // Optional: Whether to stream the response using Server-Sent Events.
+  // Default: false
+  bool stream = 6;
+
+  // Optional: System prompt. Can be string or array of content blocks (use system_blocks).
+  // Does NOT persist with multi-turn conversations.
+  string system = 7;
+
+  // Optional: Randomness in response.
+  // Range: 0.0 to 1.0 (default 1.0)
+  // CONSTRAINT: Claude 4.5 Sonnet/Haiku - mutually exclusive with top_p
+  float temperature = 8;
+
+  // Optional: Tool usage choice configuration.
+  ToolChoice tool_choice = 9;
+
+  // ========================================================================
+  // NEW FIELDS (added in December 2025)
+  // ========================================================================
+
+  // Optional: Array of tools the model can use.
+  repeated ClaudeTool tools = 10;
+
+  // Optional: Extended thinking configuration for enhanced reasoning.
+  // Enables Claude to perform internal reasoning before generating responses.
+  // Supported by: Claude 3.7 Sonnet, Claude 4+
+  ClaudeThinkingConfig thinking = 11;
+
+  // Optional: Output configuration including effort parameter.
+  // Controls how liberally Claude spends tokens across thinking, tools, and output.
+  // Requires beta header: effort-2025-11-24
+  // ONLY supported by Claude Opus 4.5
+  ClaudeOutputConfig output_config = 12;
+
+  // Optional: Output format configuration for structured JSON outputs.
+  // Requires beta header: structured-outputs-2025-11-13
+  // Supported by: Claude Sonnet 4.5, Opus 4.1, Opus 4.5, Haiku 4.5
+  ClaudeOutputFormat output_format = 13;
+
+  // Optional: Nucleus sampling parameter.
+  // Range: 0.0 to 1.0 (default 1.0)
+  // CONSTRAINT: Claude 4.5 Sonnet/Haiku - mutually exclusive with temperature
+  float top_p = 14;
+
+  // Optional: Only sample from the top K most likely tokens.
+  // Range: 0 to vocab_size (default: not set, considers all tokens)
+  // Recommended range: 20-50 for good balance
+  int32 top_k = 15;
+
+  // Optional: Beta feature headers to enable experimental features.
+  // Examples: "structured-outputs-2025-11-13", "interleaved-thinking-2025-05-14"
+  repeated string anthropic_beta = 16;
+
+  // Optional: System prompt as array of content blocks (for caching).
+  // Use this instead of 'system' when you need cache_control on system prompt sections.
+  repeated ClaudeSystemContentBlock system_blocks = 17;
+
+  // Optional: Native context mode for this request.
+  // Controls whether to enable extended context windows via beta headers.
+  // EXTENDED_1M requires:
+  //   - Model support (Sonnet 4 or 4.5 only)
+  //   - Tier 4 access or custom rate limits
+  //   - Premium pricing above 200K tokens ($6/MTok input vs $3/MTok)
+  // Can also be controlled via model alias (e.g., "claude-sonnet-4-5-1m")
+  // If both specified, this field takes precedence over model alias.
+  ClaudeNativeContextMode native_context_mode = 18;
+
+  // Optional: Context window augmentation strategy.
+  // Future feature for AOT-side handling of long contexts for small windows.
+  // Currently only NONE is supported.
+  ClaudeContextWindowAugmentation context_window_augmentation = 19;
+}
+
+// ============================================================================
+// NEW MESSAGE TYPES (prefixed with "Claude" to avoid naming conflicts)
+// ============================================================================
+
+// Extended thinking configuration.
+//
+// Reference: https://platform.claude.com/docs/en/build-with-claude/extended-thinking
+message ClaudeThinkingConfig {
+  // Required: Type of thinking configuration.
+  // Use CLAUDE_THINKING_TYPE_ENABLED to activate extended thinking.
+  ClaudeThinkingType type = 1;
+
+  // Required when type=ENABLED: Maximum tokens for internal reasoning.
+  // Minimum: 1024 tokens (API enforced)
+  // Must be less than max_tokens unless interleaved thinking is enabled.
+  // Anthropic recommends starting at minimum and incrementally increasing.
+  // Values above 32K rarely provide additional benefit.
+  int32 budget_tokens = 2;
+}
+
+// Output configuration for effort parameter.
+//
+// Reference: https://platform.claude.com/docs/en/build-with-claude/effort
+message ClaudeOutputConfig {
+  // Optional: Effort level for token spending.
+  // Requires beta header: effort-2025-11-24
+  // ONLY supported by Claude Opus 4.5.
+  ClaudeEffortLevel effort = 1;
+}
+
+// Output format configuration for structured outputs.
+//
+// Reference: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+message ClaudeOutputFormat {
+  // Required: Type of output format.
+  // Use CLAUDE_OUTPUT_FORMAT_TYPE_JSON_SCHEMA for structured JSON outputs.
+  ClaudeOutputFormatType type = 1;
+
+  // Required when type=JSON_SCHEMA: JSON Schema definition for output.
+  // Uses standard JSON Schema format. Recursive schemas not supported.
+  // The first request with a new schema incurs 100-300ms compilation overhead.
+  google.protobuf.Struct schema = 2;
+}
+
+// System content block for array-style system prompts with cache control.
+message ClaudeSystemContentBlock {
+  // Required: Type of content block.
+  // Use CLAUDE_CONTENT_BLOCK_TYPE_TEXT for text content.
+  ClaudeContentBlockType type = 1;
+
+  // Required: The system prompt text content.
+  string text = 2;
+
+  // Optional: Cache control for prompt caching.
+  ClaudeCacheControl cache_control = 3;
+}
+
+// Cache control configuration for prompt caching.
+//
+// Reference: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+message ClaudeCacheControl {
+  // Required: Type of cache control.
+  // Currently only CLAUDE_CACHE_CONTROL_TYPE_EPHEMERAL is supported.
+  ClaudeCacheControlType type = 1;
+
+  // Optional: Cache time-to-live.
+  // CLAUDE_CACHE_TTL_5M (5 minutes, default) or CLAUDE_CACHE_TTL_1H (1 hour)
+  // 1-hour cache incurs additional cost but useful for longer sessions.
+  ClaudeCacheTTL ttl = 2;
+}
+
+// Definition of a tool that can be used by the model.
+//
+// Reference: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview
+message ClaudeTool {
+  // Required: Unique identifier for the tool.
+  string name = 1;
+
+  // Required: Description of what the tool does.
+  // More detailed descriptions help Claude understand when/how to use the tool.
+  string description = 2;
+
+  // Required: JSON Schema for the tool's input parameters.
+  // Must be type "object" with properties defining each parameter.
+  google.protobuf.Struct input_schema = 3;
+
+  // Optional: Enable strict mode for structured outputs.
+  // When true, tool inputs will strictly follow input_schema.
+  // Requires beta header: structured-outputs-2025-11-13
+  bool strict = 4;
+
+  // Optional: Cache control for this tool definition.
+  ClaudeCacheControl cache_control = 5;
+
+  // ========================================================================
+  // SERVER-SIDE TOOL SPECIFIC FIELDS (Fields 6-11)
+  // ========================================================================
+  // These fields are used for Anthropic's built-in server-side tools like
+  // web_search_20250305, computer_20241022, bash_20250124, etc.
+  
+  // Web Search Tool Fields (web_search_20250305)
+  
+  // Maximum number of times the web search tool can be used in the request.
+  // Default: unlimited. Recommended: 1-5 for cost control.
+  optional int32 max_uses = 6;
+
+  // If provided, only these domains will be included in search results.
+  // Cannot be used alongside blocked_domains.
+  repeated string allowed_domains = 7;
+
+  // If provided, these domains will never appear in search results.
+  // Cannot be used alongside allowed_domains.
+  repeated string blocked_domains = 8;
+
+  // Computer Use Tool Fields (computer_20241022)
+  
+  // Display width in pixels for computer use tool.
+  // Required for computer_20241022 tool type.
+  optional int32 display_width_px = 9;
+
+  // Display height in pixels for computer use tool.
+  // Required for computer_20241022 tool type.
+  optional int32 display_height_px = 10;
+
+  // Display number for computer use tool (for multi-monitor setups).
+  // Optional for computer_20241022 tool type.
+  optional int32 display_number = 11;
+}
+
+// Tool use content block - model requesting to use a tool.
+message ClaudeToolUseContent {
+  // Unique identifier for this tool use (used for matching tool_result).
+  string id = 1;
+
+  // Name of the tool the model wants to use.
+  string name = 2;
+
+  // Input parameters for the tool (JSON object as struct).
+  google.protobuf.Struct input = 3;
+}
+
+// Tool result content block - result of executing a tool.
+message ClaudeToolResultContent {
+  // Required: ID of the tool_use this is a result for.
+  string tool_use_id = 1;
+
+  // Required: Result content (string or array of content blocks).
+  oneof result {
+    string content_text = 2;
+    ContentBlocks content_blocks = 3;
+  }
+
+  // Optional: Whether the tool execution resulted in an error.
+  bool is_error = 4;
+}
+
+// Extended thinking content block.
+//
+// Note: Claude 3.7 returns complete thinking content.
+// Claude 4+ models return summarized thinking.
+message ClaudeThinkingContent {
+  // The thinking/reasoning text content.
+  string thinking = 1;
+
+  // Cryptographic signature for verification.
+  // Used to verify thinking blocks when passed back in multi-turn conversations.
+  string signature = 2;
+}
+
+// Document content for PDF input.
+//
+// Reference: https://platform.claude.com/docs/en/build-with-claude/pdf-support
+//
+// Supported document sources:
+//   - base64: Base64-encoded PDF data (media_type: "application/pdf")
+//   - text: Plain text content (media_type: "text/plain")
+//   - url: URL to a PDF document
+//
+// Example usage:
+//   ContentBlock {
+//     type: "document",
+//     document: ClaudeDocumentContent {
+//       source: Source { type: BASE64, media_type: "application/pdf", data: "<base64>" }
+//       title: "My Document"
+//     }
+//   }
+message ClaudeDocumentContent {
+  // Required: Source of the document.
+  // For PDFs: type=BASE64, media_type="application/pdf", data=<base64 encoded PDF>
+  // For URLs: type=URL, url=<pdf url>
+  Source source = 1;
+
+  // Required: Type of document.
+  // Use CLAUDE_DOCUMENT_TYPE_PDF for PDF documents.
+  ClaudeDocumentType document_type = 2;
+
+  // Optional: Filename for the document (for display purposes).
+  string filename = 3;
+
+  // Optional: Title of the document (shown in citations).
+  string title = 4;
+
+  // Optional: Additional context about the document.
+  // Helps Claude understand how to use the document.
+  string context = 5;
+}
+
+// ============================================================================
+// EXISTING MESSAGE TYPES (preserved from main - DO NOT CHANGE field numbers)
+// ============================================================================
+
+// Represents a single message in the conversation.
+message Message {
+  Role role = 1; // Required: Role of the message sender.
+  Content content = 2; // Required: Content of the message.
+}
+
+// Enum for message roles.
+// IMPORTANT: Keep existing values unchanged for backwards compatibility!
+enum Role {
+  USER = 0; // User role.
+  ASSISTANT = 1; // Assistant role.
+}
+
+// Represents the content of a message.
+message Content {
+  oneof content_type {
+    string text = 1; // Content as a string.
+    ContentBlocks content_blocks = 2; // Content as an array of blocks.
+  }
+}
+
+message ContentBlocks {
+  repeated ContentBlock content_blocks = 1;
+}
+
+// Represents a content block.
+// Extended with new fields for tool use, thinking, and documents.
+message ContentBlock {
+  string type = 1; // Required: Type of content (e.g., "text", "image", "tool_use", "tool_result", "thinking").
+  string text = 2; // Optional: Text content.
+  ImageContent image = 3; // Optional: Image content.
+
+  // NEW: Tool use request from model (type="tool_use")
+  ClaudeToolUseContent tool_use = 4;
+
+  // NEW: Result of tool execution (type="tool_result")
+  ClaudeToolResultContent tool_result = 5;
+
+  // NEW: Extended thinking content (type="thinking")
+  ClaudeThinkingContent thinking_content = 6;
+
+  // NEW: PDF document content (type="document")
+  ClaudeDocumentContent document = 7;
+
+  // NEW: Cache control for this content block
+  ClaudeCacheControl cache_control = 8;
+}
+
+// Represents image content.
+message ImageContent {
+  Source source = 1; // Required: Source of the image.
+}
+
+// Represents the source of an image or document.
+message Source {
+  SourceType type = 1; // Required: Type of source (e.g., "base64").
+  string media_type = 2; // Required: Media type of the image (e.g., "image/jpeg").
+  string data = 3; // Required: Base64 encoded image data.
+
+  // NEW: URL of the content (for type="url")
+  string url = 4;
+}
+
+// Enum for source types.
+// IMPORTANT: Keep existing values unchanged for backwards compatibility!
+enum SourceType {
+  BASE64 = 0; // Base64 encoded image.
+  // NEW: URL source type
+  URL = 1;
+}
+
+// Represents metadata about the request.
+message Metadata {
+  string user_id = 1; // Optional: External identifier for the user.
+}
+
+// Represents tool choice for the model.
+message ToolChoice {
+  string type = 1; // Required: Type of tool choice (e.g., "auto", "any", "tool", "none").
+  string name = 2; // Required when type="tool": Name of the specific tool to use.
+  bool disable_parallel_tool_use = 3; // Optional: Disable parallel tool use.
+}
+
+// The response message from the Claude API.
+message SendMessageResponse {
+  repeated ContentBlock content = 1; // Required: Content generated by the model.
+  string id = 2; // Required: Unique identifier for the response.
+  string model = 3; // Required: Model that handled the request.
+  Role role = 4; // Required: Role of the generated message.
+  StopReason stop_reason = 5; // Required: Reason for stopping.
+  string stop_sequence = 6; // Optional: Matched stop sequence.
+  Usage usage = 7; // Required: Usage information.
+
+  // NEW: Type of response (always "message")
+  string type = 8;
+}
+
+// Enum for stop reasons.
+// IMPORTANT: Keep existing values unchanged for backwards compatibility!
+enum StopReason {
+  END_TURN = 0; // Stopped at a natural point.
+  MAX_TOKENS = 1; // Exceeded max tokens.
+  STOP_SEQUENCE = 2; // Encountered a stop sequence.
+  TOOL_USE = 3; // Invoked tools.
+  // NEW stop reasons
+  PAUSE_TURN = 4; // Server-side tools paused a long-running operation.
+  REFUSAL = 5; // Streaming classifiers intervened for potential policy violations.
+}
+
+// Represents usage information for billing and rate-limiting.
+message Usage {
+  int32 input_tokens = 1; // Required: Number of input tokens used.
+  int32 output_tokens = 2; // Required: Number of output tokens used.
+
+  // NEW: Cache metrics for prompt caching
+  int32 cache_read_input_tokens = 3; // Tokens retrieved from cache.
+  int32 cache_creation_input_tokens = 4; // Tokens written to cache.
+}
+
+// ============================================================================
+// WRAPPER MESSAGES FOR SERVICE
+// ============================================================================
+
+message ClaudeInferenceRequest {
+  oneof input {
+    SendMessageRequest advanced = 1;
+  }
+}
+
+message ClaudeInferenceResponse {
+  oneof output {
+    SendMessageResponse advanced = 1;
+    ErrorEvent error = 2;
+  }
+}
+
+// ============================================================================
+// STREAMING EVENTS (preserved from main - DO NOT CHANGE)
+// ============================================================================
+
+message MessageStartEvent {
+  SendMessageResponse response = 1;
+}
+
+message MessageDeltaEvent {
+  StopReason stop_reason = 1;
+  string stop_sequence = 2;
+  Usage usage = 3;
+}
+
+message MessageStopEvent {
+}
+
+message ContentBlockStartEvent {
+  int64 index = 1;
+  ContentBlock content_block = 2;
+}
+
+message ContentBlockDeltaEvent {
+  int64 index = 1;
+  string type = 2;
+  oneof delta {
+    string text = 3;
+    string partial_json = 4;
+    string thinking = 5;
+    // NEW: Signature for thinking block verification
+    string signature = 6;
+  }
+}
+
+message ContentBlockStopEvent {
+  int64 index = 1;
+}
+
+message PingEvent {
+}
+
+message ErrorEvent {
+  string message = 1;
+  int32 code = 2;
+  // NEW: Error type identifier
+  string type = 3;
+}
+
+message StreamMessage {
+  oneof message {
+    MessageStartEvent message_start = 1;
+    MessageDeltaEvent message_delta = 2;
+    MessageStopEvent message_stop = 3;
+    ContentBlockStartEvent content_block_start = 4;
+    ContentBlockDeltaEvent content_block_delta = 5;
+    ContentBlockStopEvent content_block_stop = 6;
+    PingEvent ping = 7;
+    ErrorEvent error = 8;
+  }
+}

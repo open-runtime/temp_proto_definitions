@@ -1,0 +1,342 @@
+syntax = "proto3";
+
+// ========================================================================
+// OpenAI Model Registry Schema
+// ========================================================================
+// This proto defines the schema for the OpenAI model registry YAML config.
+// It is used as a fromJson wrapper - the actual data lives in openai_models.yaml
+// which gets packed into the binary at build time.
+//
+// To update model data:
+//   1. Run: melos sync:openai:models
+//   2. Or manually edit: packages/aot/machine_learning/parents/gpt/tool/pack_spec/openai_models.yaml
+//
+// The YAML contains comprehensive capability information for each model:
+//   - supported_apis: Which APIs (responses, chat_completions) the model supports
+//   - reasoning_effort_levels: Supported values for reasoning.effort parameter
+//   - context_window / max_output_tokens: Token limits
+//   - supports_*: Boolean flags for parameter support
+//
+// Last Updated: December 2024
+// ========================================================================
+
+package runtime.aot.machine_learning.parents.gpt;
+
+import "lib/src/core/root/grpc/shared/models/subscription.proto";
+
+// Model size/performance classification
+// This represents the performance vs cost tradeoff within a model family
+enum OpenAIModelSize {
+  OPENAI_MODEL_SIZE_UNKNOWN = 0;
+  OPENAI_MODEL_SIZE_FLAGSHIP = 1;  // Top performance (gpt-5-pro, o3-pro)
+  OPENAI_MODEL_SIZE_STANDARD = 2;  // Balanced (gpt-4o, gpt-5)
+  OPENAI_MODEL_SIZE_MINI = 3;      // Smaller/faster (gpt-4o-mini, o1-mini)
+  OPENAI_MODEL_SIZE_NANO = 4;      // Smallest/fastest (gpt-5-nano)
+}
+
+// Model family/lineage
+enum OpenAIModelFamily {
+  OPENAI_MODEL_FAMILY_UNKNOWN = 0;
+  OPENAI_MODEL_FAMILY_GPT_3_5 = 1;  // gpt-3.5-turbo series
+  OPENAI_MODEL_FAMILY_GPT_4 = 2;    // gpt-4, gpt-4-turbo series
+  OPENAI_MODEL_FAMILY_GPT_4O = 3;   // gpt-4o series (omni)
+  OPENAI_MODEL_FAMILY_GPT_5 = 4;    // gpt-5 series
+  OPENAI_MODEL_FAMILY_O1 = 5;       // o1 reasoning series
+  OPENAI_MODEL_FAMILY_O3 = 6;       // o3 reasoning series
+  OPENAI_MODEL_FAMILY_O4 = 7;       // o4 reasoning series (latest)
+}
+
+// Individual model definition
+message OpenAIModel {
+  // ========================================================================
+  // CORE IDENTITY
+  // ========================================================================
+
+  // The canonical model ID as recognized by OpenAI API (e.g., "gpt-4o-2024-11-20")
+  string id = 1;
+  
+  // Subscription level required to use this model (uses shared Pieces subscription enum)
+  runtime.aot.core.UserSubscriptionLevel subscription = 2;
+  
+  // Model size/performance level within its family
+  OpenAIModelSize size = 3;
+  
+  // Model family/lineage (gpt-4o, gpt-5, o1, o3, etc.)
+  OpenAIModelFamily family = 4;
+  
+  // Aliases that resolve to this model (e.g., ["gpt-4o", "gpt-4o-latest"])
+  repeated string aliases = 5;
+  
+  // Model capabilities (e.g., ["text", "vision", "audio", "reasoning"])
+  repeated string capabilities = 6;
+  
+  // ISO timestamp when we detected this model was deprecated by OpenAI
+  // Empty string if not deprecated
+  string deprecated = 7;
+  
+  // Unix timestamp from OpenAI API indicating when model was created
+  int64 created = 8;
+  
+  // Owner/organization that created the model (from OpenAI API)
+  string owned_by = 9;
+
+  // ========================================================================
+  // API SUPPORT
+  // ========================================================================
+
+  // Which APIs this model supports: "responses", "chat_completions", or both
+  // - O-series models (o1, o3): Only "responses"
+  // - GPT-4, GPT-4o, GPT-5: Both APIs
+  repeated string supported_apis = 10;
+
+  // Supported values for reasoning.effort parameter (for reasoning models)
+  //
+  // VERIFIED VIA ACTUAL API TESTING (December 2025):
+  //   - gpt-5, gpt-5-mini, gpt-5-nano: ["minimal", "low", "medium", "high"]
+  //   - gpt-5-pro: ["high"] ONLY (very restricted!)
+  //   - gpt-5.2-pro, o3-pro: ["medium", "high"]
+  //   - gpt-5.1, gpt-5.2: ["low", "medium", "high"]
+  //   - o1, o1-pro, o3, o3-mini, o4-mini: ["low", "medium", "high"]
+  //   - Non-reasoning models: empty
+  //
+  // NOTE: "minimal" is ONLY supported by base GPT-5, GPT-5-mini, GPT-5-nano!
+  // Pro variants have different restrictions - gpt-5-pro only accepts "high"!
+  repeated string reasoning_effort_levels = 11;
+
+  // ========================================================================
+  // TOKEN LIMITS
+  // ========================================================================
+
+  // Maximum context window size in tokens (input + output)
+  // Examples:
+  //   - GPT-4: 8192
+  //   - GPT-4-turbo, GPT-4o: 128000
+  //   - O-series, GPT-5: 200000
+  //   - GPT-5-nano: 400000
+  int32 context_window = 12;
+
+  // Maximum output tokens the model can generate
+  //
+  // CONSTRAINTS:
+  //   - Minimum: 16 tokens (OpenAI API requirement for all models)
+  //   - Maximum: Model-specific (values below)
+  //
+  // Values below 16 will return HTTP 400 error from OpenAI:
+  //   "Invalid 'max_output_tokens': integer below minimum value. Expected >= 16"
+  //
+  // Examples of maximum values:
+  //   - GPT-3.5, GPT-4: 4096
+  //   - GPT-4o: 16384
+  //   - GPT-4.1: 32768
+  //   - O-series, GPT-5: 100000
+  //   - GPT-5-nano: 128000
+  int32 max_output_tokens = 13;
+
+  // ========================================================================
+  // PARAMETER SUPPORT FLAGS
+  // ========================================================================
+  // These flags indicate which Responses API parameters each model supports.
+  // Clients should check these before sending requests to avoid 400 errors.
+
+  // Whether this model supports the `instructions` parameter (system prompt)
+  // All current models support this.
+  bool supports_instructions = 14;
+
+  // Whether this model supports streaming responses (stream: true)
+  // All current models support this.
+  bool supports_streaming = 15;
+
+  // Whether this model supports structured outputs (JSON schema)
+  // Supported by: GPT-4o, GPT-4.1, GPT-5, all O-series models
+  // NOT supported by: GPT-3.5, older GPT-4 variants
+  bool supports_structured_outputs = 16;
+
+  // Whether this model supports function/tool calling
+  // All current models support tool calling.
+  bool supports_tool_calling = 17;
+
+  // Whether this model supports the `text.verbosity` parameter
+  // GPT-5 ONLY: Supports "low", "medium", "high" verbosity
+  // All other models: false
+  bool supports_verbosity = 18;
+
+  // Whether this model supports tool_choice values other than "auto"
+  //
+  // ⚠️ GPT-5 LIMITATION (as of August 2025):
+  //    GPT-5 models (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-pro) return HTTP 400
+  //    for any tool_choice other than "auto":
+  //    "Tool choices other than 'auto' are not supported with model 'gpt-5'"
+  //
+  // Values:
+  //   - GPT-5 family: false (only "auto" supported)
+  //   - All other models: true (supports "none", "required", specific function)
+  bool supports_tool_choice_required = 19;
+
+  // ========================================================================
+  // MEDIA TYPE INPUT SUPPORT
+  // ========================================================================
+  // These flags indicate which input media types each model can process.
+
+  // Whether this model can accept image inputs (vision capability)
+  //
+  // Supported formats: JPEG, PNG, GIF, WebP (max 20MB per image)
+  // Input methods:
+  //   - HTTP/HTTPS URL pointing to image
+  //   - Base64-encoded data URI (data:image/png;base64,...)
+  //   - Raw base64 with media_type field
+  //
+  // Supported by:
+  //   - GPT-4-turbo, GPT-4-vision-preview
+  //   - GPT-4o (all variants)
+  //   - GPT-4.1 (all variants)
+  //   - GPT-5 (all except nano)
+  //   - O-series (o1, o3, o3-pro, o4-mini)
+  bool supports_image_input = 20;
+
+  // Whether this model can accept audio inputs
+  //
+  // Limited availability - requires audio preview capability.
+  //
+  // Supported by:
+  //   - gpt-4o-2024-11-20
+  //   - gpt-4o-audio-preview variants
+  bool supports_audio_input = 21;
+
+  // Whether this model can accept PDF file inputs
+  //
+  // PDF support requires vision capability. PDFs are rendered
+  // as images (one per page) and extracted text is added to context.
+  //
+  // Supported by: All models with supports_image_input=true
+  bool supports_pdf_input = 22;
+
+  // Whether this model can accept video inputs
+  //
+  // ⚠️ EXPERIMENTAL: Video support is limited and still in preview.
+  //
+  // Supported by:
+  //   - GPT-5 (limited variants, excluding nano)
+  bool supports_video_input = 23;
+
+  // Whether this model supports JSON mode (response_format: {"type": "json_object"})
+  // This ensures output is valid JSON, but provides no schema validation.
+  // Supported by: All GPT-4 and later models
+  // For schema validation, use supports_structured_outputs instead.
+  bool supports_json_mode = 24;
+
+  // Whether this model supports the reasoning.summary parameter
+  //
+  // When enabled, model streams reasoning summaries via response.reasoning_summary_text.delta
+  // Supported values: "auto", "concise", "detailed"
+  //
+  // As of December 2024/January 2025 (verified via Perplexity research + direct API testing):
+  //   - O-series models (o1, o3, o4): true (supports reasoning.summary with 'detailed')
+  //   - GPT-5 family: true (supports reasoning.summary with 'auto'/'detailed', NOT 'concise')
+  //   - computer-use-preview: true (supports 'concise' and 'detailed')
+  //   - All other models: false
+  //
+  // See: https://platform.openai.com/docs/guides/reasoning
+  bool supports_reasoning_summary = 25;
+
+  // Whether this model supports web_search tool with filters.allowed_domains parameter
+  //
+  // The web_search tool allows filtering search results to specific domains.
+  // Only the GA version ('web_search') supports filters, NOT 'web_search_preview'.
+  //
+  // VERIFIED VIA API TESTING (December 2024):
+  //   ✅ Supported: gpt-4o, gpt-4.1, gpt-5/5.1/5.2 families (all variants), o3, o3-pro, o4-mini
+  //   ❌ NOT supported: gpt-4o-mini, gpt-4.1-mini, gpt-4.1-nano, o3-mini
+  //
+  // Usage:
+  //   tools: [{
+  //     type: "web_search",
+  //     filters: { allowed_domains: ["domain1.com", "domain2.com"] }
+  //   }]
+  //
+  // Limits: Up to 20 domains, omit HTTP/HTTPS prefix
+  // See: https://platform.openai.com/docs/guides/tools-web-search
+  bool supports_web_search_filters = 28;
+
+  // Supported service tiers for this model
+  //
+  // Lists which service_tier values from the ServiceTier enum this model accepts.
+  // Common values: "auto", "default", "priority", "flex"
+  //
+  // VERIFIED VIA API TESTING (December 2024):
+  //   All models support: "auto", "default", "priority"
+  //   
+  //   "flex" support (cost-optimized):
+  //     ✅ Supported: gpt-5, gpt-5.1, gpt-5.2, gpt-5-mini, gpt-5-nano, o3, o4-mini
+  //     ❌ NOT supported: gpt-4 family, o1, o3-mini, o3-pro, gpt-5-pro, gpt-5.2-pro
+  //
+  // Pattern: Base GPT-5 and mini/nano variants support flex, but NOT pro
+  //          o3 (standard) supports flex, but NOT o3-mini or o3-pro
+  //
+  // See: https://platform.openai.com/docs/guides/flex-processing
+  repeated string supported_service_tiers = 29;
+
+  // ========================================================================
+  // DEVELOPER GUIDANCE TIERS
+  // ========================================================================
+  // Qualitative indicators to help developers choose appropriate models.
+  // Based on relative pricing and latency characteristics.
+
+  // Cost tier relative to other OpenAI models
+  //
+  // Helps developers quickly assess cost implications:
+  //   - VERY_CHEAP: Mini/nano models (~$0.15/1M input tokens)
+  //   - CHEAP: GPT-3.5 and budget options
+  //   - STANDARD: GPT-4o, balanced pricing (~$2.50/1M)
+  //   - EXPENSIVE: GPT-4-turbo, O-series (~$10/1M + reasoning overhead)
+  //   - VERY_EXPENSIVE: Pro models (~$20/1M + reasoning tokens)
+  //
+  // Note: Reasoning models (O-series) incur additional cost for reasoning tokens.
+  ModelCostTier cost_tier = 26;
+
+  // Speed tier based on typical response latency
+  //
+  // Helps developers choose based on latency requirements:
+  //   - VERY_FAST: Nano models, sub-second responses
+  //   - FAST: Mini models, quick responses
+  //   - AVERAGE: Standard models (GPT-4o, GPT-4.1)
+  //   - SLOW: Larger models, reasoning models
+  //   - VERY_SLOW: Pro reasoning models (extensive internal thinking)
+  //
+  // Note: Reasoning models are slower due to internal thinking time.
+  ModelSpeedTier speed_tier = 27;
+}
+
+// Cost tier for developer guidance
+// Relative cost compared to other OpenAI models
+enum ModelCostTier {
+  COST_TIER_UNKNOWN = 0;
+  COST_TIER_VERY_CHEAP = 1;   // Mini/nano models (~$0.15/1M)
+  COST_TIER_CHEAP = 2;        // GPT-3.5, budget options
+  COST_TIER_STANDARD = 3;     // GPT-4o (~$2.50/1M)
+  COST_TIER_EXPENSIVE = 4;    // GPT-4-turbo, O-series (~$10/1M)
+  COST_TIER_VERY_EXPENSIVE = 5; // Pro models (~$20/1M)
+}
+
+// Speed tier for developer guidance
+// Typical response latency compared to other OpenAI models
+enum ModelSpeedTier {
+  SPEED_TIER_UNKNOWN = 0;
+  SPEED_TIER_VERY_FAST = 1;   // Nano models, sub-second
+  SPEED_TIER_FAST = 2;        // Mini models
+  SPEED_TIER_AVERAGE = 3;     // Standard models (GPT-4o)
+  SPEED_TIER_SLOW = 4;        // Larger models, reasoning
+  SPEED_TIER_VERY_SLOW = 5;   // Pro reasoning models
+}
+
+// Root registry message containing all models
+message OpenAIModelRegistry {
+  // Schema version for future compatibility
+  int32 schema_version = 1;
+  
+  // ISO timestamp of last sync with OpenAI API
+  string last_synced = 2;
+  
+  // All registered models
+  repeated OpenAIModel models = 3;
+}
+

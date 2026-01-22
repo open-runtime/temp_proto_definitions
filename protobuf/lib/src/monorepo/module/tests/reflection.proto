@@ -1,0 +1,11 @@
+syntax = "proto3";
+import "lib/src/monorepo/module/test/test.proto";
+
+package runtime.aot.monorepo.module.tests.reflection;
+
+message ModuleTestsReflection {
+  bool verbose = 1;
+  bool debug = 2;
+  bool clean = 3;
+  runtime.aot.monorepo.module.test.ModuleTestCompilationTypeEnum compilations = 4;
+}

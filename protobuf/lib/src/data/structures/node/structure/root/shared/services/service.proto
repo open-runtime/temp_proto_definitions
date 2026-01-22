@@ -1,0 +1,9 @@
+syntax = "proto3";
+// TODO update path + your package.
+import 'lib/src/data/structures/node/structure/root/shared/models/models.proto';
+
+package runtime.aot.data.structures.node.structure;
+
+service NodeStructureService {
+  rpc Create(SeededNode) returns (stream Node) {}
+}

@@ -1,0 +1,70 @@
+syntax = "proto3";
+import "lib/src/google/protobuf/timestamp.proto";
+
+package runtime.aot.core.interceptors.gcp.implementation.classes.interception;
+
+message InterceptionStatistics {
+  double average_requests_per_minute = 1;
+  double record_requests_per_minute = 2;
+  double average_requests_per_hour = 3;
+  double record_requests_per_hour = 4;
+  double average_requests_per_day = 5;
+  double record_requests_per_day = 6;
+  double average_payload_size = 7;
+  double record_payload_size = 8;
+  double total_requests = 9;
+  double failed_requests = 10;
+  double successful_requests = 11;
+}
+
+message InterceptedEntityUtilizationMetadata {
+  double reads = 1;
+  double writes = 2;
+}
+
+message Interception {
+  string identifier = 1;
+
+  string service = 2;
+
+  string method = 3;
+
+  string task_tag = 4;
+
+  // Fixed list at 100 or something
+  repeated google.protobuf.Timestamp requests = 5;
+
+  repeated google.protobuf.Timestamp jwt_issued_at_timestamps = 6;
+
+  InterceptionStatistics statistics = 7;
+
+}
+
+message InterceptedEntity {
+  string identifier = 1;
+
+  map<string, bool> emails = 2;
+
+  map<string, bool> ip_addresses = 3;
+
+  map<string, bool> os_identifiers = 4;
+
+  repeated string user_agents = 5;
+
+  map<string, Interception> interceptions = 6; // i.e. { "service.method.tag": Interception } -> { "service.method.tag": { "identifier": "service.method.tag", "counts": { "failures": 0, "successes": 0,  }, "requests": [] "average_requests_per_minute": 0, "max_requests_per_minute": 0, "average_requests_per_hour": 0, "max_requests_per_hour": 0, "average_requests_per_day": 0, "max_requests_per_day": 0 } }
+
+  InterceptedEntityUtilizationMetadata metadata = 7;
+
+  repeated string hosts = 8;
+
+  // TODO Request Headers
+
+  // TODO Locations
+
+  // TODO Payload Sizes
+
+  // TODO Emails
+
+  // TODO Server Types
+
+}

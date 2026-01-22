@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/text/conversational_language/message/protractors/temporalization/gemini/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.text.conversational_language.message.protractors.temporalization.gemini;
+
+service GeminiMessageTemporalizationService {
+
+  // Message Collection Processing:
+  // Takes multiple non-temporalized chat messages and returns temporalized messages,
+  // each with extracted time references and metadata.
+  rpc TemporalizeMessages(NonTemporalizedChatMessage) returns (TemporalizedChatMessages);
+
+}

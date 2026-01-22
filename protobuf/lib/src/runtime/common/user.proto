@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package runtime.common;
+
+message UserProfile {
+  // (required)
+  string identifier = 1;
+  // optional
+  string email = 2; // likely want this to be repeated so that we can have multiple emails for a user
+  // optional
+  string name = 3;
+}

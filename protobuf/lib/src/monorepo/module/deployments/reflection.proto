@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "lib/src/monorepo/module/deployment/reflection.proto";
+
+package runtime.aot.monorepo.module.deployments.reflection;
+
+message ModuleDeploymentsReflection {
+
+  // Deployment information for google cloud run, this will be very similar to // ModuleAssetsReflection found here https://github.com/open-runtime/aot_monorepo/blob/41afaee9958123b5df6d3137a699736aad609d3f/packages/definitions/protobuf/lib/src/monorepo/module/assets/reflection.proto
+  repeated runtime.aot.monorepo.module.deployment.reflection.ModuleDeploymentReflection google_cloud_run = 1;
+
+}

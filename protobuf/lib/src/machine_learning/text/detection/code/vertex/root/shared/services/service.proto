@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/text/detection/code/vertex/root/shared/models/models.proto";
+
+
+package runtime.aot.machine_learning.text.detection.code.vertex;
+
+service TextualContentDomainCodeDetectionService {
+  rpc Initialize(TextualContentDomainCodeDetectionInitialization) returns (InitializedTextualContentDomainCodeDetection) {};
+  rpc Detect (UndetectedTextualContentDomain) returns (TextualContentDomainCodeDetection) {};
+}
+

@@ -1,0 +1,10 @@
+{
+    "messages": [
+        {
+            "role": "user",
+            "content": "What is the capital of France? Answer in one sentence."
+        }
+    ],
+    "maxTokens": 100,
+    "temperature": 0.7
+}

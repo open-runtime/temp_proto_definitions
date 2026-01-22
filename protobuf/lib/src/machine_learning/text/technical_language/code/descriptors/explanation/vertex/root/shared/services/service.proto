@@ -1,0 +1,9 @@
+syntax = "proto3";
+import 'lib/src/machine_learning/text/technical_language/code/descriptors/explanation/vertex/root/shared/models/models.proto';
+
+package runtime.aot.machine_learning.text.technical_language.code.descriptors.explanation.vertex;
+
+service VertexCodeExplanationDescriptorService {
+  rpc Initialize(VertexCodeExplanationDescriptorInitialization) returns (InitializedVertexCodeExplanationDescriptor) {};
+  rpc Explain (UnexplainedCode) returns (ExplainedCode) {};
+}

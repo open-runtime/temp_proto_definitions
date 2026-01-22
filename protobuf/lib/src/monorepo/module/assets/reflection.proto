@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "lib/src/monorepo/module/asset/reflection.proto";
+
+package runtime.aot.monorepo.module.assets.reflection;
+
+message ModuleAssetsReflection {
+  repeated runtime.aot.monorepo.module.asset.reflection.GitHubReleasesModuleAssetReflection github = 1;
+  repeated runtime.aot.monorepo.module.asset.reflection.GoogleCloudStorageModuleAssetReflection gcp = 2;
+  repeated runtime.aot.monorepo.module.asset.reflection.ModuleAssetReflection local = 3;
+}

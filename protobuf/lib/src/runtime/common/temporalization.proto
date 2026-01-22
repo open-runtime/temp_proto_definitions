@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "lib/src/google/protobuf/timestamp.proto";
+
+package runtime.common;
+
+message TemporalRange {
+  google.protobuf.Timestamp to = 1; // to is relative of from
+  google.protobuf.Timestamp from = 2; // from is in the past
+}
+
+message TemporalRangeGroup {
+  repeated TemporalRange ranges = 1;
+  string substring = 2; //"yesterday evening"
+}
+
+message Temporalization {
+  repeated TemporalRangeGroup primary = 1;
+}

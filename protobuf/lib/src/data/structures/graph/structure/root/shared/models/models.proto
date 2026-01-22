@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+import "lib/src/data/structures/node/structure/root/shared/models/models.proto";
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.data.structures.graph.structure;
+
+
+
+message SeededLeafNodeGraph {
+  // This can be thought of as the data node for this graph
+  runtime.aot.data.structures.node.structure.NodeEdge node = 1;
+  //  repeated NodeEdge nodes = 3;
+  // TODO allow intermediates to be attached to leafs on creation?
+  // repeated runtime.aot.data.structures.node.structure.LeafNodeGraphEdges leafs = 4;
+}
+
+message LeafNodeGraph {
+  runtime.aot.data.structures.node.structure.NodeGraphIdentity identity = 1;
+
+  // Primary node representing this leaf
+  runtime.aot.data.structures.node.structure.Node node = 2;
+
+  runtime.aot.data.structures.node.structure.LeafNodeGraphEdges edges = 3;
+}
+
+message SeededIntermediateNodeGraph {
+  runtime.aot.data.structures.node.structure.NodeEdge node = 1;
+  // This can be thought of as the data node for this graph
+  repeated runtime.aot.data.structures.node.structure.NodeEdge nodes = 3;
+
+  repeated runtime.aot.data.structures.node.structure.LeafNodeGraphEdges leafs = 4;
+}
+
+message IntermediateNodeGraph {
+  runtime.aot.data.structures.node.structure.NodeGraphIdentity identity = 1;
+
+  // Primary node representing this intermediate
+  runtime.aot.data.structures.node.structure.Node node = 2;
+
+  runtime.aot.data.structures.node.structure.IntermediateNodeGraphEdges edges = 3;
+}
+
+// TODO Determine the need for this here in the near future
+message RootNodeGraph {
+  runtime.aot.data.structures.node.structure.NodeGraphIdentity identity = 1;
+
+  // Primary node representing this intermediate
+  runtime.aot.data.structures.node.structure.Node node = 2;
+
+  runtime.aot.data.structures.node.structure.RootNodeGraphEdges edges = 3;
+}

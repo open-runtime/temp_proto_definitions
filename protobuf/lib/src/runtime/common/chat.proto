@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "lib/src/runtime/common/origin_application.proto";
+import "lib/src/runtime/common/user.proto";
+import "lib/src/runtime/common/chat_message.proto";
+import "lib/src/runtime/common/chat_summary.proto";
+import "lib/src/runtime/common/chat_title.proto";
+import "lib/src/google/protobuf/timestamp.proto";
+
+package runtime.common;
+
+message Chat {
+    runtime.common.ChatTitle title = 1;
+
+    repeated runtime.common.ChatSummary summaries = 2;
+    
+    repeated runtime.common.ChatMessage messages = 3;
+    
+    runtime.common.UserProfile user = 4;
+
+    runtime.common.OriginApplication origin = 5;
+
+    // whatever in the future, i..e existing ranges, anchors, people, assets, files, etc. 
+    google.protobuf.Timestamp created = 6;
+
+    google.protobuf.Timestamp updated = 7;
+  
+}

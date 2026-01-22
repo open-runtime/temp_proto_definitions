@@ -1,0 +1,352 @@
+// =============================================================================
+// Gemini Inference Protocol Buffer Definition
+// =============================================================================
+// This file defines the protocol buffer messages and enums for the Gemini 
+// inference service. It provides a type-safe interface for both simplified
+// and advanced interactions with the Gemini API.
+//
+// Core Concepts:
+// 1. Dual Interface: Supports both simplified and advanced (raw) API access
+// 2. Type Safety: Extensive use of oneofs and enums for compile-time checks
+// 3. Schema Validation: Support for strict JSON schema validation
+// 4. Streaming: Built-in support for both streaming and non-streaming responses
+//
+// Usage Patterns:
+// 1. Simplified Usage:
+//    ```dart
+//    final request = GeminiInferenceRequest(
+//      input: GeminiInferenceRequestInput(
+//        simplified: GeminiInferenceSimplifiedRequest(
+//          model: GeminiInferenceModel(
+//            enumeration: GeminiInferenceModelEnum.GEMINI_1_5_FLASH
+//          ),
+//          prompt: GeminiInferenceSimplifiedRequestPrompt(
+//            instructions: "Your prompt here"
+//          )
+//        )
+//      )
+//    );
+//    ```
+//
+// 2. Advanced Usage (Direct API):
+//    ```dart
+//    final request = GeminiInferenceRequest(
+//      input: GeminiInferenceRequestInput(
+//        advanced: GenerateContentRequest(
+//          model: 'gemini-2.0-flash',
+//          contents: [Content(...)]
+//        )
+//      )
+//    );
+//    ```
+//
+// 3. Schema Validation:
+//    ```dart
+//    final request = GeminiInferenceRequest(
+//      input: GeminiInferenceRequestInput(
+//        simplified: GeminiInferenceSimplifiedRequest(
+//          configuration: GeminiInferenceSimplifiedRequestConfiguration(
+//            strictSchema: Schema(
+//              type: Type.OBJECT,
+//              required: ['text'],
+//              properties: {
+//                'text': Schema(type: Type.STRING)
+//              }
+//            )
+//          )
+//        )
+//      )
+//    );
+//    ```
+//
+// Best Practices & Design Decisions:
+//
+// 1. Top-Level Message Definitions:
+//    - All messages are defined at the top level, never nested within other messages
+//    - Benefits:
+//      a. Improved code generation in multiple languages
+//      b. Better IDE support and type hints
+//      c. Easier message reuse across different contexts
+//      d. Clearer dependency graphs and import chains
+//
+// 2. Explicit Type Hierarchies:
+//    - Use of oneof for variant types (e.g., GeminiInferenceRequestInput)
+//    - Benefits:
+//      a. Compile-time type safety
+//      b. Clear API boundaries
+//      c. Easier versioning and backwards compatibility
+//      d. Self-documenting code through type system
+//
+// 3. Symmetrical Request/Response Structure:
+//    - Request and response messages mirror each other
+//    - Benefits:
+//      a. Predictable API patterns
+//      b. Easier client implementation
+//      c. Simplified testing and validation
+//      d. Clear data flow through the system
+//
+// 4. Clear Separation of Concerns:
+//    - Each message has a single, well-defined purpose
+//    - Configuration separate from data
+//    - Benefits:
+//      a. Easier to maintain and modify
+//      b. Better encapsulation
+//      c. More flexible configuration options
+//      d. Clearer documentation
+//
+// 5. Consistent Naming Conventions:
+//    - SCREAMING_CASE for enums (Dart convention)
+//    - PascalCase for messages
+//    - Clear prefixes for related messages
+//    - Benefits:
+//      a. Better code readability
+//      b. Easier to find related components
+//      c. Consistent with language-specific conventions
+//      d. Clear message grouping
+//
+// 6. Forward Compatibility:
+//    - Reserved fields for future use
+//    - Explicit versioning in enums
+//    - Benefits:
+//      a. Safe schema evolution
+//      b. No breaking changes when adding features
+//      c. Clear upgrade paths
+//      d. Better API stability
+//
+// 7. Documentation Patterns:
+//    - Each component has clear purpose documentation
+//    - Example usage provided for complex patterns
+//    - Benefits:
+//      a. Self-documenting code
+//      b. Easier onboarding for new developers
+//      c. Clear usage patterns
+//      d. Reduced support burden
+//
+// 8. Schema Validation Integration:
+//    - Built-in support for output validation
+//    - Strict schema enforcement options
+//    - Benefits:
+//      a. Guaranteed response formats
+//      b. Early error detection
+//      c. Better integration with typed languages
+//      d. Simplified client-side parsing
+//
+// =============================================================================
+
+syntax = "proto3";
+
+// External Dependencies
+// Note: These imports provide core types and Gemini API integration
+import 'lib/src/googleapis/google/ai/generativelanguage/v1beta/generative_service.proto';
+import 'lib/src/googleapis/google/ai/generativelanguage/v1beta/content.proto';
+import 'lib/src/google/protobuf/struct.proto';
+
+// Package Definition
+// Using hierarchical naming for clear organization and scope
+package runtime.aot.machine_learning.parents.gemini;
+
+//------------------------------------------------------------------------------
+// Initialization Messages
+// Pattern: Separate initialization concerns from runtime concerns
+//------------------------------------------------------------------------------
+
+// Message used to initialize a Gemini inference instance
+// Used in GeminiInferenceService initialization
+// Example:
+//   final service = GeminiInferenceService(initialization: GeminiInferenceInitialization());
+message GeminiInferenceInitialization {
+}
+
+// Message representing an initialized Gemini inference instance
+// Returned after successful service initialization
+message InitializedGeminiInference {
+}
+
+//------------------------------------------------------------------------------
+// Request Related Enums and Messages 
+// Pattern: Clear type hierarchies with consistent naming
+//------------------------------------------------------------------------------
+
+// Message for model configuration
+// Supports both enum-based and string-based model selection
+// Used in both simplified and advanced requests
+// Example Usage:
+//   model: GeminiInferenceModel(
+//     enumeration: GeminiInferenceModelEnum.GEMINI_1_5_FLASH
+//   )
+message GeminiInferenceModel {
+  oneof model {
+    GeminiInferenceModelEnum enumeration = 1; // Explicit enum-based model selection
+    string name = 2;                          // Custom model name (e.g., "gemini-2.0-flash-vision")
+  }
+}
+
+// Available Gemini model versions
+// Used for type-safe model selection in requests
+// Best Practice: SCREAMING_CASE for enums, UNSPECIFIED first
+// Note: Models are ordered by release version
+enum GeminiInferenceModelEnum {
+  UNSPECIFIED_GEMINI_MODEL = 0;  // Default unspecified value
+  GEMINI_PRO = 1;                // Base pro model - General purpose (DEPRECATED -> 2.0-flash)
+  GEMINI_1_5_PRO = 2;            // Version 1.5 pro - DEPRECATED -> 2.0-flash
+  GEMINI_1_0_PRO = 3;            // Version 1.0 pro - DEPRECATED -> 2.0-flash
+  GEMINI_1_5_FLASH = 4;          // Version 1.5 flash - DEPRECATED -> 2.0-flash
+  GEMINI_1_5_PRO_LATEST = 5;     // Latest 1.5 pro - DEPRECATED -> 2.0-flash
+  GEMINI_2_0_FLASH_EXP = 6;      // Experimental 2.0 - Beta features
+  GEMINI_2_0_FLASH = 7;          // Current default flash model
+  GEMINI_2_5_PRO = 8;            // Version 2.5 pro - Premium model
+  GEMINI_3_0_PRO = 9;            // Version 3.0 pro - Latest premium
+  GEMINI_2_5_FLASH = 10;         // Version 2.5 flash - Enhanced speed
+  GEMINI_3_0_FLASH = 11;         // Version 3.0 flash - Latest fast model
+}
+
+// Response type configuration
+// Controls the structure of the response
+// Used in GeminiInferenceReturnableResponseConfiguration
+enum GeminiInferenceReturningResponseTypeEnum {
+  UNSPECIFIED_MODE = 0;  // Default mode
+  ADVANCED = 1;          // Raw API response format
+  SIMPLIFIED = 2;        // Processed, simplified format
+}
+
+// Message role definition
+// Used in chat-like interactions
+// Example:
+//   role: GeminiInferenceSimplifiedRequestRole.USER
+enum GeminiInferenceSimplifiedRequestRole {
+  UNSPECIFIED_ROLE = 0;  // Default role
+  USER = 1;              // User messages
+  MODEL = 2;             // AI responses
+}
+
+// Output formatting configuration
+// Used to specify expected response format
+// Example:
+//   formatting: GeminiInferenceSimplifiedRequestPromptExpectedOutputFormatting(
+//     example: '{"text": "content goes here"}'
+//   )
+message GeminiInferenceSimplifiedRequestPromptExpectedOutputFormatting {
+  string example = 1;                // Single format example
+  repeated string examples = 2;      // Multiple examples for complex formats
+}
+
+// Complete prompt structure
+// Combines user input, system context, and formatting
+// Example:
+//   prompt: GeminiInferenceSimplifiedRequestPrompt(
+//     instructions: "Generate a title",
+//     formatting: GeminiInferenceSimplifiedRequestPromptExpectedOutputFormatting(...)
+//   )
+message GeminiInferenceSimplifiedRequestPrompt {
+  string user = 1;          // User input text
+  string system = 2;        // System context/constraints
+  string instructions = 3;  // Processing instructions
+  GeminiInferenceSimplifiedRequestPromptExpectedOutputFormatting formatting = 4;
+}
+
+// Request configuration options
+// Controls inference behavior and output
+// Example:
+//   configuration: GeminiInferenceSimplifiedRequestConfiguration(
+//     temperature: 0.7,
+//     max_output_tokens: 1000,
+//     strict_schema: Schema(...)
+//   )
+message GeminiInferenceSimplifiedRequestConfiguration {
+  float temperature = 1;      // Randomness (0.0-1.0)
+  int32 max_output_tokens = 2;// Max response length
+  float top_p = 3;           // Nucleus sampling
+  int32 top_k = 4;           // Top-k sampling
+  int32 candidate_count = 5;  // Alternative count
+  google.ai.generativelanguage.v1beta.Schema strict_schema = 6;  // Output validation
+}
+
+// Simplified request message
+// Complete request structure for simplified API
+// Example:
+//   simplified: GeminiInferenceSimplifiedRequest(
+//     model: GeminiInferenceModel(...),
+//     prompt: GeminiInferenceSimplifiedRequestPrompt(...),
+//     configuration: GeminiInferenceSimplifiedRequestConfiguration(...)
+//   )
+message GeminiInferenceSimplifiedRequest {
+  GeminiInferenceModel model = 1;
+  GeminiInferenceSimplifiedRequestPrompt prompt = 2;
+  GeminiInferenceSimplifiedRequestConfiguration configuration = 3;
+  GeminiInferenceSimplifiedRequestRole role = 4;
+}
+
+// Request input variants
+// Supports both simplified and advanced API access
+// Example:
+//   input: GeminiInferenceRequestInput(
+//     simplified: GeminiInferenceSimplifiedRequest(...)
+//   )
+message GeminiInferenceRequestInput {
+  oneof one_of {
+    google.ai.generativelanguage.v1beta.GenerateContentRequest advanced = 1;
+    GeminiInferenceSimplifiedRequest simplified = 2;
+  }
+}
+
+// Response configuration
+// Controls response format and processing
+// Example:
+//   returnable: GeminiInferenceReturnableResponseConfiguration(
+//     type: GeminiInferenceReturningResponseTypeEnum.SIMPLIFIED
+//   )
+message GeminiInferenceReturnableResponseConfiguration {
+  GeminiInferenceReturningResponseTypeEnum type = 1;
+}
+
+// Top-level request message
+// Complete request structure
+// Example:
+//   request: GeminiInferenceRequest(
+//     input: GeminiInferenceRequestInput(...),
+//     returnable: GeminiInferenceReturnableResponseConfiguration(...)
+//   )
+message GeminiInferenceRequest {
+  GeminiInferenceRequestInput input = 1;
+  GeminiInferenceReturnableResponseConfiguration returnable = 2;
+}
+
+//------------------------------------------------------------------------------
+// Response Messages
+// Pattern: Symmetrical structure to requests with clear response types
+//------------------------------------------------------------------------------
+
+// Simplified response format
+// Contains both raw text and structured data
+// Example Access:
+//   response.output.simplified.value           // Raw text
+//   response.output.simplified.struct.fields   // Structured data
+message GeminiInferenceSimplifiedResponse {
+  string value = 1;                // Text response
+  google.protobuf.Struct struct = 2; // JSON structure
+}
+
+// Response output variants
+// Mirrors request input structure
+// Example Access:
+//   response.output.simplified    // Simplified format
+//   response.output.advanced      // Raw API format
+message GeminiInferenceResponseOutput {
+  oneof one_of {
+    google.ai.generativelanguage.v1beta.GenerateContentResponse advanced = 1;
+    GeminiInferenceSimplifiedResponse simplified = 2;
+  }
+}
+
+// Top-level response message
+// Complete response structure
+// Common Access Patterns:
+// 1. Text Response:
+//    response.output.simplified.value
+// 2. Structured Data:
+//    response.output.simplified.struct.fields['field_name']
+// 3. Raw API Response:
+//    response.output.advanced.candidates[0].content
+message GeminiInferenceResponse {
+  GeminiInferenceResponseOutput output = 1;
+}

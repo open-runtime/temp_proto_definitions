@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/parents/gpt/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.parents.gpt;
+
+
+service GPTInferenceService {
+  rpc Initialize(GPTInferenceInitialization) returns (InitializedGPTInference) {};
+  rpc Predict(GPTInferencePredictionInput) returns (GPTInferencePredictionOutput) {};
+  rpc PredictWithStream(GPTInferencePredictionInput) returns (stream GPTInferencePredictionOutput) {};
+  rpc Embed(GPTInferenceEmbeddingInput) returns (GPTInferenceEmbeddingOutput) {};
+  rpc Moderate(ModerationRequest) returns (ModerationResponse) {};
+  rpc SayHello (HelloRequest) returns (HelloReply) {};
+}

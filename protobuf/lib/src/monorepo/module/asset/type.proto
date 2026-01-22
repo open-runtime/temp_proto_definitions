@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.module.asset.type;
+
+enum ModuleAssetTypeEnum {
+  UNKNOWN = 0;
+  EXECUTABLE = 1;
+  ONNX_MODEL = 2;
+  DIRECTORY = 3;
+  GENERIC = 4;
+  LIBRARY = 5;
+  CONFIGURATION = 6;
+}

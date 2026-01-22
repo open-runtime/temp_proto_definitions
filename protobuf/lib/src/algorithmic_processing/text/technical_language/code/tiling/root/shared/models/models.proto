@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.algorithmic_processing.text.technical_language.code.tiling;
+
+message UntiledCode {
+  string value = 1;
+}
+
+message TiledCode {
+  runtime.aot.core.Cancellation cancellation = 1;
+  string value = 2;
+}
+
+

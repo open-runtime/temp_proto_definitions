@@ -1,0 +1,667 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/parents/aws_bedrock/root/shared/models/models.proto";
+import "lib/src/machine_learning/parents/msft_azure_openai/root/shared/models/models.proto";
+import "lib/src/google/protobuf/struct.proto";
+import "lib/src/google/protobuf/timestamp.proto";
+
+package runtime.aot.core;
+
+// =============================================================================
+// Team User Service Profile Snapshot Protocol Buffer Definition
+// =============================================================================
+// This file defines the protocol buffer messages for the user-team-service
+// profile snapshot endpoint response.
+//
+// Endpoint Information:
+// - Base URL: Configured via USER_TEAM_SERVICE_URL environment variable
+//   Default: https://user-team-service-226509373556.us-central1.run.app
+// - Endpoint: GET /aot
+//   This endpoint returns user profile with organization memberships,
+//   subscriptions, and AOT-specific configuration (Bedrock, Azure OpenAI, etc.)
+//
+// Reference Implementation:
+// packages/aot/core/lib/grpc/shared/interceptors/event_sourcing/per_user_key_auth/user_team_key_provider.dart
+//
+// =============================================================================
+// API SCHEMA EVOLUTION DOCUMENTATION
+// =============================================================================
+// This section documents the JSON response structure changes over time.
+// The API has evolved to include more detailed model access configuration.
+//
+// ** IMPORTANT: Pre-November 25th, 2025 Structure **
+// Example JSON Response Structure (LEGACY - Before modelAccess expansion):
+// {
+//     "id": "2ecbbd8d-5ee7-470c-8832-eab7796a7650",
+//     "userId": "U2vuxFTbEbwsnJGU0y21uZoTwS3U",
+//     "autho_id": "",
+//     "name": "Brian Powell",
+//     "givenName": "Brian",
+//     "middleName": "Garrett",
+//     "familyName": "Powell",
+//     "paddle_id": "",
+//     "paddle_last_webhook_at": null,
+//     "email": "brian.powell@pieces.app",
+//     "phone": "",
+//     "picture": "https://lh3.googleusercontent.com/a/ACg8ocJY3h6sL_KSRTtGUFGBptccuVDr9un-dU6aroLmFh5D1GyqTuo=s96-c",
+//     "createdTime": 1745008656,
+//     "updatedTime": 1763585591,
+//     "loginIds": [
+//         "google-112221395643909807921",
+//         "github-183550515",
+//         "brian.powell@pieces.app",
+//         "slack-u08jvsp6dfh",
+//         "discord-1290775576612700282",
+//         "gitlab-26081193"
+//     ],
+//     "roleNames": null,
+//     "ssoAppIds": null,
+//     "oauth": null,
+//     "isVerifiedEmail": false,
+//     "isVerifiedPhone": false,
+//     "password": true,
+//     "status": "enabled",
+//     "welcome_email": true,
+//     "vanity": null,
+//     "cloud_key": "",
+//     "open_ai": null,
+//     "beta": null,
+//     "allocation": null,
+//     "orgs": [
+//         {
+//             "id": "org_27381468532208881308140613634375",
+//             "name": "Pieces",
+//             "paddle_id": "ctm_01jt6jag39vh91nbkd3r8gwcx0",
+//             "subscriptions": [
+//                 {
+//                     "product_id": "pro_01k45vbvn3gmc2m08ja5bgrms9",
+//                     "price_id": "pri_01k45vdhadj67kcn6e04yxx5jz",
+//                     "name": "Enterprise Seat Monthly",
+//                     "price": "2299",
+//                     "subscription_id": "sub_01k9whch3tve39zrbbqny23k1d",
+//                     "billing_term": "month",
+//                     "quantity": 5,
+//                     "created_at": "2025-11-12T17:21:33.818Z",
+//                     "nextbilled_at": "2025-12-12T17:21:33.323122Z",
+//                     "paused_at": null,
+//                     "canceled_at": null,
+//                     "active": true
+//                 }
+//             ],
+//             "configuration": {
+//                 "open_ai": null,
+//                 "gemini": null,
+//                 "claude": null,
+//                 "bedrock": {
+//                     "bedrock": {
+//                         "access_key_credentials": [
+//                             {
+//                                 "access_key": "AKIAXXXXXXXXXXXXXXXX",
+//                                 "secret_key": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+//                                 "region": "us-east-1"
+//                             }
+//                         ],
+//                         "api_keys": [
+//                             {
+//                                 "name": "BedrockAPIKey-tzf4-at-605134436431",
+//                                 "key": "ABSKXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX="
+//                             }
+//                         ]
+//                     }
+//                 },
+//                 "toggles": {
+//                     "InstanceConfiguration.analytics.bigQuery.enabled": true,
+//                     "InstanceConfiguration.analytics.segment.enabled": true,
+//                     "InstanceConfiguration.analytics.sendInternalSummaryReportsToUserTeamService.enabled": true,
+//                     "InstanceConfiguration.externalCloud.cloudBackupCreation.enabled": true,
+//                     "InstanceConfiguration.externalCloud.connectToCloud.enabled": false,
+//                     "InstanceConfiguration.externalCloud.deleteCloudBackup.enabled": true,
+//                     "InstanceConfiguration.externalCloud.listCloudBackups.enabled": true,
+//                     "InstanceConfiguration.externalCloud.listSpecificCloudBackup.enabled": true,
+//                     "InstanceConfiguration.externalCloud.reconnectToCloud.enabled": false,
+//                     "InstanceConfiguration.externalCloud.restoreCloudBackup.enabled": true,
+//                     "InstanceConfiguration.externalCloud.shareSnippet.enabled": false,
+//                     "InstanceConfiguration.externalCloud.updateAllocationCloud.enabled": false,
+//                     "InstanceConfiguration.externalProvider.customizedAllowedModels.enabled": true,
+//                     "InstanceConfiguration.externalProvider.deniedWorkstreamPatternEngineSources.enabled": true,
+//                     "InstanceConfiguration.externalProvider.deniedWorkstreamPatternEngineWebsites.enabled": true,
+//                     "InstanceConfiguration.externalProvider.processing.enabled": true
+//                 },
+//                 "processing": "BLENDED",
+//                 "modelAccess": [
+//                     {
+//                         "name": "o3 Pro Chat Model",
+//                         "unique": "o3-pro-2025-06-10"
+//                         // ⚠️ PRE-NOVEMBER 25TH 2025: Only 'name' and 'unique' fields
+//                         // No version, cloud, type, usage, provider, or metadata
+//                     },
+//                     {
+//                         "name": "Claude 4.1 Opus Chat Model",
+//                         "unique": "claude-opus-4-1-20250805"
+//                     }
+//                 ]
+//             },
+//             "tenant_id": "",
+//             "domains": [],
+//             "createdTime": 1762968070,
+//             "updatedTime": 1763497353
+//         }
+//     ],
+//     "subscriptions": [],
+//     "api_keys": [
+//         "6b85b3e8-****-****-****-5ee23147915e",
+//         "871ac818-****-****-****-b46f32048593",
+//         "215827b0-****-****-****-894e06459968",
+//         "c21674fd-****-****-****-110e7a47d22a",
+//         "af40bec6-****-****-****-235f17babfa2",
+//         "73fa99a2-****-****-****-45d771a1de2b",
+//         "6dae2f10-****-****-****-279f5636344a",
+//         "a319a143-****-****-****-335828e49f2a",
+//         "c4b739e1-****-****-****-e44ae20d0752",
+//         "c7ad8779-****-****-****-c73a7a001e01",
+//         "c133f834-****-****-****-3cd1b7341beb",
+//         "441fdc0b-****-****-****-354298fd48c8",
+//         "0ccbd323-****-****-****-b39ac292eb11"
+//     ],
+//     "created_at": 1745008656,
+//     "updated_at": 1763585591
+// }
+//
+// =============================================================================
+// ** CURRENT STRUCTURE: November 25th, 2025 - Present **
+// =============================================================================
+//
+// MAJOR CHANGES FROM PREVIOUS VERSION:
+// -------------------------------------
+// 1. ✅ modelAccess[] expanded from 2 fields → 14 fields
+//    OLD (pre-Nov 25th): {"name": "...", "unique": "..."}
+//    NEW (Nov 25th+):    {"name": "...", "unique": "...", "version": "...",
+//                         "cloud": bool, "type": "...", "usage": "...",
+//                         "foundation": "...", "provider": "...", "cpu": bool,
+//                         "modelLabel": "...", "modelDescription": "...",
+//                         "modelFamily": "...", "maxTokens": {...}, "custom": bool}
+//
+// 2. ✅ maxTokens introduced as nested object:
+//    Structure: {"total": 0, "input": 0, "output": 0}
+//    For custom Bedrock models: {"total": 200000, "input": 200000, "output": 64000}
+//
+// 3. ✅ Model providers now include AWS_BEDROCK in addition to ANTHROPIC, GOOGLE, OPENAI
+//
+// 4. ✅ Billing terms now included in subscriptions: "month" or "year"
+//
+// Example JSON Response (ACTUAL RESPONSE as of November 25th, 2025):
+// {
+//     "id": "7a5155e0-3ecb-4e55-8ee0-819e6fe7513f",
+//     "userId": "U2vWebPXQXwiSzaJKkspS2jrOSy7",
+//     "autho_id": "google-oauth2|107873995935443411600",
+//     "name": "Tsavo Knott",
+//     "givenName": "Tsavo",
+//     "middleName": "",
+//     "familyName": "Knott",
+//     "paddle_id": "ctm_01jz0yvxx4mn4s1kzncbwkqhw6",
+//     "paddle_last_webhook_at": "2025-10-30T17:55:22.718228Z",
+//     "email": "tsavo@pieces.app",
+//     "phone": "",
+//     "picture": "https://lh3.googleusercontent.com/a/ACg8ocLXhER7daPvM3aTuzVMKbr0-mWTSbl7dz0WA7qllw18VKU1-TEU=s96-c",
+//     "createdTime": 1625725844,
+//     "updatedTime": 1764174783,
+//     "loginIds": ["tsavo@pieces.app", "google-107873995935443411600", "github-102485237"],
+//     "roleNames": null,
+//     "ssoAppIds": null,
+//     "oauth": null,
+//     "isVerifiedEmail": false,
+//     "isVerifiedPhone": false,
+//     "password": false,
+//     "status": "enabled",
+//     "welcome_email": true,
+//     "vanity": "tsavo",
+//     "cloud_key": "",
+//     "open_ai": null,
+//     "beta": {
+//         "from": {"value": "2024-04-16T04:00Z"},
+//         "to": {"value": "2025-05-31T04:00Z"},
+//         "continous": false,
+//         "between": false
+//     },
+//     "allocation": {
+//         "project": "runtime-user-cloud-group-0",
+//         "region": "us-west1"
+//     },
+//     "orgs": [
+//         {
+//             "id": "org_20598756839437442969334692817437",
+//             "name": "Pieces",
+//             "paddle_id": "ctm_01jz0sg2t5a6gsdg9hd35v283b",
+//             "subscriptions": [
+//                 {
+//                     "product_id": "pro_01k6xekwpg5ehc9wcc9dbnaa04",
+//                     "price_id": "pri_01k6xer1vdrdxfrbdd10mj4gt3",
+//                     "name": "Enterprise Seat Yearly",
+//                     "price": "27599",
+//                     "subscription_id": "sub_01kaednewrwbn4dntbnc5rdva0",
+//                     "billing_term": "year",  // ✅ NEW FIELD (Nov 25th+)
+//                     "quantity": 20,
+//                     "created_at": "2025-11-19T16:01:36.590336Z",
+//                     "nextbilled_at": "2026-11-19T16:02:51.923Z",
+//                     "paused_at": null,
+//                     "canceled_at": null,
+//                     "active": true
+//                 }
+//             ],
+//             "configuration": {
+//                 "open_ai": null,
+//                 "gemini": null,
+//                 "claude": null,
+//                 "bedrock": null,  // Can be null if no Bedrock config
+//                 "toggles": {
+//                     "InstanceConfiguration.analytics.bigQuery.enabled": true,
+//                     "InstanceConfiguration.analytics.segment.enabled": true,
+//                     "InstanceConfiguration.externalProvider.customizedAllowedModels.enabled": true,
+//                     // ... many more feature toggles ...
+//                 },
+//                 "processing": "",  // Can be "BLENDED" or other values
+//                 "modelAccess": [
+//                     // ✅ EXPANDED STRUCTURE (Nov 25th, 2025 onwards)
+//                     // Previously only had 'name' and 'unique'
+//                     // Now includes comprehensive model metadata:
+//                     {
+//                         "name": "Claude 3.7 Sonnet Chat Model",
+//                         "unique": "claude-3-7-sonnet-20250219",
+//                         "version": "t32-v01-i01",  // ✅ NEW: Version/tier identifier
+//                         "cloud": true,  // ✅ NEW: Cloud-based vs local
+//                         "type": "BALANCED",  // ✅ NEW: ACCURACY|SPEED|BALANCED
+//                         "usage": "CODE_CONVERSATION",  // ✅ NEW: Use case category
+//                         "foundation": "CLAUDE_LATEST",  // ✅ NEW: Model foundation
+//                         "provider": "ANTHROPIC",  // ✅ NEW: ANTHROPIC|GOOGLE|OPENAI|AWS_BEDROCK
+//                         "cpu": false,  // ✅ NEW: CPU vs GPU
+//                         "modelLabel": "Claude 3.7 Sonnet Chat Model",  // ✅ NEW: Display label
+//                         "modelDescription": "Claude 3.7 Sonnet Chat Model, cloud-based, optimized for speed",  // ✅ NEW
+//                         "modelFamily": "anthropic",  // ✅ NEW: Family grouping
+//                         "maxTokens": {  // ✅ NEW: Nested object for token limits
+//                             "total": 0,  // 0 = unlimited or default
+//                             "input": 0,
+//                             "output": 0
+//                         },
+//                         "custom": false  // ✅ NEW: Custom vs standard model
+//                     },
+//                     {
+//                         // Example: AWS Bedrock custom model with non-zero token limits
+//                         "name": "Claude Sonnet 4.5 Chat Model",
+//                         "unique": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+//                         "version": "anthropic.claude-sonnet-4-5-20250929-v1:0",
+//                         "cloud": true,
+//                         "type": "ACCURACY",
+//                         "usage": "CODE_CONVERSATION",
+//                         "foundation": "AWS_BEDROCK_LATEST",  // ✅ NEW: AWS_BEDROCK foundation
+//                         "provider": "AWS_BEDROCK",  // ✅ NEW: AWS_BEDROCK provider
+//                         "cpu": false,
+//                         "modelLabel": "Claude Sonnet 4.5 Chat Model",
+//                         "modelDescription": "Claude Sonnet 4.5 via AWS Bedrock, latest high-performance model",
+//                         "modelFamily": "bedrock",
+//                         "maxTokens": {
+//                             "total": 200000,  // ✅ Specific limits for custom models
+//                             "input": 200000,
+//                             "output": 64000
+//                         },
+//                         "custom": true  // ✅ Custom Bedrock deployment
+//                     }
+//                     // ... typically 15-20+ models in production
+//                 ]
+//             },
+//             "tenant_id": "",
+//             "domains": [],
+//             "createdTime": 1763568078,
+//             "updatedTime": 1764108917
+//         }
+//     ],
+//     "subscriptions": [
+//         {
+//             "product_id": "pro_01jp5e6gt307j7abht0rh3yz3g",
+//             "price_id": "pri_01jp5e99eep24299j801mc6pch",
+//             "name": "Pieces Pro Plan Monthly",
+//             "price": "1899",
+//             "subscription_id": "sub_01k6dw67eq33yn28pyxpaxsnyk",
+//             "billing_term": "month",  // ✅ NEW FIELD (Nov 25th+)
+//             "quantity": 1,
+//             "created_at": "2025-10-30T17:55:18.490835Z",
+//             "nextbilled_at": "2025-11-30T17:54:39.192694Z",
+//             "paused_at": null,
+//             "canceled_at": null,
+//             "active": true
+//         }
+//     ],
+//     "api_keys": [
+//         "81d2b459-****-****-****-1f1c2bca313f",
+//         "014ddb16-****-****-****-140ba02579f5",
+//         "8b8175d8-****-****-****-53306f68291a",
+//         "3a47696a-****-****-****-120e1128dde5",
+//         "289127b2-****-****-****-f94d1db7d4c0",
+//         "d6c3b3cc-****-****-****-ffc35f934ac5",
+//         "890ebf77-****-****-****-1d748351f0b6",
+//         "5850dc0e-****-****-****-6867f949b173",
+//         "6b562254-****-****-****-6eb05497780b",
+//         "de1a3ea7-****-****-****-769b17c4408c",
+//         "1fa3b40c-****-****-****-652cce4a603b",
+//         "4d11dc7b-****-****-****-411bec4cb5c5",
+//         "1bf82de9-****-****-****-6723dde025bc"
+//     ],
+//     "created_at": 1625725844,
+//     "updated_at": 1764174783
+// }
+//
+// =============================================================================
+// ROBUSTNESS STRATEGY (Nov 25th, 2025 onwards)
+// =============================================================================
+//
+// To handle future API changes gracefully, we implemented:
+//
+// 1. **Unknown Field Filtering (Default: Enabled)**
+//    - Automatically filters fields not in proto schema
+//    - Prevents FormatException on API additions
+//    - Forward compatible: old clients work with new API versions
+//    - See: team_user_service_profile_snapshot_extensions.dart
+//
+// 2. **Sentry Monitoring**
+//    - Reports filtered unknown fields to Sentry (breadcrumbs)
+//    - Enables proactive schema updates
+//    - Privacy: only field names reported, no values
+//
+// 3. **Comprehensive Proto Schema**
+//    - All known fields documented and typed
+//    - Includes fields added on Nov 25th, 2025
+//    - Ready for future extensions
+//
+// For detailed documentation, see:
+// - packages/aot/core/ROBUSTNESS_STRATEGY_API_PARSING.md
+// - packages/libraries/dart/isomorphic/lib/core/root/grpc/shared/extensions/team_user_service_profile_snapshot_extensions.dart
+//
+// =============================================================================
+
+// Top-level message representing the complete user profile snapshot
+message TeamUserServiceProfileSnapshot {
+  // User identifier (UUID format)
+  string id = 1;
+  
+  // User ID (internal identifier)
+  // API sends both "userId" (camelCase) and "user_id" (snake_case)
+  string user_id = 2 [json_name = "user_id"];
+  
+  // Optional: Authorization ID
+  // Deprecated: This field is deprecated and may be removed in a future version
+  string autho_id = 3 [deprecated = true, json_name = "autho_id"];
+  
+  // User's full name
+  string name = 4;
+  
+  // User's given name (first name)
+  // API sends both "givenName" (camelCase) and "given_name" (snake_case)
+  string given_name = 5 [json_name = "given_name"];
+  
+  // User's middle name
+  // API sends both "middleName" (camelCase) and "middle_name" (snake_case)
+  string middle_name = 6 [json_name = "middle_name"];
+  
+  // User's family name (last name)
+  // API sends both "familyName" (camelCase) and "family_name" (snake_case)
+  string family_name = 7 [json_name = "family_name"];
+  
+  // Optional: Paddle payment processor ID
+  string paddle_id = 8 [json_name = "paddle_id"];
+  
+  // Optional: Last webhook received from Paddle
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  google.protobuf.Timestamp paddle_last_webhook_at = 9 [json_name = "paddle_last_webhook_at"];
+  
+  // User's email address
+  string email = 10;
+  
+  // Optional: User's phone number
+  string phone = 11;
+  
+  // Optional: User's profile picture URL
+  string picture = 12;
+  
+  // Account creation time
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  // API sends both "createdTime" (camelCase) and "created_time" (snake_case)
+  google.protobuf.Timestamp created_time = 13 [json_name = "createdTime"];
+  
+  // Last update time
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  // API sends both "updatedTime" (camelCase) and "updated_time" (snake_case)
+  google.protobuf.Timestamp updated_time = 14 [json_name = "updatedTime"];
+  
+  // List of login IDs (OAuth providers, email, etc.)
+  // API sends both "loginIds" (camelCase) and "login_ids" (snake_case)
+  repeated string login_ids = 15 [json_name = "loginIds"];
+  
+  // Optional: Role names assigned to the user
+  // API sends both "roleNames" (camelCase) and "role_names" (snake_case)
+  repeated string role_names = 16 [json_name = "roleNames"];
+  
+  // Optional: SSO application IDs
+  // API sends both "ssoAppIds" (camelCase) and "sso_app_ids" (snake_case)
+  repeated string sso_app_ids = 17 [json_name = "ssoAppIds"];
+  
+  // Optional: OAuth configuration
+  google.protobuf.Struct oauth = 18;
+  
+  // Whether the user's email is verified
+  // API sends both "isVerifiedEmail" (camelCase) and "is_verified_email" (snake_case)
+  bool is_verified_email = 19 [json_name = "isVerifiedEmail"];
+  
+  // Whether the user's phone is verified
+  // API sends both "isVerifiedPhone" (camelCase) and "is_verified_phone" (snake_case)
+  bool is_verified_phone = 20 [json_name = "isVerifiedPhone"];
+  
+  // Whether the user has a password set
+  bool password = 21;
+  
+  // User account status (e.g., "enabled", "disabled")
+  string status = 22;
+  
+  // Whether welcome email was sent
+  bool welcome_email = 23 [json_name = "welcome_email"];
+  
+  // Optional: Vanity username/identifier
+  string vanity = 24;
+  
+  // Optional: Cloud key identifier
+  string cloud_key = 25 [json_name = "cloud_key"];
+  
+  // Optional: OpenAI configuration
+  google.protobuf.Struct open_ai = 26 [json_name = "open_ai"];
+  
+  // Optional: Beta feature flags
+  google.protobuf.Struct beta = 27;
+  
+  // Optional: Resource allocation configuration
+  google.protobuf.Struct allocation = 28;
+  
+  // Organizations the user belongs to
+  repeated TeamUserServiceProfileOrganization orgs = 29;
+  
+  // User-level subscriptions (if any)
+  repeated TeamUserServiceProfileSubscription subscriptions = 30;
+  
+  // User's API keys (list of UUIDs)
+  // API sends both "apiKeys" (camelCase) and "api_keys" (snake_case)
+  repeated string api_keys = 31 [json_name = "apiKeys"];
+  
+  // Account creation timestamp (alternative format)
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  google.protobuf.Timestamp created_at = 32 [json_name = "created_at"];
+  
+  // Last update timestamp (alternative format)
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  google.protobuf.Timestamp updated_at = 33 [json_name = "updated_at"];
+}
+
+// Organization message representing a team/organization
+message TeamUserServiceProfileOrganization {
+  // Organization identifier
+  string id = 1;
+  
+  // Organization name
+  string name = 2;
+  
+  // Optional: Paddle customer ID
+  string paddle_id = 3 [json_name = "paddle_id"];
+  
+  // Organization-level subscriptions
+  repeated TeamUserServiceProfileSubscription subscriptions = 4;
+  
+  // Organization configuration (includes AOT-specific configs like Bedrock)
+  TeamUserServiceProfileOrganizationConfiguration configuration = 5;
+  
+  // Optional: Tenant ID
+  string tenant_id = 6 [json_name = "tenant_id"];
+  
+  // List of domains associated with the organization
+  repeated string domains = 7;
+  
+  // Organization creation time
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  // API sends "createdTime" (camelCase)
+  google.protobuf.Timestamp created_time = 8 [json_name = "createdTime"];
+  
+  // Last update time
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  // API sends "updatedTime" (camelCase)
+  google.protobuf.Timestamp updated_time = 9 [json_name = "updatedTime"];
+}
+
+// Subscription message representing a user or organization subscription
+message TeamUserServiceProfileSubscription {
+  // Product ID from payment processor
+  string product_id = 1 [json_name = "product_id"];
+  
+  // Price ID from payment processor
+  string price_id = 2 [json_name = "price_id"];
+  
+  // Subscription name/plan name
+  string name = 3;
+  
+  // Subscription price (as string, e.g., "2299" for $22.99)
+  string price = 4;
+  
+  // Subscription ID from payment processor
+  string subscription_id = 5 [json_name = "subscription_id"];
+  
+  // Billing term (e.g., "month", "year")
+  string billing_term = 6 [json_name = "billing_term"];
+  
+  // Quantity of seats/licenses
+  int32 quantity = 7;
+  
+  // Creation timestamp
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  // Automatically handles RFC 3339 format strings (e.g., "2025-11-19T16:01:36.590336Z")
+  google.protobuf.Timestamp created_at = 8 [json_name = "created_at"];
+  
+  // Next billing date
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  // Automatically handles RFC 3339 format strings (e.g., "2026-11-19T16:02:51.923Z")
+  google.protobuf.Timestamp nextbilled_at = 9 [json_name = "nextbilled_at"];
+  
+  // Optional: Pause date
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  google.protobuf.Timestamp paused_at = 10 [json_name = "paused_at"];
+  
+  // Optional: Cancellation date
+  // Uses google.protobuf.Timestamp for proper ISO 8601 / Unix timestamp handling
+  google.protobuf.Timestamp canceled_at = 11 [json_name = "canceled_at"];
+  
+  // Whether the subscription is currently active
+  bool active = 12;
+}
+
+// Organization configuration including AOT-specific settings
+message TeamUserServiceProfileOrganizationConfiguration {
+  // Optional: OpenAI configuration
+  google.protobuf.Struct open_ai = 1 [json_name = "open_ai"];
+  
+  // Optional: Google Gemini configuration
+  google.protobuf.Struct gemini = 2;
+  
+  // Optional: Anthropic Claude configuration
+  google.protobuf.Struct claude = 3;
+  
+  // AWS Bedrock credentials configuration
+  // This uses the BedrockCredentialsConfig from the bedrock models
+  // Contains both access key credentials and API keys for Bedrock
+  runtime.aot.machine_learning.parents.aws_bedrock.AWSBedrockCredentialsConfig bedrock = 4;
+  
+  // Microsoft Azure OpenAI credentials configuration
+  // This uses the MSFTAzureOpenAICredentialsConfig from the msft_azure_openai models
+  // Contains both API keys and Microsoft Entra ID credentials for Azure OpenAI
+  runtime.aot.machine_learning.parents.msft_azure_openai.MSFTAzureOpenAICredentialsConfig msft_azure_openai = 5;
+
+  // Feature toggle flags (key-value pairs)
+  map<string, bool> toggles = 6;
+  
+  // Processing mode (e.g., "BLENDED")
+  string processing = 7;
+  
+  // Model access configuration
+  repeated TeamUserServiceProfileOrganizationModelAccess model_access = 8;
+}
+
+// Model access configuration for allowed models
+// Based on real API response from /aot endpoint modelAccess array
+message TeamUserServiceProfileOrganizationModelAccess {
+  // Display name of the model (e.g., "Claude 4.1 Opus Chat Model")
+  string name = 1;
+  
+  // Unique identifier for the model (e.g., "claude-opus-4-1-20250805")
+  string unique = 2;
+  
+  // Model version identifier (e.g., "t42-v01-i01")
+  string version = 3;
+  
+  // Whether the model is cloud-based
+  bool cloud = 4;
+  
+  // Model type (e.g., "ACCURACY", "SPEED", "BALANCED")
+  string type = 5;
+  
+  // Model usage category (e.g., "CODE_CONVERSATION")
+  string usage = 6;
+  
+  // Foundation model family (e.g., "CLAUDE_LATEST", "GEMINI_LATEST")
+  string foundation = 7;
+  
+  // Model provider (e.g., "ANTHROPIC", "GOOGLE")
+  string provider = 8;
+  
+  // Whether the model runs on CPU
+  bool cpu = 9;
+  
+  // Human-readable model label
+  string model_label = 10 [json_name = "modelLabel"];
+  
+  // Model description
+  string model_description = 11 [json_name = "modelDescription"];
+  
+  // Model family identifier (e.g., "anthropic", "google")
+  string model_family = 12 [json_name = "modelFamily"];
+  
+  // Maximum token limits (nested object)
+  TeamUserServiceProfileOrganizationModelAccessMaxTokens max_tokens = 13 [json_name = "maxTokens"];
+  
+  // Whether this is a custom model
+  bool custom = 14;
+}
+
+// Max token limits for a model
+message TeamUserServiceProfileOrganizationModelAccessMaxTokens {
+  // Total token limit
+  int32 total = 1;
+  
+  // Input token limit
+  int32 input = 2;
+  
+  // Output token limit
+  int32 output = 3;
+}
+

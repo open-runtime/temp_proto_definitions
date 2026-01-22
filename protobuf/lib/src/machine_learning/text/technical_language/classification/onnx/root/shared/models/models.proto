@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.machine_learning.text.technical_language.classification.onnx;
+
+message UnclassifiedTechnicalLanguageMaterial {
+  string value = 1;
+}
+
+// TODO: add other options as we support them
+// This should actually be not code vs text but assume its all technical, and then route to material types like code, documentation, conversation, errors, etc.
+enum TechnicalLanguageMaterialClassificationType {
+  NONTECHNICAL = 0;
+  CODE = 1;
+  ERROR = 2;
+  DOCUMENTATION = 3;
+  CONVERSATION = 4;
+}
+
+message TechnicalLanguageMaterialClassificationConfidenceScores {
+  float nontechnical = 1;
+  float code = 2;
+  float error = 3;
+  float documentation = 4;
+  float conversation = 5;
+}
+
+message TechnicalLanguageMaterialClassification {
+  runtime.aot.core.Cancellation cancellation = 1;
+  TechnicalLanguageMaterialClassificationType type = 2;
+  TechnicalLanguageMaterialClassificationConfidenceScores confidence = 3;
+}

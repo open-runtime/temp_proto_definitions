@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.modules;
+
+enum ModulesRegistrationEnum {
+  UNKNOWN = 0;
+  // runtime_native_io_core
+  CORE = 1;
+  //  runtime_native_io_tree_sitter
+  TREE_SITTER = 2;
+  TEXT_TOKENIZATION = 3;
+  DIRECTED_DISCOVERY = 4;
+  CODE_TILING = 5;
+  ONNX_INFERENCE = 6;
+  TECHNICAL_LANGUAGE_MATERIAL_CLASSIFICATION_ONNX = 7;
+  TEXTUAL_CONTENT_DOMAIN_CLASSIFICATION_ONNX = 8;
+  CODE_SYNTAX_CLASSIFICATION_ONNX = 9;
+  TECHNICAL_LANGUAGE_ANALYSIS_ONNX = 10;
+  BARD_INFERENCE =  11;
+  BARD_CODE_DESCRIPTOR_SUMMARIZATION =  12;
+
+  // runtime_native_io_gpt_inference
+  GPT_INFERENCE =  13;
+
+  // runtime_native_io_gpt_CORRECTED_CODE_GENERATOR
+  GPT_CORRECTED_CODE_GENERATOR =  14;
+  // runtime_native_io_GPT_TEMPLATED_CODE_GENERATOR
+  GPT_TEMPLATED_CODE_GENERATOR =  15;
+  // runtime_native_io_GPT_CONTEXTUAL_CODE_GENERATOR
+  GPT_CONTEXTUAL_CODE_GENERATOR =  16;
+
+  GPT_CODE_DESCRIPTOR_SUMMARIZATION =  17;
+  GPT_CODE_DESCRIPTOR_APPELLATION =  18;
+  GPT_CODE_DESCRIPTOR_TAGIFICATION =  19;
+
+  TESSERACT_OCR = 20;
+  // runtime_native_io_big_query
+  BIG_QUERY = 21;
+  ISAR_CORE = 22;
+  ISAR_NODE = 23;
+  ISAR_NODE_GRAPH = 24;
+  NODE = 25;
+  NODE_GRAPH = 26;
+
+  // runtime_native_io_vertex_inference
+  VERTEX_INFERENCE = 27;
+
+  //vertex_code_tagification
+  VERTEX_CODE_TAGIFICATION = 28;
+
+  //vertex_code_appellation
+  VERTEX_CODE_APPELLATION = 29;
+
+  //vertex_code_summarization
+  VERTEX_CODE_SUMMARIZATION = 30;
+
+  //vertex_code_explanation
+  VERTEX_CODE_EXPLANATION = 31;
+
+  //vertex_code_commentation
+  VERTEX_CODE_COMMENTATION = 32;
+
+  // vertex_code_language_detection
+  VERTEX_CODE_LANGUAGE_DETECTION = 33;
+
+  // vertex framework code detection
+  VERTEX_CODE_FRAMEWORK_DETECTION= 34;
+
+  // this is our is Error model
+  VERTEX_ERROR_DETECTION = 35;
+
+  // this is our isCode task
+  VERTEX_CODE_DETECTION = 36;
+
+  // this is our task for generating search queries
+  VERTEX_CODE_TERMIFICATION= 37;
+
+  // this is our task for generating related links
+  VERTEX_CODE_LINKIFICATION = 38;
+
+  // this is our parent for gemini
+  GEMINI_INFERENCE = 39;
+
+  GEMINI_CHAT_APPELLATION = 40;
+  GEMINI_CHAT_SUMMARIZATION = 41;
+
+  GEMINI_MESSAGE_TEMPORALIZATION = 42;
+
+  CLAUDE_INFERENCE = 43;
+
+  TESSERACT_INFERENCE = 44;
+
+  // runtime_native_io_aws_bedrock_inference
+  AWS_BEDROCK_INFERENCE = 45;
+
+  // runtime_native_io_msft_azure_openai_inference
+  MSFT_AZURE_OPENAI_INFERENCE = 46;
+}
+
+
+
+
+
+
+
+
+
+

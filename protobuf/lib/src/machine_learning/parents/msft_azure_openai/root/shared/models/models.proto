@@ -1,0 +1,1161 @@
+syntax = "proto3";
+
+import "lib/src/google/protobuf/struct.proto";
+import "lib/src/google/protobuf/timestamp.proto";
+
+package runtime.aot.machine_learning.parents.msft_azure_openai;
+
+// =============================================================================
+// Microsoft Azure OpenAI Inference Protocol Buffer Definition
+// =============================================================================
+// This file defines the protocol buffer messages and enums for Microsoft Azure
+// OpenAI inference service integrated with our enterprise configuration system.
+//
+// Core Design Principles:
+// 1. Config-Driven: Uses enriched JSON from our enterprise onboarding system
+// 2. OpenAI API Compatible: Leverages openai_dart package for API communication
+// 3. Multi-Tenant: Organization-level credentials from GCP Secrets Manager
+// 4. Compressed Storage: Supports gzip + base64 compression (75% savings)
+// 5. Auto-Discovery: Deployments, rate limits, and metadata auto-discovered
+//
+// Azure OpenAI Service Documentation:
+// - API Reference: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference
+// - Quickstart: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/quickstart
+// - Authentication: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/managed-identity
+// - Models: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models
+//
+// Our Enterprise Config System:
+// - Minimal input (4 fields) → Complete config (3 seconds)
+// - Auto-discovery: Region, rate limits, models, additional deployments
+// - Compression: 3.4KB → 844 bytes (75% savings)
+// - Storage: GCP Secrets Manager per org
+//
+// =============================================================================
+
+//------------------------------------------------------------------------------
+// Model Identification
+//------------------------------------------------------------------------------
+// Model identifier supporting both enum (known models) and string (custom models)
+// Similar to AWS Bedrock's AWSBedrockModelIdentifier pattern
+//
+// Client specifies the MODEL (e.g., GPT_5_MINI, GPT_4_1, O3_MINI)
+// Server maps model to appropriate DEPLOYMENT based on org's config
+// This decouples client code from enterprise-specific deployment naming
+
+message MSFTAzureOpenAIModelIdentifier {
+  oneof model {
+    // Enum for known/common models (recommended for type safety)
+    // Use this for well-known Azure OpenAI models
+    MSFTAzureOpenAIModelEnum common_model = 1;
+    
+    // String for custom/unknown/new model IDs (flexible option)
+    // Use this for:
+    // - Newly released models not yet in enum
+    // - Fine-tuned models
+    // - Custom model IDs
+    // Examples: "gpt-5", "gpt-4.1", "o3-mini", "custom-finetuned-model"
+    // Server will match this to a deployment in the org's config
+    string custom_model_id = 2;
+  }
+}
+
+// Enumeration of ALL Azure OpenAI models (Complete as of November 2025)
+// Comprehensive list supporting any enterprise Azure OpenAI deployment
+// Reference: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models
+// Reference: https://platform.openai.com/docs/models
+enum MSFTAzureOpenAIModelEnum {
+  MSFT_AZURE_OPENAI_MODEL_ENUM_UNSPECIFIED = 0;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // GPT-5 SERIES (Latest Generation - 2025)
+  // ═══════════════════════════════════════════════════════════════════════
+  // Context: 400K tokens (272K input + 128K output)
+  // Configurable reasoning effort levels
+  
+  // GPT-5 (Flagship, 2025-08-07)
+  // Use: Complex reasoning, code generation, agentic workflows
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_5 = 1;
+  
+  // GPT-5 Mini (2025-08-07)
+  // Use: Fast reasoning, cost-effective
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_5_MINI = 2;
+  
+  // GPT-5 Nano (2025-08-07)
+  // Use: Ultra-fast, minimal latency
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_5_NANO = 3;
+  
+  // GPT-5 Chat (2025-08-07)
+  // Context: 128K tokens
+  // Use: Conversational AI
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_5_CHAT = 4;
+  
+  // GPT-5.1 Chat (2025-10-03 preview)
+  // Context: 128K tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_5_1_CHAT = 5;
+  
+  // GPT-5 Codex (2025-08-07)
+  // Use: Code generation and understanding
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_5_CODEX = 6;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // GPT-4.1 SERIES (Latest GPT-4 - 2025)
+  // ═══════════════════════════════════════════════════════════════════════
+  // Context: 1,047,576 tokens (global standard), 128K-300K (other deployment types)
+  
+  // GPT-4.1 (2025-04-14)
+  // Use: High quality, very long context
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4_1 = 10;
+  
+  // GPT-4.1 Mini (2025-04-14)
+  // Use: Fast GPT-4.1 quality
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4_1_MINI = 11;
+  
+  // GPT-4.1 Nano (2025-04-14)
+  // Use: Ultra-fast GPT-4.1
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4_1_NANO = 12;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // GPT-4o SERIES (Multimodal - 2024)
+  // ═══════════════════════════════════════════════════════════════════════
+  // Context: 128K tokens
+  // Modalities: Text, image, audio
+  
+  // GPT-4o (2024-11-20)
+  // Use: Multimodal production workloads
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4O = 20;
+  
+  // GPT-4o Mini (2024-07-18)
+  // Use: Fast, cost-efficient multimodal
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4O_MINI = 21;
+  
+  // GPT-4o Audio Preview (2024-12-17)
+  // Use: Audio understanding and generation via Chat Completions API
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4O_AUDIO_PREVIEW = 22;
+  
+  // GPT-4o Realtime Preview (2024-12-17, 2025-06-03)
+  // Context: 28,672 input, 4,096 output
+  // Use: Real-time audio conversations via WebRTC/WebSocket
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4O_REALTIME_PREVIEW = 23;
+  
+  // GPT-4o Transcribe (2025-03-20 preview)
+  // Use: Speech-to-text, 100+ languages
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4O_TRANSCRIBE = 24;
+  
+  // GPT-4o Mini Transcribe (2025-03-20 preview)
+  // Use: Fast speech-to-text
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4O_MINI_TRANSCRIBE = 25;
+  
+  // GPT-4o Mini Transcribe Diarize (2025-03-20 preview)
+  // Use: Speech-to-text with speaker identification
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4O_MINI_TRANSCRIBE_DIARIZE = 26;
+  
+  // GPT-4o Mini TTS (Text-to-speech powered by GPT-4o mini)
+  // Voices: 11 built-in (alloy, ash, ballad, coral, echo, fable, nova, onyx, sage, shimmer)
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4O_MINI_TTS = 27;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // GPT-4 SERIES (Stable - 2023-2024, some retiring Nov 14, 2025)
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // GPT-4 Turbo (turbo-2024-04-09, retiring Nov 14, 2025)
+  // Context: 128K tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4_TURBO = 30;
+  
+  // GPT-4 (Original, retiring Nov 14, 2025)
+  // Context: 8K tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4 = 31;
+  
+  // GPT-4 32K (Retiring Nov 14, 2025)
+  // Context: 32K tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4_32K = 32;
+  
+  // GPT-4 Vision
+  // Context: 128K tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_4_VISION = 33;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // GPT-3.5 SERIES (Legacy - 2023)
+  // ═══════════════════════════════════════════════════════════════════════
+  // Note: Azure uses "gpt-35-turbo" not "gpt-3.5-turbo"
+  
+  // GPT-3.5 Turbo (0125 version)
+  // Context: 16,385 input, 4,096 output
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_35_TURBO = 40;
+  
+  // GPT-3.5 Turbo 16K
+  // Context: 16K tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_35_TURBO_16K = 41;
+  
+  // GPT-3.5 Turbo Instruct
+  // Context: 4K tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_35_TURBO_INSTRUCT = 42;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // O-SERIES (Reasoning Models - 2024-2025)
+  // ═══════════════════════════════════════════════════════════════════════
+  // Context: 200K tokens
+  // Specialized for complex reasoning, math, coding, science
+  
+  // O1 Pro (Maximum reasoning capability)
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O1_PRO = 50;
+  
+  // O1 (2024-12-17)
+  // Context: 200K tokens, Oct 2023 knowledge
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O1 = 51;
+  
+  // O1 Mini (Retiring Nov 17, 2025)
+  // Context: 128K tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O1_MINI = 52;
+  
+  // O3 (2025-04-16)
+  // Context: 200K tokens, June 2024 knowledge
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O3 = 53;
+  
+  // O3 Pro (2025-06-10, ultra-reliable)
+  // Use: Maximum accuracy for critical queries
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O3_PRO = 54;
+  
+  // O3 Mini (2025-01-31)
+  // Context: 200K tokens
+  // Use: Fast, cost-efficient reasoning
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O3_MINI = 55;
+  
+  // O3 Deep Research (2025-06-26)
+  // Use: Comprehensive research with web search
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O3_DEEP_RESEARCH = 56;
+  
+  // O4 Mini (2025-04-16)
+  // Context: 200K tokens, June 2024 knowledge
+  // Use: Next-gen efficient reasoning
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O4_MINI = 57;
+  
+  // O4 Mini Deep Research
+  // Use: Fast, affordable deep research
+  MSFT_AZURE_OPENAI_MODEL_ENUM_O4_MINI_DEEP_RESEARCH = 58;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // AUDIO MODELS (Realtime, Speech, TTS)
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // GPT Realtime (2025-08-28)
+  // Context: 28,672 input, 4,096 output
+  // Use: Real-time audio conversations via WebRTC/WebSocket
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_REALTIME = 60;
+  
+  // GPT Realtime Mini (2025-10-06)
+  // Use: Faster realtime alternative
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_REALTIME_MINI = 61;
+  
+  // GPT Audio (2025-08-28)
+  // Use: Audio processing via Chat Completions API
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_AUDIO = 62;
+  
+  // GPT Audio Mini (2025-10-06)
+  // Use: Efficient audio processing
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_AUDIO_MINI = 63;
+  
+  // Whisper (001, speech-to-text)
+  // Languages: 100+
+  // Max file: 25 MB
+  MSFT_AZURE_OPENAI_MODEL_ENUM_WHISPER = 64;
+  
+  // TTS-1 (001, text-to-speech optimized for latency)
+  // Voices: 11 built-in
+  MSFT_AZURE_OPENAI_MODEL_ENUM_TTS_1 = 65;
+  
+  // TTS-1-HD (001, high-definition text-to-speech)
+  // Voices: 11 built-in, higher quality
+  MSFT_AZURE_OPENAI_MODEL_ENUM_TTS_1_HD = 66;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // IMAGE GENERATION MODELS (DALL-E, GPT-Image)
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // DALL-E 3 (3.0, latest image generation)
+  // Resolution: 1024x1024, 1024x1792, 1792x1024
+  MSFT_AZURE_OPENAI_MODEL_ENUM_DALL_E_3 = 70;
+  
+  // DALL-E 2 (Legacy image generation with edit/variation)
+  // Resolution: 256x256, 512x512, 1024x1024
+  MSFT_AZURE_OPENAI_MODEL_ENUM_DALL_E_2 = 71;
+  
+  // GPT Image 1 (State-of-the-art image generation + understanding, limited access)
+  // Superior instruction following, text rendering, detailed editing
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_IMAGE_1 = 72;
+  
+  // GPT Image 1 Mini (2025-10-06)
+  // Use: Efficient image generation
+  MSFT_AZURE_OPENAI_MODEL_ENUM_GPT_IMAGE_1_MINI = 73;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // VIDEO GENERATION MODELS (Sora)
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // Sora 1 (Azure-specific API, early preview)
+  // Modalities: Text-to-video, image-to-video, video-to-video
+  MSFT_AZURE_OPENAI_MODEL_ENUM_SORA_1 = 80;
+  
+  // Sora 2 (Latest, rolling availability)
+  // Additional: Audio generation, remix capability
+  // Duration: 1-20 seconds, up to 1080p
+  MSFT_AZURE_OPENAI_MODEL_ENUM_SORA_2 = 81;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // EMBEDDINGS MODELS
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // Text Embedding 3 Large (3072 dimensions, highest quality)
+  // Input: 8,192 tokens
+  // Use: Maximum accuracy semantic search, RAG
+  MSFT_AZURE_OPENAI_MODEL_ENUM_TEXT_EMBEDDING_3_LARGE = 90;
+  
+  // Text Embedding 3 Small (1536 dimensions, cost-efficient)
+  // Input: 8,192 tokens
+  // Use: General purpose embeddings
+  MSFT_AZURE_OPENAI_MODEL_ENUM_TEXT_EMBEDDING_3_SMALL = 91;
+  
+  // Text Embedding Ada 002 (Legacy, 1536 dimensions)
+  // Input: 8,192 tokens
+  MSFT_AZURE_OPENAI_MODEL_ENUM_TEXT_EMBEDDING_ADA_002 = 92;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // SPECIALIZED MODELS (Tools, Computer Use, Routing)
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // Computer Use Preview (2025-03-11, experimental)
+  // Context: 8,192 tokens
+  // Use: Computer interface interaction, screen understanding
+  MSFT_AZURE_OPENAI_MODEL_ENUM_COMPUTER_USE_PREVIEW = 100;
+  
+  // Model Router (2025-05-19, 2025-08-07)
+  // Context: 200K tokens
+  // Use: Intelligent automatic model selection
+  MSFT_AZURE_OPENAI_MODEL_ENUM_MODEL_ROUTER = 101;
+  
+  // Codex Mini (2025-05-16, developer-optimized o4-mini)
+  // Context: 200K tokens
+  // Use: Codex CLI and VS Code extensions
+  MSFT_AZURE_OPENAI_MODEL_ENUM_CODEX_MINI = 102;
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // LEGACY MODELS (Pre-GPT-3.5, deprecated)
+  // ═══════════════════════════════════════════════════════════════════════
+  
+  // Davinci (GPT-3, deprecated)
+  MSFT_AZURE_OPENAI_MODEL_ENUM_DAVINCI = 110;
+  
+  // Curie (GPT-3, deprecated)
+  MSFT_AZURE_OPENAI_MODEL_ENUM_CURIE = 111;
+  
+  // Babbage (GPT-3, deprecated)
+  MSFT_AZURE_OPENAI_MODEL_ENUM_BABBAGE = 112;
+  
+  // Ada (GPT-3 base, deprecated - not ada-002 embeddings)
+  MSFT_AZURE_OPENAI_MODEL_ENUM_ADA = 113;
+}
+
+//------------------------------------------------------------------------------
+// Credentials Configuration
+//------------------------------------------------------------------------------
+// Matches enriched JSON structure from enrich-with-discovery.go and user-team-service
+// Stored in GCP Secrets Manager as compressed JSON (gzip + base64)
+// Secret name format: org-{orgId}-azure-openai-config-compressed
+//
+// Supports two authentication methods:
+// 1. API Keys (simple, recommended for enterprise)
+// 2. Microsoft Entra ID (advanced, for team authentication)
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// FORMAT: Iterable like Bedrock (TARGET FORMAT)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// This is the CORRECT target format (like Bedrock):
+//
+// ┌─────────────────────────────────────────────────────────────────────────┐
+// │ TARGET FORMAT (Iterable like Bedrock)                                   │
+// ├─────────────────────────────────────────────────────────────────────────┤
+// │ "azure": {                                                              │
+// │   "api_keys": [                           // Array of credential objs   │
+// │     {                                                                   │
+// │       "name": "Primary Azure Resource",                                 │
+// │       "keys": ["key1", "key2"],           // The actual API keys        │
+// │       "base_url": "https://...openai.azure.com",                        │
+// │       "deployments": [...],               // MSFTAzureOpenAIDeployment  │
+// │       "region": "eastus",                                               │
+// │       "api_version": "2024-10-21",                                      │
+// │       ...                                                               │
+// │     }                                                                   │
+// │   ],                                                                    │
+// │   "entra_id_credentials": [...]           // Entra ID credentials       │
+// │ }                                                                       │
+// └─────────────────────────────────────────────────────────────────────────┘
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGACY COMPATIBILITY (Temporary - user-team-service current format)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// The user-team-service API currently returns a BROKEN format that needs
+// to be converted to our target format via parsing logic in extensions:
+//
+// ┌─────────────────────────────────────────────────────────────────────────┐
+// │ LEGACY FORMAT (Current broken API - to be fixed in future)               │
+// ├─────────────────────────────────────────────────────────────────────────┤
+// │ "azure": {                                                              |
+// │   "api_keys": ["key1", "key2"],           // WRONG: String array        |
+// │   "base_url": "https://...openai.azure.com",                            |
+// │   "deployments": ["gpt-5-mini", "gpt-4.1"], // WRONG: String array      |
+// │   "region": "eastus",                                                   |
+// │   "api_version": "2024-10-21",                                          |
+// │   "is_stored": true,                                                    |
+// │   "updated_at": 1764730027,                                             |
+// │   "config_hash": "..."                                                   |
+// │ }                                                                       |
+// └─────────────────────────────────────────────────────────────────────────┘
+//
+// Use MSFTAzureOpenAICredentialsConfigExtension.fromLegacyApiJson() in
+// credentials_extensions.dart to convert legacy format to target format.
+
+// Top-level credentials config (like Bedrock's AWSBedrockCredentialsConfig)
+message MSFTAzureOpenAICredentialsConfig {
+  // Array of API key credentials (each representing one Azure OpenAI resource)
+  // Similar to Bedrock's api_keys array structure
+  repeated MSFTAzureOpenAIApiKeyCredential api_keys = 1 [json_name = "api_keys"];
+  
+  // Array of Entra ID credentials (for advanced team authentication)
+  // Microsoft Entra ID (formerly Azure AD) authentication
+  repeated MSFTAzureOpenAIEntraIdCredential entra_id_credentials = 2 [json_name = "entra_id_credentials"];
+}
+
+// API key credential (one per Azure OpenAI resource configuration)
+// Similar to Bedrock's AWSBedrockApiKey but with Azure-specific fields
+message MSFTAzureOpenAIApiKeyCredential {
+  // Friendly name for this credential set
+  // Example: "Primary Azure Resource", "Production East US"
+  string name = 1;
+  
+  // The actual API keys (note: 'keys' not 'api_keys' to avoid confusion with parent)
+  // First key is primary/active, second is for rotation
+  // Example: ["key1_primary", "key2_backup"]
+  repeated string keys = 2;
+  
+  // Base URL for API requests
+  // Format: https://{resource_name}.openai.azure.com
+  string base_url = 3 [json_name = "base_url"];
+  
+  // Deployments with full metadata (or just names for legacy compat)
+  repeated MSFTAzureOpenAIDeployment deployments = 4;
+  
+  // Region where the resource is deployed
+  // Examples: "eastus", "westeurope", "swedencentral"
+  string region = 5;
+  
+  // API version for requests
+  // Recommended: "2024-12-01-preview"
+  string api_version = 6 [json_name = "api_version"];
+  
+  // Optional: Resource name (extracted from base_url)
+  // Example: "open-runtime-aot-azure-open-ai-services"
+  string resource_name = 7 [json_name = "resource_name"];
+  
+  // Optional: Azure subscription ID (for Azure CLI)
+  string subscription_id = 8 [json_name = "subscription_id"];
+  
+  // Optional: Azure resource group (for Azure CLI)
+  string resource_group = 9 [json_name = "resource_group"];
+  
+  // Whether stored in secrets manager
+  bool is_stored = 10 [json_name = "is_stored"];
+  
+  // Last update timestamp
+  google.protobuf.Timestamp updated_at = 11 [json_name = "updated_at"];
+  
+  // Configuration hash for change detection
+  string config_hash = 12 [json_name = "config_hash"];
+}
+
+// Entra ID credential (for Microsoft Entra ID authentication)
+// Team-based authentication via Azure AD/Entra ID
+message MSFTAzureOpenAIEntraIdCredential {
+  // Friendly name for this credential set
+  string name = 1;
+  
+  // Base URL for API requests
+  string base_url = 2 [json_name = "base_url"];
+  
+  // Region where the resource is deployed
+  string region = 3;
+  
+  // Microsoft Entra ID tenant ID
+  string tenant_id = 4 [json_name = "tenant_id"];
+  
+  // Application (client) ID
+  string client_id = 5 [json_name = "client_id"];
+  
+  // Client secret (for service principal auth)
+  string client_secret = 6 [json_name = "client_secret"];
+  
+  // OAuth scope
+  // Default: "https://cognitiveservices.azure.com/.default"
+  string scope = 7;
+  
+  // Deployments with full metadata
+  repeated MSFTAzureOpenAIDeployment deployments = 8;
+  
+  // Whether stored in secrets manager
+  bool is_stored = 9 [json_name = "is_stored"];
+  
+  // Last update timestamp
+  google.protobuf.Timestamp updated_at = 10 [json_name = "updated_at"];
+  
+  // Configuration hash for change detection
+  string config_hash = 11 [json_name = "config_hash"];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGACY COMPATIBILITY TYPES (for existing code that uses MSFTAzureOpenAIResource)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Legacy resource type - DEPRECATED, use MSFTAzureOpenAIApiKeyCredential instead
+// Kept for backward compatibility with existing code
+message MSFTAzureOpenAIResource {
+  // Resource name (extracted from base_url)
+  // Example: "open-runtime-aot-azure-open-ai-services"
+  string resource_name = 1;
+  
+  // Required: Base URL for all API requests
+  // Format: https://{resource_name}.openai.azure.com
+  string base_url = 2;
+  
+  // Auto-discovered region (normalized format)
+  // Examples: "eastus", "eastus2", "westeurope", "swedencentral"
+  string region = 3;
+  
+  // Optional: Azure subscription ID (only for Azure CLI)
+  string subscription_id = 4;
+  
+  // Optional: Azure resource group (only for Azure CLI)
+  string resource_group = 5;
+  
+  // Required: API version for all requests
+  // Recommended: "2024-12-01-preview"
+  string api_version = 6;
+  
+  // Required: API keys for authentication
+  // First key is active, second is for rotation
+  repeated string api_keys = 7;
+  
+  // Deployments discovered and enriched
+  repeated MSFTAzureOpenAIDeployment deployments = 8;
+  
+  // Whether stored in GCP Secrets Manager
+  bool is_stored = 9;
+  
+  // Last update timestamp
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message MSFTAzureOpenAIDeployment {
+  // Required: Deployment name (unique within resource)
+  // Examples: "gpt-5-mini", "gpt-4.1", "production-chat"
+  string deployment_name = 1;
+  
+  // Auto-discovered: Actual model name
+  // Examples: "gpt-5-mini", "gpt-4.1", "o3-mini"
+  string model_name = 2;
+  
+  // Auto-discovered: Model version (YYYY-MM-DD)
+  string model_version = 3;
+  
+  // Auto-discovered: Requests per minute limit (per deployment!)
+  // From x-ratelimit-limit-requests header
+  string rpm_limit = 4;
+  
+  // Auto-discovered: Tokens per minute limit (per deployment!)
+  // From x-ratelimit-limit-tokens header
+  string tpm_limit = 5;
+  
+  // Capacity allocation in TPM
+  int32 capacity_tpm = 6;
+  
+  // Creation timestamp
+  google.protobuf.Timestamp created_at = 7;
+  
+  // Auto-generated description
+  string description = 8;
+  
+  // Auto-classified category
+  // Values: "fast", "accurate", "heavy", "embeddings", "specialized", "legacy"
+  string category = 9;
+  
+  // Whether auto-discovered (true) or user-specified (false)
+  bool discovered = 10;
+}
+
+// Legacy Entra ID resource - DEPRECATED, use MSFTAzureOpenAIEntraIdCredential instead
+message MSFTAzureOpenAIEntraIdResource {
+  string resource_name = 1;
+  string base_url = 2;
+  string region = 3;
+  string tenant_id = 4;
+  string client_id = 5;
+  string client_secret = 6;
+  string scope = 7;
+  repeated MSFTAzureOpenAIDeployment deployments = 8;
+}
+
+//------------------------------------------------------------------------------
+// Request/Response Messages
+//------------------------------------------------------------------------------
+
+message MSFTAzureOpenAIInferenceRequest {
+  // Required: Organization ID for credential selection
+  // Format: org_{numbers}
+  // Example: "org_27381468532208881308140613634375"
+  // Extracted from x-org-id header
+  string org_id = 1;
+  
+  // Required: Model identifier
+  // Client specifies MODEL, server maps to DEPLOYMENT
+  MSFTAzureOpenAIModelIdentifier model_identifier = 2;
+  
+  // Required: Messages for chat completion
+  repeated MSFTAzureOpenAIMessage messages = 3;
+  
+  // Optional: Inference parameters
+  MSFTAzureOpenAIParameters parameters = 4;
+  
+  // Optional: Enable server-side accumulation for streaming
+  // false (default): Only deltas (98% bandwidth savings)
+  // true: Full accumulated content (simpler client)
+  bool accumulate = 5;
+}
+
+message MSFTAzureOpenAIMessage {
+  MSFTAzureOpenAIRole role = 1;
+  
+  // Content can be either a simple string or multimodal content parts
+  // Azure OpenAI supports vision models (GPT-4o, GPT-4 Vision) with images
+  // Research: Images only supported in USER role messages
+  // https://community.openai.com/t/gpt-4o-error-image-urls-in-system-messages/745769
+  oneof content_type {
+    // Simple text content (backwards compatible)
+    string content = 2;
+    
+    // Multimodal content (text + images + audio + files) for vision/audio models
+    // Format matches OpenAI Chat Completions API
+    MSFTAzureOpenAIMultimodalContent multimodal_content = 3;
+  }
+  
+  // Tool calls (for assistant messages)
+  // When the model decides to call a tool/function
+  repeated MSFTAzureOpenAIToolCall tool_calls = 4;
+  
+  // Tool call ID (for tool role messages)
+  // When providing results of a tool call back to the model
+  string tool_call_id = 5;
+  
+  // Name (optional, for multi-user conversations)
+  string name = 6;
+  
+  // Refusal (if model refused to respond)
+  string refusal = 7;
+}
+
+// Container for multimodal content parts (text, images)
+// Azure OpenAI vision models (GPT-4o, GPT-4 Vision) support this format
+message MSFTAzureOpenAIMultimodalContent {
+  repeated MSFTAzureOpenAIContentPart parts = 1;
+}
+
+// Individual content part (text, image, audio, or file)
+// Supports all Azure OpenAI Chat Completions API content types
+message MSFTAzureOpenAIContentPart {
+  oneof part_type {
+    // Text content (always supported)
+    MSFTAzureOpenAITextContent text = 1;
+    
+    // Image content (for GPT-4o, GPT-4 Vision models)
+    // Supports URL and base64 formats
+    MSFTAzureOpenAIImageContent image = 2;
+    
+    // Audio content (for gpt-4o-audio-preview models)
+    // Base64-encoded audio data
+    MSFTAzureOpenAIAudioContent input_audio = 3;
+    
+    // File content (for document processing via Files API)
+    // PDFs, text files, code files, etc.
+    MSFTAzureOpenAIFileContent file = 4;
+  }
+}
+
+// Text content part
+message MSFTAzureOpenAITextContent {
+  string text = 1;
+}
+
+// Image content part (for GPT-4o, GPT-4 Vision models)
+// Images can be provided as URL or base64-encoded data
+// Research: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/gpt-with-vision
+message MSFTAzureOpenAIImageContent {
+  // Image source (URL or base64 data)
+  oneof source {
+    // Public URL to image (HTTPS)
+    // Example: "https://example.com/image.jpg"
+    // Constraints: Must be publicly accessible, max 20MB
+    string url = 1;
+    
+    // Base64-encoded image data (PNG, JPEG, GIF, WebP)
+    // Format: Raw base64 string (no data URI prefix)
+    // The API will automatically add the data URI prefix
+    // Example: "iVBORw0KGgoAAAANSUhEUgAA..."
+    // Constraints: Max 20MB original file size
+    bytes base64_data = 2;
+  }
+  
+  // Image detail level: "auto", "low", or "high"
+  // "auto": Model decides based on image dimensions (default)
+  // "low": Fixed 85 tokens, 512x512 processing, faster
+  // "high": Variable tokens (170/tile + 85 base), up to 2048x2048, detailed analysis
+  // Research: https://platform.openai.com/docs/guides/images-vision
+  string detail = 3;
+  
+  // Optional: Media type for base64 data
+  // Values: "image/png", "image/jpeg", "image/gif", "image/webp"
+  // Auto-detected if not provided
+  string media_type = 4;
+}
+
+// Audio content part (for gpt-4o-audio-preview models)
+// Research: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/audio-completions-quickstart
+message MSFTAzureOpenAIAudioContent {
+  // Base64-encoded audio data
+  // Supported formats: WAV, MP3
+  // Max size: 20 MB
+  bytes data = 1;
+  
+  // Audio format: "wav" or "mp3"
+  string format = 2;
+}
+
+// File content part (for document processing)
+// Supported file types: PDF, TXT, MD, code files, etc.
+// Research: https://platform.openai.com/docs/guides/pdf-files
+message MSFTAzureOpenAIFileContent {
+  // File source (file ID or base64 data)
+  oneof source {
+    // File ID from Files API
+    // Example: "file-abc123"
+    string file_id = 1;
+    
+    // Base64-encoded file data
+    bytes base64_data = 2;
+  }
+  
+  // File name (for base64 data)
+  string filename = 3;
+  
+  // MIME type
+  // Examples: "application/pdf", "text/plain", "text/markdown"
+  string mime_type = 4;
+}
+
+enum MSFTAzureOpenAIRole {
+  MSFT_AZURE_OPENAI_ROLE_UNSPECIFIED = 0;
+  MSFT_AZURE_OPENAI_ROLE_SYSTEM = 1;
+  MSFT_AZURE_OPENAI_ROLE_USER = 2;
+  MSFT_AZURE_OPENAI_ROLE_ASSISTANT = 3;
+  MSFT_AZURE_OPENAI_ROLE_TOOL = 4;  // For function/tool call results
+  MSFT_AZURE_OPENAI_ROLE_FUNCTION = 5;  // Legacy function calling (deprecated)
+  MSFT_AZURE_OPENAI_ROLE_DEVELOPER = 6;  // For o1/o3/o4 reasoning models (replaces system role)
+}
+
+// Tool call information (when model requests function execution)
+// Research: https://platform.openai.com/docs/guides/function-calling
+message MSFTAzureOpenAIToolCall {
+  // Unique ID for this tool call
+  string id = 1;
+  
+  // Type of tool ("function")
+  string type = 2;
+  
+  // Function details
+  MSFTAzureOpenAIFunctionCall function = 3;
+}
+
+message MSFTAzureOpenAIFunctionCall {
+  // Function name
+  string name = 1;
+  
+  // Function arguments as JSON string
+  string arguments = 2;
+}
+
+message MSFTAzureOpenAIParameters {
+  // Maximum tokens to generate
+  // GPT-5/O-series: Use max_completion_tokens
+  int32 max_completion_tokens = 1;
+  
+  // Temperature (0.0-2.0)
+  // O-series: Must be 1.0
+  double temperature = 2;
+  
+  // Top-P (0.0-1.0)
+  double top_p = 3;
+  
+  // Frequency penalty (-2.0 to 2.0)
+  double frequency_penalty = 4;
+  
+  // Presence penalty (-2.0 to 2.0)
+  double presence_penalty = 5;
+  
+  // Stop sequences
+  repeated string stop = 6;
+  
+  // Whether to stream
+  bool stream = 7;
+  
+  // Response format control
+  // "text" (default), "json_object", "json_schema"
+  string response_format = 8;
+  
+  // Seed for deterministic generation
+  int32 seed = 9;
+  
+  // Tools/functions available to the model
+  repeated MSFTAzureOpenAITool tools = 10;
+  
+  // Tool choice control
+  // "none", "auto", "required", or specific tool
+  google.protobuf.Struct tool_choice = 11;
+  
+  // Logprobs configuration
+  bool logprobs = 12;
+  int32 top_logprobs = 13;
+  
+  // Number of completions to generate (Chat Completions supports n > 1)
+  int32 n = 14;
+  
+  // User identifier (for abuse monitoring)
+  string user = 15;
+}
+
+// Tool definition
+message MSFTAzureOpenAITool {
+  // Tool type ("function", "image_generation", "web_search", etc.)
+  string type = 1;
+  
+  // Function definition (if type = "function")
+  MSFTAzureOpenAIFunctionDefinition function = 2;
+}
+
+message MSFTAzureOpenAIFunctionDefinition {
+  // Function name
+  string name = 1;
+  
+  // Function description
+  string description = 2;
+  
+  // Function parameters as JSON schema
+  google.protobuf.Struct parameters = 3;
+  
+  // Strict mode for parameter validation
+  bool strict = 4;
+}
+
+message MSFTAzureOpenAIInferenceResponse {
+  oneof result {
+    MSFTAzureOpenAISuccess success = 1;
+    MSFTAzureOpenAIError error = 2;
+  }
+  
+  // Delta (only for streaming)
+  MSFTAzureOpenAIResponseDelta delta = 3;
+}
+
+message MSFTAzureOpenAISuccess {
+  string model = 1;
+  repeated MSFTAzureOpenAIChoice choices = 2;
+  MSFTAzureOpenAIUsage usage = 3;
+  
+  // Image generation results (for DALL-E models via Responses API or dedicated Image API)
+  // Multiple images can be generated in a single request (DALL-E 2, GPT-Image-1)
+  // DALL-E 3 supports only 1 image per request
+  repeated MSFTAzureOpenAIGeneratedImage generated_images = 4;
+}
+
+message MSFTAzureOpenAIChoice {
+  int32 index = 1;
+  MSFTAzureOpenAIMessage message = 2;
+  string finish_reason = 3;
+  // Finish reason values:
+  // "stop" - Complete generation
+  // "length" - Truncated due to max_tokens
+  // "content_filter" - Blocked by content filtering
+  // "tool_calls" - Model requested tool execution
+}
+
+// Generated image result (for DALL-E 3, DALL-E 2, GPT-Image-1)
+// Research: https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/dall-e
+message MSFTAzureOpenAIGeneratedImage {
+  // Image data (URL or base64)
+  oneof image_data {
+    // Temporary URL (valid for 24 hours in Azure, 60 minutes in OpenAI)
+    // DALL-E 3 and DALL-E 2 default format
+    string url = 1;
+    
+    // Base64-encoded image data (PNG format)
+    // GPT-Image-1 always returns this format
+    // DALL-E 3 returns when response_format="b64_json"
+    bytes b64_json = 2;
+  }
+  
+  // Revised prompt (DALL-E 3 only)
+  // GPT-4-enhanced version of the original prompt
+  // Shows how the model interpreted and refined the prompt
+  string revised_prompt = 3;
+}
+
+message MSFTAzureOpenAIUsage {
+  int32 prompt_tokens = 1;
+  int32 completion_tokens = 2;
+  int32 total_tokens = 3;
+}
+
+message MSFTAzureOpenAIResponseDelta {
+  string text = 1;
+  int32 choice_index = 2;
+}
+
+//------------------------------------------------------------------------------
+// Error Handling Enums
+//------------------------------------------------------------------------------
+// These enums provide type-safe error classification for Azure OpenAI API errors.
+// Modeled after AWS Bedrock's comprehensive error handling approach.
+//
+// Azure OpenAI Error Reference:
+// - API Errors: https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
+// - Error Codes: https://platform.openai.com/docs/guides/error-codes
+// - Troubleshooting: https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/troubleshooting
+
+// Exception Types - Detailed error classification mapping to HTTP status codes
+// Used for precise error categorization and handling
+enum MSFTAzureOpenAIExceptionType {
+  // Unspecified exception type
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_UNSPECIFIED = 0;
+  
+  // InvalidRequestError (HTTP 400)
+  // The request was malformed or missing required parameters
+  // Common causes: Invalid model ID, missing required fields, malformed JSON
+  // Action: Review request parameters and fix validation errors
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_INVALID_REQUEST_ERROR = 1;
+  
+  // AuthenticationError (HTTP 401)
+  // Invalid or missing API key
+  // Common causes: Incorrect API key, expired key, missing api-key header
+  // Action: Verify API key is correct and included in headers
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_AUTHENTICATION_ERROR = 2;
+  
+  // PermissionDeniedError (HTTP 403)
+  // API key lacks permission for the requested resource
+  // Common causes: Insufficient RBAC permissions, deployment not accessible
+  // Action: Verify IAM roles and deployment access permissions
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_PERMISSION_DENIED_ERROR = 3;
+  
+  // NotFoundError (HTTP 404)
+  // Requested resource was not found
+  // Common causes: Invalid deployment name, wrong region, resource deleted
+  // Action: Verify deployment name, check region, verify resource exists
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_NOT_FOUND_ERROR = 4;
+  
+  // RateLimitError (HTTP 429)
+  // Request exceeded rate limits
+  // Common causes: Too many requests per minute (RPM), too many tokens per minute (TPM)
+  // Action: Implement exponential backoff, check retry-after header, request quota increase
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_RATE_LIMIT_ERROR = 5;
+  
+  // InternalServerError (HTTP 500)
+  // Azure OpenAI service encountered an unexpected error
+  // Common causes: Service-side bug, temporary service issue
+  // Action: Retry with exponential backoff (may be transient)
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_INTERNAL_SERVER_ERROR = 6;
+  
+  // ServiceUnavailableError (HTTP 503)
+  // Service is temporarily unavailable
+  // Common causes: Service maintenance, regional capacity issues, overload
+  // Action: Retry with exponential backoff, consider failover to another region
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_SERVICE_UNAVAILABLE_ERROR = 7;
+  
+  // TimeoutError (HTTP 408, 504)
+  // Request exceeded timeout limits
+  // Common causes: Large input, slow model response, network latency
+  // Action: Retry with shorter max_tokens, optimize input size
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_TIMEOUT_ERROR = 8;
+  
+  // ContentFilterError (HTTP 400)
+  // Request blocked by Azure content filtering
+  // Common causes: Harmful content detected in prompt or response
+  // Action: Review and modify prompt to comply with content policy
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_CONTENT_FILTER_ERROR = 9;
+  
+  // QuotaExceededError (HTTP 429)
+  // Account quota limits exceeded
+  // Common causes: Monthly token quota exceeded, deployment capacity exceeded
+  // Action: Request quota increase, upgrade subscription tier
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_QUOTA_EXCEEDED_ERROR = 10;
+  
+  // InvalidAPIVersionError (HTTP 400)
+  // API version is invalid or not supported
+  // Common causes: Deprecated API version, wrong version string format
+  // Action: Update to supported API version (e.g., 2024-12-01-preview)
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_INVALID_API_VERSION_ERROR = 11;
+  
+  // DeploymentNotFoundError (HTTP 404)
+  // Specified deployment does not exist
+  // Common causes: Deployment deleted, wrong deployment name, wrong region
+  // Action: Verify deployment exists in Azure portal, check deployment name
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_DEPLOYMENT_NOT_FOUND_ERROR = 12;
+  
+  // ModelNotDeployedError (HTTP 404)
+  // Model requested but not deployed in the region
+  // Common causes: Model not available in region, deployment pending
+  // Action: Deploy model to region or use different region
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_MODEL_NOT_DEPLOYED_ERROR = 13;
+  
+  // ContextLengthExceededError (HTTP 400)
+  // Input + output tokens exceed model's context window
+  // Common causes: Input too long, max_tokens too high
+  // Action: Reduce input size or max_tokens parameter
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_CONTEXT_LENGTH_EXCEEDED_ERROR = 14;
+  
+  // InvalidParameterError (HTTP 400)
+  // Parameter value is invalid or out of range
+  // Common causes: Temperature > 2.0, invalid stop sequences
+  // Action: Validate parameter values against API documentation
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_INVALID_PARAMETER_ERROR = 15;
+  
+  // ConnectionError (Network-level)
+  // Network connection failed before receiving response
+  // Common causes: Network timeout, DNS failure, connection dropped
+  // Action: Check network connectivity, verify endpoint URL
+  MSFT_AZURE_OPENAI_EXCEPTION_TYPE_CONNECTION_ERROR = 16;
+}
+
+// Error Codes - High-level error categories for error handling logic
+// Used for catch blocks and retry strategies
+enum MSFTAzureOpenAIErrorCode {
+  // Unspecified error (should not occur in normal operation)
+  MSFT_AZURE_OPENAI_ERROR_UNSPECIFIED = 0;
+  
+  // Validation Error (HTTP 400)
+  // Request is malformed or contains invalid parameters
+  // Retry strategy: Don't retry - fix request and resubmit
+  // Exception types: InvalidRequestError, InvalidParameterError, ContextLengthExceededError
+  MSFT_AZURE_OPENAI_ERROR_VALIDATION_ERROR = 1;
+  
+  // Authentication Error (HTTP 401)
+  // API key is invalid or missing
+  // Retry strategy: Don't retry - fix credentials
+  // Exception types: AuthenticationError
+  MSFT_AZURE_OPENAI_ERROR_AUTHENTICATION_ERROR = 2;
+  
+  // Authorization Error (HTTP 403)
+  // API key lacks permission for the resource
+  // Retry strategy: Don't retry - fix permissions
+  // Exception types: PermissionDeniedError
+  MSFT_AZURE_OPENAI_ERROR_AUTHORIZATION_ERROR = 3;
+  
+  // Not Found Error (HTTP 404)
+  // Requested resource does not exist
+  // Retry strategy: Don't retry - verify resource exists
+  // Exception types: NotFoundError, DeploymentNotFoundError, ModelNotDeployedError
+  MSFT_AZURE_OPENAI_ERROR_NOT_FOUND_ERROR = 4;
+  
+  // Throttling Error (HTTP 429)
+  // Rate limits exceeded
+  // Retry strategy: Exponential backoff with retry-after header
+  // Exception types: RateLimitError, QuotaExceededError
+  MSFT_AZURE_OPENAI_ERROR_THROTTLING_ERROR = 5;
+  
+  // Internal Error (HTTP 500)
+  // Service encountered unexpected error
+  // Retry strategy: Retry with exponential backoff (may be transient)
+  // Exception types: InternalServerError
+  MSFT_AZURE_OPENAI_ERROR_INTERNAL_ERROR = 6;
+  
+  // Service Unavailable (HTTP 503)
+  // Service temporarily unavailable
+  // Retry strategy: Retry with exponential backoff, consider failover
+  // Exception types: ServiceUnavailableError
+  MSFT_AZURE_OPENAI_ERROR_SERVICE_UNAVAILABLE = 7;
+  
+  // Timeout Error (HTTP 408, 504)
+  // Request exceeded time limits
+  // Retry strategy: Retry with shorter timeout or smaller input
+  // Exception types: TimeoutError
+  MSFT_AZURE_OPENAI_ERROR_TIMEOUT_ERROR = 8;
+  
+  // Content Filter Error (HTTP 400)
+  // Content blocked by Azure content filtering
+  // Retry strategy: Don't retry - modify content
+  // Exception types: ContentFilterError
+  MSFT_AZURE_OPENAI_ERROR_CONTENT_FILTER_ERROR = 9;
+  
+  // Network Error (Network-level)
+  // Connection failed before receiving response
+  // Retry strategy: Retry with exponential backoff
+  // Exception types: ConnectionError
+  MSFT_AZURE_OPENAI_ERROR_NETWORK_ERROR = 10;
+}
+
+message MSFTAzureOpenAIError {
+  // Human-readable error code string (e.g., "invalid_request_error", "rate_limit_error")
+  // From OpenAI API response "error.code" field
+  string code = 1;
+  
+  // Human-readable error message
+  // From OpenAI API response "error.message" field
+  string message = 2;
+  
+  // Error type string (e.g., "invalid_request_error", "server_error")
+  // From OpenAI API response "error.type" field
+  string type = 3;
+  
+  // Additional error details (key-value pairs)
+  // From OpenAI API response "error" object
+  map<string, string> details = 4;
+  
+  // Structured exception type (enum for type-safe error handling)
+  // Populated by service layer based on HTTP status + error.type
+  MSFTAzureOpenAIExceptionType exception_type = 5;
+  
+  // High-level error code (enum for retry logic and catch blocks)
+  // Populated by service layer based on exception_type
+  MSFTAzureOpenAIErrorCode error_code = 6;
+  
+  // HTTP status code (e.g., 400, 429, 500)
+  // From HTTP response status
+  int32 http_status_code = 7;
+}
+
+//------------------------------------------------------------------------------
+// Initialization
+//------------------------------------------------------------------------------
+
+message MSFTAzureOpenAIInferenceInitialization {
+  // Optional: Credentials config
+  MSFTAzureOpenAICredentialsConfig credentials_config = 1;
+}
+
+message InitializedMSFTAzureOpenAIInference {
+  bool success = 1;
+}
+
+//------------------------------------------------------------------------------
+// Token Counting
+//------------------------------------------------------------------------------
+
+message MSFTAzureOpenAITokenCount {
+  int32 input_tokens = 1;
+  int32 output_tokens = 2;
+  int32 total_tokens = 3;
+}

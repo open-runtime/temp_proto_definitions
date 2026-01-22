@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/text/tokenization/root/shared/models/models.proto";
+import "lib/src/google/protobuf/empty.proto";
+
+package runtime.aot.machine_learning.text.tokenization;
+
+service TextTokenizationService {
+  // TODO - double check that we dont need to stream anything
+  rpc Initialize(google.protobuf.Empty) returns (google.protobuf.Empty) {};
+  rpc Tokenize (UntokenizedText) returns (TokenizedText) {};
+}

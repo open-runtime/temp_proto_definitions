@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "lib/src/data/persistence/parents/big_query/root/shared/models/models.proto";
+
+package runtime.aot.data.persistence.parents.big_query;
+
+
+service BigQueryService {
+  rpc Initialize(BigQueryInitialization) returns (InitializedBigQuery) {};
+  /// This is going to make a request to the BQ api via the googleapis/bigquery pub.dev package.
+  rpc InsertAll(BigQueryInsertAllRequest) returns (BigQueryInsertAllResponse) {};
+  // The goal of this function is to run a Specific Query within a specific project within BigQuery.
+  // ** Important Note: when using the "response.rows.first.f.first.v" ensure that the consume of this using jsonDecode to retrieve the true value.
+  rpc Query (BigQueryQueryRequest) returns (BigQueryQueryResponse) {};
+}

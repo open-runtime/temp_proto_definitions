@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/text/technical_language/code/detectors/framework/vertex/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.text.technical_language.code.detectors.framework.vertex;
+
+service VertexCodeFrameworkDetectorService {
+  rpc Initialize(VertexCodeFrameworkDetectorInitialization) returns (InitializedVertexCodeFrameworkDetector) {};
+  rpc Detect (UndetectedCodeFramework) returns (CodeFrameworkDetection) {};
+}

@@ -1,0 +1,8 @@
+syntax = "proto3";
+import 'lib/src/machine_learning/text/technical_language/code/generators/templatization/gpt/root/shared/models/models.proto';
+
+package runtime.aot.machine_learning.text.technical_language.code.generators.templatization.gpt;
+
+service GPTCodeGeneratorTemplatizationService {
+  rpc Template (UntemplatedCode) returns (TemplatedCode) {};
+}

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.module.asset.registrations;
+
+// TODO STANDARDIZE THESE NAMES
+enum ModuleAssetRegistrationEnum {
+  //Enums should include a default FOO_UNSPECIFIED value as the first value in the declaration . When new values are added to a proto2 enum, old clients will see the field as unset and the getter will return the default value or the first-declared value if no default exists
+  MODULE_ASSET_UNSPECIFIED = 0; // https://protobuf.dev/programming-guides/dos-donts/#do-include-an-unspecified-value-in-an-enum
+  ONNX_INFERENCE_LIBRARY = 1;
+  TREE_SITTER_LIBRARY = 2;
+  CODE_VS_TEXT_ONNX_MODEL = 3;
+  TOKENIZERS = 4;
+  PROGRAMMING_LANGUAGE_CLASSIFIER = 5;
+  ISAR = 6;
+  OCR_ENG_TRAINEDDATA = 7;
+  OCR_LIBRARY = 8;
+  ONNX_RUNTIME_LIBRARY = 9;
+  TESSERACT_INFERENCE_LIBRARY = 10;
+  OPENAI_MODEL_REGISTRY = 11;
+  ANTHROPIC_MODEL_REGISTRY = 12;
+  VERTEX_MODEL_REGISTRY = 13;
+}

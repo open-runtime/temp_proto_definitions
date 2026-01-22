@@ -1,0 +1,146 @@
+{
+    "id": "7a5155e0-3ecb-4e55-8ee0-819e6fe7513f",
+    "userId": "U2vWebPXQXwiSzaJKkspS2jrOSy7",
+    "autho_id": "google-oauth2|107873995935443411600",
+    "name": "Tsavo Knott",
+    "givenName": "Tsavo",
+    "middleName": "",
+    "familyName": "Knott",
+    "paddle_id": "ctm_01jz0yvxx4mn4s1kzncbwkqhw6",
+    "paddle_last_webhook_at": "2025-10-30T17:55:22.718228Z",
+    "email": "tsavo@pieces.app",
+    "phone": "",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocLXhER7daPvM3aTuzVMKbr0-mWTSbl7dz0WA7qllw18VKU1-TEU=s96-c",
+    "createdTime": 1625725844,
+    "updatedTime": 1763755439,
+    "loginIds": [
+        "tsavo@pieces.app",
+        "google-107873995935443411600",
+        "github-102485237"
+    ],
+    "roleNames": null,
+    "ssoAppIds": null,
+    "oauth": null,
+    "isVerifiedEmail": false,
+    "isVerifiedPhone": false,
+    "password": false,
+    "status": "enabled",
+    "welcome_email": true,
+    "vanity": "tsavo",
+    "cloud_key": "",
+    "open_ai": null,
+    "beta": {
+        "from": {
+            "value": "2024-04-16T04:00Z"
+        },
+        "to": {
+            "value": "2025-05-31T04:00Z"
+        },
+        "continous": false,
+        "between": false
+    },
+    "allocation": {
+        "project": "runtime-user-cloud-group-0",
+        "region": "us-west1"
+    },
+    "orgs": [
+        {
+            "id": "org_20598756839437442969334692817437",
+            "name": "Pieces",
+            "paddle_id": "ctm_01jz0sg2t5a6gsdg9hd35v283b",
+            "subscriptions": [
+                {
+                    "product_id": "pro_01k6xekwpg5ehc9wcc9dbnaa04",
+                    "price_id": "pri_01k6xer1vdrdxfrbdd10mj4gt3",
+                    "name": "Enterprise Seat Yearly",
+                    "price": "27599",
+                    "subscription_id": "sub_01kaednewrwbn4dntbnc5rdva0",
+                    "billing_term": "year",
+                    "quantity": 20,
+                    "created_at": "2025-11-19T16:01:36.590336Z",
+                    "nextbilled_at": "2026-11-19T16:02:51.923Z",
+                    "paused_at": null,
+                    "canceled_at": null,
+                    "active": true
+                }
+            ],
+            "configuration": {
+                "open_ai": null,
+                "gemini": null,
+                "claude": null,
+                "bedrock": {
+                    "access_credentials": [
+                        {
+                            "name": "Pieces Bedrock",
+                            "key": "AKIA****NPWG",
+                            "secret": "7y45****J+xl",
+                            "region": "us-east-1"
+                        }
+                    ],
+                    "api_keys": [
+                        {
+                            "name": "BedrockAPIKey-tzf4-at-605134436431",
+                            "key": "ABSK****MD0="
+                        }
+                    ],
+                    "is_stored": true,
+                    "updated_at": 1763593669
+                },
+                "toggles": {},
+                "processing": "",
+                "modelAccess": []
+            },
+            "tenant_id": "",
+            "domains": [],
+            "createdTime": 1763568078,
+            "updatedTime": 1763593669
+        }
+    ],
+    "subscriptions": [
+        {
+            "product_id": "pro_01jp5e6gt307j7abht0rh3yz3g",
+            "price_id": "pri_01jp5e99eep24299j801mc6pch",
+            "name": "Pieces Pro Plan Monthly",
+            "price": "1600",
+            "subscription_id": "sub_01jz0yws1japgnmjen6s1sy54z",
+            "billing_term": "month",
+            "quantity": 1,
+            "created_at": "2025-06-30T17:41:55.378Z",
+            "nextbilled_at": "",
+            "paused_at": null,
+            "canceled_at": "2025-10-29T17:42:41.5Z",
+            "active": false
+        },
+        {
+            "product_id": "pro_01jp5e6gt307j7abht0rh3yz3g",
+            "price_id": "pri_01jp5e99eep24299j801mc6pch",
+            "name": "Pieces Pro Plan Monthly",
+            "price": "1899",
+            "subscription_id": "sub_01k6dw67eq33yn28pyxpaxsnyk",
+            "billing_term": "month",
+            "quantity": 1,
+            "created_at": "2025-10-30T17:55:18.490835Z",
+            "nextbilled_at": "2025-11-30T17:54:39.192694Z",
+            "paused_at": null,
+            "canceled_at": null,
+            "active": true
+        }
+    ],
+    "api_keys": [
+        "81d2b459-eda4-4ea8-b0f9-1f1c2bca313f",
+        "014ddb16-80a7-4400-b0d9-140ba02579f5",
+        "8b8175d8-44b8-4a62-a3a7-53306f68291a",
+        "3a47696a-60cb-4a24-b867-120e1128dde5",
+        "289127b2-1687-4a96-a090-f94d1db7d4c0",
+        "d6c3b3cc-addc-4ba6-a9ba-ffc35f934ac5",
+        "890ebf77-e62e-4fa5-bb4e-1d748351f0b6",
+        "5850dc0e-0931-470b-a583-6867f949b173",
+        "6b562254-595f-4314-a903-6eb05497780b",
+        "de1a3ea7-b4e7-4478-b485-769b17c4408c",
+        "1fa3b40c-7b20-414c-8c31-652cce4a603b",
+        "4d11dc7b-fa4e-4c73-b24c-411bec4cb5c5",
+        "1bf82de9-d7f5-42a8-9354-6723dde025bc"
+    ],
+    "created_at": 1625725844,
+    "updated_at": 1763755439
+}

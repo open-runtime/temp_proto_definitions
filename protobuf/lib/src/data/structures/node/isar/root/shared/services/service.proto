@@ -1,0 +1,14 @@
+syntax = "proto3";
+// TODO update path + your package.
+import 'lib/src/data/structures/node/isar/root/shared/models/models.proto';
+import 'lib/src/google/protobuf/empty.proto';
+import "lib/src/data/structures/node/structure/root/shared/models/models.proto";
+
+package runtime.aot.data.structures.node.isar;
+
+service IsarNodeService {
+  // TODO update your fn name. && params.
+  rpc Create(runtime.aot.data.structures.node.structure.SeededNode) returns (runtime.aot.data.structures.node.structure.Node) {}
+  rpc Get(runtime.aot.data.structures.node.structure.NodeIdentity) returns (runtime.aot.data.structures.node.structure.Node) {}
+  rpc Snapshot(google.protobuf.Empty) returns (stream runtime.aot.data.structures.node.structure.Node) {}
+}

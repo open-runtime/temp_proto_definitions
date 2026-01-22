@@ -1,0 +1,197 @@
+syntax = "proto3";
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.machine_learning.onnx;
+
+
+// ======================================================
+// ======================================================
+// Models needed for prediction
+
+// anything that's returnable should always have a cancellation
+message OnnxInferencePredictionInput {
+  runtime.aot.core.Cancellation cancellation = 1;
+  OnnxNodes nodes = 2;
+}
+
+message OnnxInferencePredictionOutput {
+  runtime.aot.core.Cancellation cancellation = 1;
+  OnnxNodes nodes = 2;
+}
+
+enum OnnxIOType {
+  FLOAT = 0;
+  UINT8 = 1;
+  INT8 = 2;
+  UINT16 = 3;
+  INT16 = 4;
+  UINT32 = 5;
+  INT32 = 6;
+  UINT64 = 7;
+  INT64 = 8;
+  STRING = 9;
+  BOOL = 10;
+  DOUBLE = 11;
+};
+
+
+// Mapped to match the types in the ORT API
+message OnnxNodeData {
+  // https://developers.google.com/protocol-buffers/docs/proto#scalar
+  repeated float floatList = 1 [packed = true];
+  repeated uint32 uint8List = 2 [packed = true];
+  repeated int32 int8List = 3 [packed = true];
+  repeated uint32 uint16List = 4 [packed = true];
+  repeated int32 int16List = 5 [packed = true];
+  repeated uint32 uint32List = 6 [packed = true];
+  repeated int32 int32List = 7 [packed = true];
+  repeated uint64 uint64List = 8 [packed = true];
+  repeated int64 int64List = 9 [packed = true];
+  repeated string stringList = 10;
+  // cant pack strings to advanced encoding i.e. [packed = true] can only be specified for repeated primitive fields.
+  repeated bool boolList = 11 [packed = true];
+  repeated double doubleList = 12 [packed = true];
+}
+
+//  Node(Pointer<Void> dataPtr, this.length, this.type) {
+//    switch (types[type]) {
+//      case 'float':
+//        data = dataPtr.cast<Float>().asTypedList(length);
+//        break;
+//      case 'uint8':
+//        data = dataPtr.cast<Uint8>().asTypedList(length);
+//        break;
+//      case 'int8':
+//        data = dataPtr.cast<Int8>().asTypedList(length);
+//        break;
+//      case 'uint16':
+//        data = dataPtr.cast<Uint16>().asTypedList(length);
+//        break;
+//      case 'int16':
+//        data = dataPtr.cast<Int16>().asTypedList(length);
+//        break;
+//      case 'uint32':
+//        data = dataPtr.cast<Uint32>().asTypedList(length);
+//        break;
+//      case 'int32':
+//        data = dataPtr.cast<Int32>().asTypedList(length);
+//        break;
+//      case 'uint64':
+//        data = dataPtr.cast<Uint64>().asTypedList(length);
+//        break;
+//      case 'int64':
+//        data = dataPtr.cast<Int64>().asTypedList(length);
+//        break;
+//      // @Todo: implement string
+//      case 'bool': // @Todo: check if this works
+//        data = dataPtr.cast<Int8>().asTypedList(length);
+//        break;
+//      case 'double':
+//        data = dataPtr.cast<Double>().asTypedList(length);
+//        break;
+//      default:
+//        throw Exception('Unsupported node type: $type');
+//    }
+//  }
+
+
+
+
+
+
+// DEPRECATED: ORT inference returns a list of nodes where each node is a tensor
+//message OnnxNode {
+//  oneof data {
+//    Int32Array int32 = 1;
+//    FloatArray float = 2;
+//  }
+//}
+
+// ORT inference returns a list of nodes where each node is a tensor
+message OnnxNode {
+  OnnxNodeData data = 1;
+}
+
+// DEPRECATED: Dimensionality of an ORT node (tensor)
+//message NodeSize {
+//  repeated int32 sizes = 1;
+//}
+
+message OnnxNodeDimension {
+  repeated int32 value = 1 [packed = true];
+}
+
+// DEPRECATED: anything that's returnable should always have a cancellation
+//message OnnxIO {
+//  repeated OnnxNode nodes = 1;
+//  repeated NodeSize node_sizes = 2;
+//  runtime.core.shared.aot.Cancellation cancellation = 3;
+//}
+
+
+// Note Former NodeSize was flattened into dimensions for performance reasons
+message OnnxNodes {
+  // These are 1-1 mapped i.e. the array sizes and lengths are the same
+  repeated OnnxNode tensors = 1;
+  repeated OnnxNodeDimension dimensions = 2;
+}
+
+
+
+// ======================================================
+// ======================================================
+// Models needed for initialization
+
+message OnnxInferenceConfigurationIOTypes {
+  repeated OnnxIOType inputs = 1;
+  repeated OnnxIOType outputs = 2;
+}
+
+message RemoteOnnxInferenceModel {
+  // For Large Model Files Streamed as Chunked Byte Buffers
+  bytes bytes = 3;
+  // For Small Model Files Base64 Encoded
+  string string = 4;
+}
+
+message OnnxInferenceInitialization {
+  string mount = 1;
+  OnnxInferenceConfigurationIOTypes types = 3;
+  // This is so we can stream in models that are loaded from the client side and not packed into the binary
+  RemoteOnnxInferenceModel model = 4;
+}
+
+message InitializedOnnxInference {
+  runtime.aot.core.Cancellation cancellation = 1;
+  OnnxInferenceConfigurationIOTypes types = 3;
+  OnnxInferenceStatus status = 4;
+}
+
+
+// ======================================================
+// ======================================================
+// Models needed for status
+
+message OnnxInferenceCachedModels {
+  // These are remote models that are cached, these identifiers match the remote model identifier that was passed in the configuration
+  // The goal here would be to allow the client to know which models are cached and which are not as to not send them again
+  repeated double remote = 1 [packed = true];
+  // Leaving out included models that are packed with the binary for now as they are always cached
+  // repeated int32 packed = 2 [packed = true];
+}
+
+message OnnxInferenceSessions {
+  // This will be the name of the caller and the identifier of the isolate reference in the service as a static map
+  repeated double identifiers = 1 [packed = true];
+}
+
+message OnnxInferenceStatus {
+  runtime.aot.core.Cancellation cancellation = 1;
+  // This will be the name of the caller and the identifier of the isolate reference in the service as a static map
+  OnnxInferenceCachedModels models = 2;
+
+  // Isolates that are currently running
+  OnnxInferenceSessions sessions = 3;
+  // Can add in additional information later
+}
+

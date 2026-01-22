@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+import "lib/src/core/root/grpc/shared/models/user.proto";
+package runtime.aot.machine_learning.text.detection.code.vertex;
+
+message UndetectedTextualContentDomain {
+  string value = 1;
+  // optional user
+  runtime.aot.core.UserProfile user = 2;
+  // note: this is the os_identifier
+  string os = 3;
+}
+
+// TODO: add other options as we support them
+enum TextualContentDomainCodeDetectionType {
+  TECHNICAL = 0;
+  NATURAL = 1;
+  UNKNOWN = 2;
+}
+
+message TextualContentDomainCodeDetection {
+  runtime.aot.core.Cancellation cancellation = 1;
+  TextualContentDomainCodeDetectionType type = 2;
+}
+
+// ========================================================================
+// Initialized Class.
+// ========================================================================
+
+message TextualContentDomainCodeDetectionInitialization {
+}
+
+
+message InitializedTextualContentDomainCodeDetection {
+}

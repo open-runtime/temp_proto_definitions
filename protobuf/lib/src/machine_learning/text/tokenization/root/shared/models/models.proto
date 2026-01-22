@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.machine_learning.text.tokenization;
+
+message TokenizedText {
+  runtime.aot.core.Cancellation cancellation = 1;
+  string normalized = 2;
+
+  // mapped from tokenized input
+  repeated string tokens = 4;
+
+  // mapped from token_ids in the rust tokenizer
+  repeated int32 identifiers = 3 [packed = true];
+  // TODO add in uuid, other metadata
+}
+
+enum TextTokenizationType {
+  UnigramForSearch = 0;
+  BpeTokenizerGlt5000NoComments = 1;
+  BpeTokenizerGLT5000TreeSitter = 2;
+  BpeTokenizerGLT10000TreeSitter = 3;
+  BpeTokenizerTransformer = 4;
+  BpeCodeT5 = 5;
+}
+
+//// TODO CORRECT THIS TO PROPER ENUM TYPES
+//enum TextTokenizationType {
+//    UNIGRAM_FOR_SEARCH = 0;
+//    BPE_TOKENIZER_GLT_5000_NO_COMMENTS = 1;
+//    BPE_TOKENIZER_GLT_5000_TREE_SITTER = 2;
+//    BPE_TOKENIZER_GLT_10000_TREE_SITTER = 3;
+//    BPE_TOKENIZER_TRANSFORMER = 4;
+//    BPE_CODE_T_5 = 5;
+//}
+
+message UntokenizedText {
+  string value = 1;
+  int32 max_sequence_length = 2;
+  TextTokenizationType type = 3;
+  // TODO add anything else here i.e. hint, prior, other context
+}
+

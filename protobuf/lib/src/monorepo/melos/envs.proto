@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.melos.envs;
+
+enum MelosEnvsEnum {
+  UNKNOWN = 0;
+  MELOS_PACKAGE_NAME = 1;
+  MELOS_PACKAGE_VERSION = 2;
+  MELOS_PACKAGE_PATH = 3;
+  MELOS_PARENT_PACKAGE_NAME = 4;
+  MELOS_PARENT_PACKAGE_VERSION = 5;
+  MELOS_PARENT_PACKAGE_PATH = 6;
+  MELOS_PACKAGES = 7;
+  MELOS_SDK_PATH = 8;
+  MELOS_ROOT_PATH = 9;
+}

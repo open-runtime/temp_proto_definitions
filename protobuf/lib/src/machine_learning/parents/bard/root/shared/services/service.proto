@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "lib/src/google/protobuf/empty.proto";
+import "lib/src/machine_learning/parents/bard/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.bard;
+
+service BardInferenceService {
+  rpc Initialize(BardInferenceInitialization) returns (InitializedBardInference) {};
+  rpc Predict (BardInferencePredictionInput) returns (BardInferencePredictionOutput) {};
+}

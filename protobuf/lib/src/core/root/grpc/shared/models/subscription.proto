@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package runtime.aot.core;
+
+// =============================================================================
+// User Subscription Level
+// =============================================================================
+// Defines the subscription tier a user has with Pieces.
+// This enum is used across all services to gate features based on subscription.
+//
+// Usage:
+//   - Machine learning modules use this to determine model access
+//   - Feature flags can be gated by subscription level
+//   - Enterprise features require SUBSCRIPTION_ENTERPRISE
+//
+// Hierarchy (higher levels include lower level access):
+//   SUBSCRIPTION_INTERNAL > SUBSCRIPTION_ENTERPRISE > SUBSCRIPTION_PRO > SUBSCRIPTION_FREE
+//
+// =============================================================================
+
+enum UserSubscriptionLevel {
+  // Free tier - available to all users
+  // Access to basic models and features
+  SUBSCRIPTION_FREE = 0;
+  
+  // Pro tier - requires active Pro subscription
+  // Access to advanced models (GPT-5, O3-pro, etc.)
+  SUBSCRIPTION_PRO = 1;
+  
+  // Enterprise tier - requires active Enterprise subscription
+  // Access to enterprise features and priority support
+  SUBSCRIPTION_ENTERPRISE = 2;
+  
+  // Beta tier - invitation only
+  // Access to experimental features and models
+  SUBSCRIPTION_BETA = 3;
+  
+  // Internal tier - Pieces employees and testing
+  // Access to all features including internal-only
+  SUBSCRIPTION_INTERNAL = 4;
+}
+

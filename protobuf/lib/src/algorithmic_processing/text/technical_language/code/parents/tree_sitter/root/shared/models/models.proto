@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.algorithmic_processing.text.technical_language.code.treesitter;
+
+message TraverseTreeRequest {
+  runtime.aot.core.Cancellation cancellation = 1;
+  string source_code = 2;
+  string language = 3;
+  int32 max_depth = 4;
+  int32 max_children = 5;
+}
+
+message TreeNodes {
+  runtime.aot.core.Cancellation cancellation = 1;
+  int32 total_nodes = 2;
+  int32 max_depth = 3;
+  int32 max_children = 4;
+  int32 list_length = 5;
+  repeated int32 nodes = 6;
+}
+
+message DirectedDiscoveryRequest {
+  runtime.aot.core.Cancellation cancellation = 1;
+  string source_code = 2;
+  string language = 3;
+  string node_type = 4;
+}
+
+message HasLanguageResponse {
+  runtime.aot.core.Cancellation cancellation = 1;
+  bool value = 2;
+}
+
+message MatchNodeRequest {
+  runtime.aot.core.Cancellation cancellation = 1;
+  string source_code = 2;
+  string language = 3;
+  int32 start = 4;
+  int32 end = 5;
+  bool merge = 6;
+}
+
+message MatchedNodes {
+  runtime.aot.core.Cancellation cancellation = 1;
+  int32 start = 2;
+  int32 end = 3;
+}

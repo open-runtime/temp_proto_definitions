@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+import "lib/src/core/root/grpc/shared/models/user.proto";
+
+package runtime.aot.machine_learning.text.technical_language.code.detectors.framework.vertex;
+
+message UndetectedCodeFramework {
+  string value = 1;
+  // optional user
+  runtime.aot.core.UserProfile user = 2;
+  // note: this is the os_identifier
+  string os = 3;
+}
+
+enum CodeFrameworkDetectionType {
+  // .NET
+  ASPNET = 0;
+  ASPNETCORE = 1;
+  ASPNETMVC = 2;
+  ASPNETWEBAPI = 3;
+  ASPNETWEBFORMS = 4;
+  BLAZOR = 5;
+  MAUI = 6;
+  UWP = 7;
+  WINFORMS = 8;
+  WPF = 9;
+  XAMARIN = 10;
+  ENTITYFRAMEWORK = 11;
+  NUNIT = 12;
+  XUNIT = 13;
+  MOQ = 14;
+  AUTOFAC = 15;
+  STRUCTUREMAP = 16;
+  NINJECT = 17;
+  LOG4NET = 18;
+  NLOG = 19;
+  SERILOG = 20;
+
+  // JavaScript
+  REACT = 21;
+  ANGULAR = 22;
+  VUEJS = 23;
+  NODEJS = 24;
+  EXPRESSJS = 25;
+  NEXTJS = 26;
+  GATSBY = 27;
+  JEST = 28;
+  MOCHA = 29;
+  CHAI = 30;
+  SUPERTEST = 31;
+  WEBPACK = 32;
+  BABEL = 33;
+  D3JS = 35;
+  CHARTJS = 36;
+  THREEJS = 37;
+
+  // Python
+  DJANGO = 38;
+  FLASK = 39;
+  FASTAPI = 40;
+  PYTEST = 41;
+  UNITTEST = 42;
+  MOCK = 43;
+  NUMPY = 44;
+  PANDAS = 45;
+  SCIKITLEARN = 46;
+  TENSORFLOW = 47;
+  PYTORCH = 48;
+  JUPYTER = 49;
+  DJANGO_REST_FRAMEWORK = 50;
+
+  // Java
+  SPRINGBOOT = 51;
+  SPRINGMVC = 52;
+  SPRINGDATA = 53;
+  SPRINGSECURITY = 54;
+  HIBERNATE = 55;
+  JUNIT = 56;
+  MAVEN = 57;
+  GRADLE = 58;
+  LOG4J = 59;
+  SLF4J = 60;
+  JACKSON = 61;
+  GSON = 62;
+
+  // Other
+  DOCKER = 63;
+  KUBERNETES = 64;
+  AWS = 65;
+  AZURE = 66;
+  GOOGLE_CLOUD = 67;
+  GIT = 68;
+  GITHUB = 69;
+  JENKINS = 70;
+  CIRCLECI = 71;
+  TRAVISCI = 72;
+  UNKNOWN = 73;
+
+  // Native Mobile
+  REACT_NATIVE = 76;
+  FLUTTER = 77;
+  XAMARIN_FORMS = 78;
+
+  // Game Development
+  UNITY = 81;
+  UNREAL_ENGINE = 82;
+  GODOT = 83;
+  MONOGAME = 84;
+  SDL = 85;
+
+  // Data Science
+  SPARK = 87;
+  HADOOP = 88;
+  SAS = 89;
+  STATA = 90;
+}
+
+message CodeFrameworkDetectionDistribution {
+  repeated double value = 1;
+}
+
+message CodeFrameworkDetection {
+  runtime.aot.core.Cancellation cancellation = 1;
+  CodeFrameworkDetectionType type = 2;
+}
+
+// ========================================================================
+// Initialized Class.
+// ========================================================================
+
+message VertexCodeFrameworkDetectorInitialization {
+}
+
+
+message InitializedVertexCodeFrameworkDetector {
+}

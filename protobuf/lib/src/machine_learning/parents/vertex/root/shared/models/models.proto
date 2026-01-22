@@ -1,0 +1,659 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.machine_learning.parents.vertex;
+
+// ========================================================================
+// VERTEX AI INFERENCE MODELS
+// ========================================================================
+//
+// This proto file defines the message types for Vertex AI Gemini model inference.
+// It supports text generation, multimodal inputs, and various model capabilities.
+//
+// API REFERENCE:
+//   - Vertex AI: https://cloud.google.com/vertex-ai/docs/generative-ai/chat/test-chat-prompts
+//   - Gemini API: https://ai.google.dev/api/generate-content
+//   - Models List: https://ai.google.dev/api/models
+//
+// SUPPORTED MODELS:
+//   - Gemini 2.0 (Flash, Flash-Lite) - GA, sunset Feb 2026
+//   - Gemini 2.5 (Pro, Flash, Flash-Lite) - GA
+//   - Gemini 3 (Pro, Flash) - Preview
+//   - Embedding models (text-embedding-004, text-multilingual-embedding-002)
+//
+// THINKING CONFIGURATION:
+//   Gemini 2.5 models use "budget" mode (thinkingBudget: 0-65536 tokens).
+//   Gemini 3 models use "level" mode (thinkingLevel: MINIMAL/LOW/MEDIUM/HIGH).
+//   These modes are MUTUALLY EXCLUSIVE - cannot use both in the same request.
+//
+// MULTIMODAL SUPPORT:
+//   All current Gemini models support multimodal inputs including:
+//   - Images (PNG, JPEG, WebP, GIF) - up to 3,000 per request
+//   - PDFs - up to 3,000 files, 1,000 pages each
+//   - Audio (MP3, WAV, FLAC, etc.) - 1 file per request
+//   - Video (MP4, WebM, MOV, etc.) - up to 10 files
+//
+// TOOL SUPPORT:
+//   - Google Search: Grounding with web search results
+//   - URL Context: Fetch and process URL content
+//   - Code Execution: Run Python code
+//   - Function Calling: Structured tool invocations
+//
+// ========================================================================
+
+// ========================================================================
+// INPUT
+// ========================================================================
+// *** Considerations, we might want to make this specific, ie VertexChatCompletions, however this is a good base as Vertex for now.
+message VertexInferencePredictionInput {
+  // (required) will throw an error internally if this is not present
+  // this is the model on available for these right now --> ie 'code-bison' || 'codechat-bison' || 'code-gecko'
+  string model = 1;
+
+  repeated VertexInferencePredictionInputInstance instances = 2;
+
+  VertexInferencePredictionInputParameters parameters = 3;
+
+  // (optional) properties if the user wants to override our defaults.(pieces-cloud-server)
+  string project = 4;
+
+  VertexInferencePredictionInputThinkingConfig thinking_config = 5;
+
+  // ========================================================================
+  // NEW FIELDS (Dec 2025) - Additive, non-breaking changes
+  // ========================================================================
+
+  // Optional. System instruction for the model.
+  // Provides high-level guidance about how the model should behave.
+  // Supported by all current Gemini models.
+  optional string system_instruction = 6;
+
+  // Optional. Safety settings for content filtering.
+  // Configure thresholds for different harm categories.
+  // If not specified, default safety settings are applied.
+  repeated VertexInferenceSafetySetting safety_settings = 7;
+
+  // Optional. Tools available to the model.
+  // Includes Google Search, URL context, code execution, and function calling.
+  repeated VertexInferenceTool tools = 8;
+
+  // Optional. Tool configuration (function calling mode).
+  // Controls how the model uses the provided tools.
+  optional VertexInferenceToolConfig tool_config = 9;
+
+  // Optional. Response MIME type for structured outputs.
+  // Values: "text/plain" (default), "application/json", "text/x.enum"
+  // Use "application/json" for JSON mode or structured outputs.
+  optional string response_mime_type = 10;
+
+  // Optional. JSON schema for structured output validation.
+  // When set with response_mime_type="application/json", the model output
+  // will conform to this schema. Uses OpenAPI 3.0 schema format.
+  optional string response_schema = 11;
+
+  // Optional. Stop sequences (up to 5).
+  // The model will stop generating when it encounters any of these sequences.
+  repeated string stop_sequences = 12;
+
+  // Optional. Seed for deterministic generation.
+  // Using the same seed with identical inputs should produce the same output.
+  optional int32 seed = 13;
+
+  // Optional. Media resolution for image/video inputs.
+  // Controls the detail level used when processing media.
+  // Higher resolution = more detail but more tokens consumed.
+  optional VertexMediaResolution media_resolution = 14;
+
+  // Optional. Reference to cached content.
+  // Format: "cachedContents/{cachedContent}"
+  // Use context caching for reduced costs on repeated prompts.
+  optional string cached_content = 15;
+}
+
+message VertexInferencePredictionInputInstance {
+  // (optional) (used for generation and for completion)
+  string prefix = 1;
+
+  // optional this is only used for chat prompts
+  repeated VertexInferencePredictionInputInstanceMessage messages = 2;
+
+  // (optional)Optional. Context can be instructions that you give to the model on how it should respond or information that it uses or references to generate a response. Add contextual information in your prompt when you need to give information to the model, or restrict the boundaries of the responses to only what's within the context.
+  string context = 3;
+
+  // (optional) Context can be instructions that you give to the model on how it should respond or information that it uses or references to generate a response. Add contextual information in your prompt when you need to give information to the model, or restrict the boundaries of the responses to only what's within the context.
+  repeated VertexInferencePredictionInputInstanceExample examples = 4;
+
+  // ========================================================================
+  // NEW (Dec 2025): Multimodal Content Support
+  // ========================================================================
+  //
+  // Use `parts` for multimodal content (images, PDFs, audio, video).
+  // This is the preferred method for vision and document processing.
+  //
+  // When `parts` is provided, it takes precedence over `messages`.
+  // You can use either `messages` (text-only, backwards compatible) or
+  // `parts` (multimodal), but not both in the same instance.
+  //
+  // Example usage:
+  //   parts: [
+  //     VertexContentPart { text: { text: "What's in this image?" } },
+  //     VertexContentPart { inline_data: { mime_type: "image/png", data: <bytes> } }
+  //   ]
+  //
+  repeated VertexContentPart parts = 5;
+}
+
+// ========================================================================
+// MULTIMODAL CONTENT TYPES (Dec 2025)
+// ========================================================================
+//
+// These message types enable multimodal inputs for Gemini models.
+// Based on Google Gemini API Part structure.
+//
+// Supported media types and limits:
+//   Images: image/png, image/jpeg, image/webp, image/gif
+//     - Max 7MB inline, 50MB via Files API
+//     - Max 3,000 images per request
+//     - Tokens: 64-1,120 per image based on resolution
+//
+//   PDFs: application/pdf
+//     - Max 50MB, 1,000 pages per file
+//     - Max 3,000 files per request
+//     - Tokens: 280-1,120 per page based on resolution
+//
+//   Audio: audio/aac, audio/flac, audio/mp3, audio/m4a, audio/mpeg,
+//          audio/mpga, audio/mp4, audio/opus, audio/pcm, audio/wav, audio/webm
+//     - Max 1 audio file per request
+//
+//   Video: video/mp4, video/mpeg, video/webm, video/quicktime, video/x-flv,
+//          video/wmv, video/3gpp, video/mpg, video/mpegps
+//     - Max 10 videos per request
+//     - Up to 2 hours at default resolution
+//
+//   Text: text/plain (UTF-8)
+//     - Max 50MB
+//
+// ========================================================================
+
+// A single content part in a multimodal message.
+// Use this for combining text with images, PDFs, audio, or video.
+message VertexContentPart {
+  oneof part_type {
+    // Plain text content.
+    VertexTextContent text = 1;
+
+    // Inline media data (base64-encoded or raw bytes).
+    // Use for images, PDFs, audio, video up to ~20MB.
+    VertexInlineData inline_data = 2;
+
+    // Reference to a file in Cloud Storage or Gemini Files API.
+    // Use for large files or files that will be reused across requests.
+    VertexFileData file_data = 3;
+  }
+}
+
+// Plain text content part.
+message VertexTextContent {
+  // The text content.
+  string text = 1;
+}
+
+// Inline media data embedded directly in the request.
+//
+// For REST/JSON requests, the data is base64-encoded.
+// For gRPC requests, raw bytes can be used directly.
+//
+// Example (base64 for images):
+//   mime_type: "image/png"
+//   data: <raw PNG bytes>
+//
+message VertexInlineData {
+  // Required. IANA MIME type of the media.
+  // Examples: "image/png", "image/jpeg", "application/pdf", "audio/mp3"
+  string mime_type = 1;
+
+  // Required. The media data as raw bytes.
+  // For gRPC: Pass raw binary data directly.
+  // For REST/JSON: This will be base64-encoded automatically.
+  //
+  // Size limits:
+  //   - Images: Up to 7MB inline (50MB via Files API)
+  //   - PDFs: Up to 50MB, 1,000 pages max
+  //   - Audio/Video: Use Files API for large files
+  bytes data = 2;
+}
+
+// Reference to a file stored externally.
+// Use for large files or when the same file is used in multiple requests.
+//
+// Supported URI formats:
+//   - Cloud Storage: gs://bucket-name/path/to/file.pdf
+//   - Gemini Files API: https://generativelanguage.googleapis.com/v1/files/{file_id}
+//
+message VertexFileData {
+  // Required. MIME type of the referenced file.
+  // Must match the actual file type.
+  string mime_type = 1;
+
+  // Required. URI to the file.
+  // Cloud Storage: gs://bucket/path/file.ext
+  // Files API: The file URI returned from files.upload
+  string file_uri = 2;
+}
+
+message VertexInferencePredictionInputParameters {
+  // (optional) temperature
+  // "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic."
+  float temperature = 1;
+
+  // (optional)
+  int32 max_output_tokens = 2;
+
+  // (optional) "# Tokens are selected from most probable to least until the sum of their probabilities equals the top_p value."
+  float top_p = 3;
+
+  // (optional) "A top_k of 1 means the selected token is the most probable among all tokens."
+  int32 top_k = 4;
+
+  int32 candidate_count = 5;
+}
+
+// ========================================================================
+// ENUMS (Dec 2025) - Type-safe enumerations for API parameters
+// ========================================================================
+//
+// These enums provide type-safe values for Vertex AI API parameters.
+// Most map directly to Google's API enumerations.
+//
+// DATA SOURCES:
+//   - Gemini API Reference: https://ai.google.dev/api/generate-content
+//   - Vertex AI Safety: https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-attributes
+//   - Function Calling: https://ai.google.dev/gemini-api/docs/function-calling
+//
+// ========================================================================
+
+// Thinking level for Gemini 3 models (level-based thinking mode)
+//
+// Controls the depth of reasoning the model performs before responding.
+// Only applicable to Gemini 3 models which use LEVEL-based thinking.
+// For Gemini 2.5 models, use thinkingBudget (int32 token count) instead.
+//
+// Model Support:
+//   - gemini-3-flash-preview:      MINIMAL, LOW, MEDIUM, HIGH (default: HIGH)
+//   - gemini-3-pro-preview:        LOW, HIGH only (default: HIGH)
+//   - Gemini 2.5 models:           NOT SUPPORTED (use thinking_budget instead)
+//
+// Token Consumption (approximate):
+//   - MINIMAL: ~0-100 thinking tokens (Flash only)
+//   - LOW:     ~100-500 thinking tokens
+//   - MEDIUM:  ~500-2000 thinking tokens (Flash only)
+//   - HIGH:    ~2000-8000 thinking tokens
+//
+// IMPORTANT: Cannot be used together with thinkingBudget - they are mutually exclusive.
+//
+enum VertexThinkingLevel {
+  VERTEX_THINKING_LEVEL_UNSPECIFIED = 0;  // Use model default (HIGH)
+  VERTEX_THINKING_LEVEL_MINIMAL = 1;      // Lowest thinking, fastest response (Flash only)
+  VERTEX_THINKING_LEVEL_LOW = 2;          // Reduced thinking for simpler tasks
+  VERTEX_THINKING_LEVEL_MEDIUM = 3;       // Balanced thinking depth (Flash only)
+  VERTEX_THINKING_LEVEL_HIGH = 4;         // Maximum thinking for complex reasoning (default)
+}
+
+// Harm categories for safety settings
+//
+// Defines the types of harmful content the model should filter.
+// Each category can be configured independently with a blocking threshold.
+//
+// All current Gemini models support configuring these safety settings.
+// If not specified, the model uses default thresholds.
+//
+// Reference: https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-attributes
+//
+enum VertexHarmCategory {
+  VERTEX_HARM_CATEGORY_UNSPECIFIED = 0;          // Not specified
+  VERTEX_HARM_CATEGORY_HARASSMENT = 1;           // Content that harasses or bullies
+  VERTEX_HARM_CATEGORY_HATE_SPEECH = 2;          // Content promoting hate based on identity
+  VERTEX_HARM_CATEGORY_SEXUALLY_EXPLICIT = 3;    // Sexually explicit content
+  VERTEX_HARM_CATEGORY_DANGEROUS_CONTENT = 4;    // Content promoting harm to self or others
+  VERTEX_HARM_CATEGORY_CIVIC_INTEGRITY = 5;      // Content undermining civic processes (elections, etc.)
+}
+
+// Harm blocking thresholds for safety settings
+//
+// Controls how strictly the model filters potentially harmful content.
+// Lower thresholds = more permissive (less blocking).
+// Higher thresholds = more restrictive (more blocking).
+//
+// Probability levels (from API):
+//   - NEGLIGIBLE: Harm probability near zero
+//   - LOW: Small chance of harm
+//   - MEDIUM: Moderate chance of harm
+//   - HIGH: High likelihood of harm
+//
+// Reference: https://ai.google.dev/gemini-api/docs/safety-settings
+//
+enum VertexHarmBlockThreshold {
+  VERTEX_HARM_BLOCK_THRESHOLD_UNSPECIFIED = 0;   // Use default threshold (BLOCK_MEDIUM_AND_ABOVE)
+  VERTEX_HARM_BLOCK_NONE = 1;                    // Always show regardless of probability (most permissive)
+  VERTEX_HARM_BLOCK_ONLY_HIGH = 2;               // Block when high probability of harm
+  VERTEX_HARM_BLOCK_MEDIUM_AND_ABOVE = 3;        // Block when medium or high probability (default)
+  VERTEX_HARM_BLOCK_LOW_AND_ABOVE = 4;           // Block when low, medium, or high probability (most restrictive)
+}
+
+// Function calling execution mode
+//
+// Controls how the model decides when to call functions.
+// All Gemini generation models support function calling.
+//
+// Usage patterns:
+//   - AUTO: Best for general use - model intelligently decides
+//   - ANY: Force function calling when you always need a structured response
+//   - NONE: Disable tools temporarily without removing declarations
+//   - VALIDATED: Use when you need guaranteed valid JSON for function calls
+//
+// Reference: https://ai.google.dev/gemini-api/docs/function-calling
+//
+enum VertexFunctionCallingMode {
+  VERTEX_FUNCTION_CALLING_MODE_UNSPECIFIED = 0;  // Use default (AUTO)
+  VERTEX_FUNCTION_CALLING_MODE_AUTO = 1;         // Model decides whether to call functions or respond naturally
+  VERTEX_FUNCTION_CALLING_MODE_ANY = 2;          // Model always generates a function call from allowed_function_names
+  VERTEX_FUNCTION_CALLING_MODE_NONE = 3;         // Model never generates function calls
+  VERTEX_FUNCTION_CALLING_MODE_VALIDATED = 4;    // Like AUTO but with constrained decoding for valid calls
+}
+
+// Media resolution for image/video inputs
+//
+// Controls the detail level used when processing media.
+// Higher resolution = more detail but more tokens consumed.
+//
+// Token consumption per image (approximate):
+//   - LOW:    64 tokens (fastest, lowest detail)
+//   - MEDIUM: 256 tokens (balanced)
+//   - HIGH:   256+ tokens with zoom capability (most detail)
+//
+// For video, tokens scale with duration and resolution.
+//
+// Reference: https://ai.google.dev/gemini-api/docs/vision
+//
+enum VertexMediaResolution {
+  VERTEX_MEDIA_RESOLUTION_UNSPECIFIED = 0;       // Use default (model decides based on image size)
+  VERTEX_MEDIA_RESOLUTION_LOW = 1;               // 64 tokens per image (fastest)
+  VERTEX_MEDIA_RESOLUTION_MEDIUM = 2;            // 256 tokens per image (balanced)
+  VERTEX_MEDIA_RESOLUTION_HIGH = 3;              // 256+ tokens with zoom capability (most detail)
+}
+
+message VertexInferencePredictionInputThinkingConfig {
+  // Whether to include thought summaries in the response.
+  // When true, the model's internal reasoning will be returned alongside the final answer.
+  bool include_thoughts = 1;
+
+  // DEPRECATED: Use thinking_budget instead.
+  // This field uses int64 type and incorrect naming compared to Google's official API.
+  // Kept for backward compatibility - existing clients continue to work.
+  // New clients should use thinking_budget (field 3) instead.
+  // Server-side: If thinking_budget is not set but max_thoughts is, we convert it internally.
+  int64 max_thoughts = 2;
+
+  // NEW (Dec 2025): Token budget for thinking (Gemini 2.5 models)
+  // Preferred over max_thoughts - uses correct int32 type and naming per Google's API.
+  // 
+  // Model-specific ranges:
+  // - Gemini 2.5 Pro: 128-32,768 (default: 8192, CANNOT be disabled)
+  // - Gemini 2.5 Flash: 1-24,576 (default: dynamic/-1, 0 disables thinking)
+  // - Gemini 2.5 Flash-Lite: 512-24,576 (default: 0/disabled)
+  //
+  // Special values:
+  // - Set to -1 for dynamic thinking (model decides based on prompt complexity)
+  // - Set to 0 to disable thinking (Flash/Flash-Lite only, Pro cannot disable)
+  //
+  // Note: Thinking tokens are billed at the same rate as output tokens.
+  optional int32 thinking_budget = 3;
+
+  // NEW (Dec 2025): Thinking level for Gemini 3 models
+  // This is MUTUALLY EXCLUSIVE with thinking_budget - cannot use both in same request!
+  // The API will return an error if both are specified.
+  //
+  // Supported levels by model:
+  // - Gemini 3 Pro: LOW, HIGH (default: HIGH, CANNOT be disabled)
+  // - Gemini 3 Flash: MINIMAL, LOW, MEDIUM, HIGH (default: HIGH)
+  optional VertexThinkingLevel thinking_level = 4;
+}
+
+// ========================================================================
+// NEW MESSAGE TYPES (Dec 2025) - Supporting tools, safety, function calling
+// ========================================================================
+
+// Safety setting for content filtering.
+// Configure how strictly the model filters content in each harm category.
+message VertexInferenceSafetySetting {
+  // The harm category to configure.
+  VertexHarmCategory category = 1;
+
+  // The blocking threshold for this category.
+  VertexHarmBlockThreshold threshold = 2;
+}
+
+// Tool definition for model capabilities.
+// A tool enables the model to interact with external systems or perform actions.
+message VertexInferenceTool {
+  // Optional. Enable Google Search grounding.
+  // When enabled, the model can search the web for current information.
+  optional VertexInferenceGoogleSearch google_search = 1;
+
+  // Optional. Enable URL context retrieval.
+  // When enabled, the model can fetch and process content from URLs.
+  optional VertexInferenceUrlContext url_context = 2;
+
+  // Optional. Enable code execution.
+  // When enabled, the model can write and execute Python code.
+  optional VertexInferenceCodeExecution code_execution = 3;
+
+  // Optional. Function declarations for function/tool calling.
+  // The model can generate structured calls to these functions.
+  repeated VertexInferenceFunctionDeclaration function_declarations = 4;
+}
+
+// Google Search tool configuration.
+// Enables the model to search the web for grounding responses with current information.
+message VertexInferenceGoogleSearch {
+  // Optional. Filter search results to a specific time range.
+  // Format: ISO 8601 interval (e.g., "2024-01-01/2024-12-31")
+  optional string time_range_filter = 1;
+}
+
+// URL context retrieval tool configuration.
+// Enables the model to fetch and process content from provided URLs.
+message VertexInferenceUrlContext {
+  // No configuration options currently - presence enables the tool.
+}
+
+// Code execution tool configuration.
+// Enables the model to write and execute Python code.
+message VertexInferenceCodeExecution {
+  // No configuration options currently - presence enables the tool.
+}
+
+// Function declaration for function/tool calling.
+// Describes a function that the model can call.
+message VertexInferenceFunctionDeclaration {
+  // Required. The name of the function.
+  // Must be a-z, A-Z, 0-9, or contain underscores, colons, dots, and dashes.
+  // Maximum length of 64 characters.
+  string name = 1;
+
+  // Required. A brief description of the function.
+  // Helps the model understand when to use this function.
+  string description = 2;
+
+  // Optional. Parameters schema in JSON Schema format.
+  // Describes the parameters the function accepts.
+  // Example: {"type": "object", "properties": {"location": {"type": "string"}}, "required": ["location"]}
+  optional string parameters = 3;
+
+  // Optional. Response schema in JSON Schema format.
+  // Describes the expected response from the function.
+  optional string response = 4;
+}
+
+// Tool configuration for controlling how the model uses tools.
+message VertexInferenceToolConfig {
+  // Optional. Configuration for function calling behavior.
+  optional VertexInferenceFunctionCallingConfig function_calling_config = 1;
+}
+
+// Function calling configuration.
+// Controls how the model decides when and how to call functions.
+message VertexInferenceFunctionCallingConfig {
+  // The execution mode for function calling.
+  VertexFunctionCallingMode mode = 1;
+
+  // Optional. Restrict which functions the model can call.
+  // Only applicable when mode is ANY or VALIDATED.
+  // Function names should match FunctionDeclaration.name.
+  repeated string allowed_function_names = 2;
+}
+
+message VertexInferencePredictionInputInstanceMessage {
+  // (required) will throw an error internally if this is not present.
+  VertexInferencePredictionInputChatMessageAuthorEnum author = 1;
+  // (required) will throw an error internally if this is not present.
+  // represents the content of the message you want to send.
+  string content = 2;
+}
+
+// ** ensure we map the upperCase to lowerCase on the request.. **
+enum VertexInferencePredictionInputChatMessageAuthorEnum {
+  SYSTEM = 0;
+  USER = 1;
+  AI = 2;
+  BOT = 3;
+}
+// this is used to map the vertex enum -> the enum we have ^^
+message VertexInferencePredictionInputChatMessageAuthorType {
+  string SYSTEM = 1;
+  string USER = 2;
+  string AI = 3;
+  string BOT = 4;
+}
+
+message VertexInferencePredictionInputInstanceExample {
+  VertexInferencePredictionInputInstanceExampleMessage input = 1;
+  VertexInferencePredictionInputInstanceExampleMessage output = 2;
+}
+
+message VertexInferencePredictionInputInstanceExampleMessage {
+  string content = 1;
+}
+
+
+// ========================================================================
+// Output
+// ========================================================================
+message VertexInferencePredictionOutput {
+  runtime.aot.core.Cancellation cancellation = 1;
+  // (optional) if the request when through this will be present, if there was an internal error we will not return a status code.
+  int32 statusCode = 2;
+
+  // (optional) the error message, this will only be present if there was an error.(internal or external from Vertex)
+  string error = 3;
+
+  // (optional) If the request was successful we will return this.
+  VertexInferencePredictionOutputResponse response = 4;
+
+}
+
+message VertexInferencePredictionOutputResponse {
+  repeated VertexInferencePredictionOutputResponsePrediction predictions = 1;
+}
+
+message VertexInferencePredictionOutputResponsePrediction {
+  repeated VertexInferencePredictionOutputResponsePredictionSafetyAttribute safetyAttributes = 1;
+  // only thing that really matters right now is the candidates.
+  repeated VertexInferencePredictionOutputResponsePredictionCandidate candidates = 2;
+  VertexInferencePredictionOutputResponsePredictionCitationMetadata citationMetadata = 3;
+}
+
+message VertexInferencePredictionOutputResponsePredictionSafetyAttribute {
+  // TODO figure our the actual data type for this
+}
+message VertexInferencePredictionOutputResponsePredictionCandidate {
+  VertexInferencePredictionInputChatMessageAuthorEnum author = 1;
+  string content = 2;
+  int32 thinking_index = 3;
+}
+message VertexInferencePredictionOutputResponsePredictionCitationMetadata {
+  // TODO look into the values returned here!
+}
+
+// ========================================================================
+// Initialized Class.
+// ========================================================================
+
+message VertexInferenceInitialization {
+}
+
+
+message InitializedVertexInference {
+}
+
+
+// ========================================================================
+// Embed Classes
+// ========================================================================
+// NOTE: "https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings"
+message VertexInferenceEmbeddingInput {
+  // (required) will throw an error internally if this is not present
+  // this is the model on available for these right now --> ie 'textembedding-gecko@001' || 'textembedding-gecko@latest' || 'textembedding-gecko-multilingual@latest'
+  string model = 1;
+
+  repeated VertexInferenceEmbeddingInputInstance instances = 2;
+
+  // (optional) properties if the user wants to override our defaults.(pieces-cloud-server)
+  string project = 4;
+
+  // (optional) Output embedding dimension for MRL-enabled models (Dec 2025)
+  // Supports dimension reduction via Matryoshka Representation Learning.
+  // - For gemini-embedding-001, text-embedding-004/005: API param is 'outputDimensionality'
+  // - For multimodalembedding@001: API param is 'dimension'
+  // Valid values: 1 to model's max dimension (e.g., 3072 for gemini-embedding-001, 768 for text-embedding-005)
+  // If 0 or unset, uses model's default dimension.
+  int32 output_dimensionality = 5;
+}
+
+message VertexInferenceEmbeddingInputInstance {
+  string content = 1;
+  string task_type = 2;
+  string title = 3;
+}
+
+message VertexInferenceEmbeddingOutput {
+  runtime.aot.core.Cancellation cancellation = 1;
+  // (optional) if the request when through this will be present, if there was an internal error we will not return a status code.
+  int32 statusCode = 2;
+
+  // (optional) the error message, this will only be present if there was an error.(internal or external from Vertex)
+  string error = 3;
+
+  // (optional) If the request was successful we will return this.
+  VertexInferenceEmbeddingOutputResponse response = 4;
+}
+
+message VertexInferenceEmbeddingOutputResponse {
+  repeated VertexInferenceEmbeddingOutputPrediction predictions = 1;
+}
+
+message VertexInferenceEmbeddingOutputPrediction {
+  VertexInferenceEmbeddingOutputPredictionEmbeddings embeddings = 1;
+}
+
+message VertexInferenceEmbeddingOutputPredictionEmbeddings {
+  // note: this is the actual embedding
+  repeated float values = 1;
+  VertexInferenceEmbeddingOutputPredictionEmbeddingsStatistics statistics = 2;
+}
+
+message VertexInferenceEmbeddingOutputPredictionEmbeddingsStatistics {
+  bool truncated = 1;
+  int32 token_count = 2;
+}

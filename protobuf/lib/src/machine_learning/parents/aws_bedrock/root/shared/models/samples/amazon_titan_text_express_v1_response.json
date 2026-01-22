@@ -1,0 +1,10 @@
+{
+  "inputTextTokenCount": 12,
+  "results": [
+    {
+      "tokenCount": 9,
+      "outputText": "\nParis is the capital of France.",
+      "completionReason": "FINISH"
+    }
+  ]
+}

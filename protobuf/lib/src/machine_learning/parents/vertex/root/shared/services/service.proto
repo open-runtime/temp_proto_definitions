@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/parents/vertex/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.parents.vertex;
+
+
+service VertexInferenceService {
+  rpc Initialize(VertexInferenceInitialization) returns (InitializedVertexInference) {};
+  rpc Predict(VertexInferencePredictionInput) returns (VertexInferencePredictionOutput) {};
+  rpc PredictWithStream(VertexInferencePredictionInput) returns (stream VertexInferencePredictionOutput) {};
+  rpc Embed(VertexInferenceEmbeddingInput) returns (VertexInferenceEmbeddingOutput) {};
+}

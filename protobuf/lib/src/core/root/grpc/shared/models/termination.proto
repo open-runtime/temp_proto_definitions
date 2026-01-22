@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package runtime.aot.core;
+
+import "lib/src/google/protobuf/duration.proto";
+
+message Termination {
+  bool terminated = 1;
+  string message = 2;
+  bool graceful = 3;
+  google.protobuf.Duration timeout = 4;
+}

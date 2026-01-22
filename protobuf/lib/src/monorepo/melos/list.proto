@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.melos.listed;
+
+message MelosListedPackage {
+  string location = 1;
+  string version = 2;
+  string name = 3;
+  bool private = 4;
+  int32 type = 5;
+}
+
+message MelosListedPackages {
+  repeated MelosListedPackage packages = 1;
+}

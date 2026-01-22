@@ -1,0 +1,413 @@
+syntax = "proto3";
+
+// =============================================================================
+// Tesseract OCR Models Protocol Buffer Definition
+// =============================================================================
+// This file defines the protocol buffer messages for the Tesseract OCR service.
+// It provides a comprehensive set of models to support all Tesseract OCR
+// functionality through a gRPC interface.
+//
+// Core Concepts:
+// 1. Configuration: Extensive options for controlling OCR behavior
+// 2. Image Processing: Support for raw and preprocessed images
+// 3. Results: Detailed OCR results including confidence scores and word boxes
+// 4. Error Handling: Structured error reporting
+// =============================================================================
+
+package runtime.aot.machine_learning.parents.vision.tesseract;
+
+// -----------------------------------------------------------------------------
+// Configuration Models
+// -----------------------------------------------------------------------------
+
+// TesseractInferenceRequestPredictionConfiguration defines the configuration options for OCR processing.
+// Example usage:
+// ```
+// api.init(tessdata_dir.to_str().unwrap(), "eng+tur")
+//    .expect("Failed to initialize Tesseract with multiple languages");
+// api.set_variable("tessedit_pageseg_mode", "1")
+//    .expect("Failed to set PSM");
+// api.set_variable("tessedit_enable_dict_correction", "1")
+//    .expect("Failed to enable dictionary correction");
+// ```
+message TesseractInferenceRequestPredictionConfiguration {
+  // Language data to use for OCR (e.g., "eng", "tur", "eng+tur")
+  // Example: api.init(tessdata_dir.to_str().unwrap(), "tur+eng")
+  string language = 1;
+  
+  // Optional path to tessdata directory (overrides default location)
+  // Example: let tessdata_dir = get_tessdata_dir();
+  string tessdata_path = 2;
+  
+  // Page segmentation mode (PSM)
+  // 0: OSD only, 1: Auto page, 3: Auto, 4: Single column, 6: Single block of text, etc.
+  // Example: api.set_variable("tessedit_pageseg_mode", "1")
+  int32 page_segmentation_mode = 3;
+  
+  // OCR engine mode (OEM)
+  // 0: Legacy engine only, 1: Neural nets LSTM only, 2: Legacy + LSTM, 3: Default
+  // Example: api.set_variable("tessedit_ocr_engine_mode", "4") // LSTM mode
+  int32 ocr_engine_mode = 4;
+  
+  // Character whitelist (restricts recognition to these characters)
+  // Example: api.set_variable("tessedit_char_whitelist", "0123456789")
+  string char_whitelist = 5;
+  
+  // Character blacklist (excludes these characters from recognition)
+  // Example: api.set_variable("tessedit_char_blacklist", "!?@#$%&*()_+-=[]{}|\\")
+  string char_blacklist = 6;
+  
+  // Additional variables (key-value pairs for advanced configuration)
+  // Example: api.set_variable("preserve_interword_spaces", "1")
+  map<string, string> variables = 7;
+  
+  // Whether to preserve interword spaces
+  // Example: api.set_variable("preserve_interword_spaces", "1")
+  bool preserve_interword_spaces = 8;
+  
+  // Whether to enable dictionary-based correction
+  // Example: api.set_variable("tessedit_enable_dict_correction", "1")
+  bool enable_dictionary_correction = 9;
+  
+  // Whether to apply preprocessing to the image
+  bool apply_preprocessing = 10;
+  
+  // Preprocessing options (only used if apply_preprocessing is true)
+  // See preprocess_image function in test code for reference
+  TesseractInferenceRequestPreprocessingOptions preprocessing_options = 11;
+}
+
+// TesseractInferenceRequestPreprocessingOptions defines image preprocessing parameters
+// Example usage:
+// ```
+// fn preprocess_image(img: &DynamicImage) -> ImageBuffer<Luma<u8>, Vec<u8>> {
+//     let luma_img = img.to_luma8();
+//     let contrast_adjusted = adaptive_threshold(&luma_img, 2);
+//     filter3x3(&contrast_adjusted, &[-1, -1, -1, -1, 9, -1, -1, -1, -1])
+// }
+// ```
+message TesseractInferenceRequestPreprocessingOptions {
+  // Whether to convert image to grayscale
+  // Example: let luma_img = img.to_luma8();
+  bool convert_to_grayscale = 1;
+  
+  // Whether to apply adaptive thresholding
+  // Example: let contrast_adjusted = adaptive_threshold(&luma_img, 2);
+  bool apply_adaptive_threshold = 2;
+  
+  // Adaptive threshold block size (must be odd number)
+  int32 adaptive_threshold_block_size = 3;
+  
+  // Adaptive threshold constant
+  int32 adaptive_threshold_constant = 4;
+  
+  // Whether to apply sharpening filter
+  // Example: filter3x3(&contrast_adjusted, &[-1, -1, -1, -1, 9, -1, -1, -1, -1])
+  bool apply_sharpening = 5;
+  
+  // Whether to apply noise reduction
+  bool apply_noise_reduction = 6;
+  
+  // Contrast adjustment factor (1.0 = no change)
+  float contrast_factor = 7;
+  
+  // Brightness adjustment (-255 to 255, 0 = no change)
+  int32 brightness_adjustment = 8;
+}
+
+// -----------------------------------------------------------------------------
+// Request/Response Models
+// -----------------------------------------------------------------------------
+
+// TesseractInferenceRequest defines the request for an OCR prediction.
+// This is the main entry point for OCR requests.
+message TesseractInferenceRequest {
+  oneof request_type {
+    // Advanced request with full configuration options
+    TesseractInferenceAdvancedRequest advanced = 1;
+    
+    // Simplified request for ease of use
+    TesseractInferenceSimplifiedRequest simplified = 2;
+  }
+}
+// TesseractInferenceRequestImage provides the image data for OCR processing
+// Can be provided as raw bytes or a GCS URL
+message TesseractInferenceRequestImage {
+  oneof data {
+    // The raw image bytes (e.g., JPEG, PNG) to process
+    // Example: let (image_data, width, height) = load_test_image("sample_text.png").expect("Failed to load test image");
+    bytes bytes = 1;
+    
+    // Google Cloud Storage URL pointing to the image
+    string gcs = 2;
+  }
+    
+  // Image dimensions and format information
+  TesseractInferenceRequestImageMetadata metadata = 3;
+}
+
+// TesseractInferenceAdvancedRequest provides complete control over OCR processing
+// Example usage:
+// ```
+// api.init(tessdata_dir.to_str().unwrap(), "eng")
+//    .expect("Failed to initialize Tesseract");
+// api.set_variable("tessedit_pageseg_mode", "1")
+//    .expect("Failed to set PSM");
+// let res = api.set_image(
+//     &image_data,
+//     width as i32,
+//     height as i32,
+//     3,
+//     3 * width as i32,
+// );
+// ```
+message TesseractInferenceAdvancedRequest {
+  // The image to process
+  TesseractInferenceRequestImage image = 1;
+  
+  // OCR configuration parameters
+  TesseractInferenceRequestPredictionConfiguration configuration = 2;
+}
+
+// TesseractInferenceSimplifiedRequest provides an intuitive interface for common OCR tasks
+// For simpler use cases with fewer configuration options
+message TesseractInferenceSimplifiedRequest {
+  // The image data to process
+  TesseractInferenceRequestImage image = 1;
+  
+  // Language to use (e.g., "eng", "tur", defaults to "eng" if not specified)
+  // Example: api.init(tessdata_dir.to_str().unwrap(), "eng")
+  string language = 2;
+  
+  // Document type hint to optimize processing (optional)
+  TesseractInferenceRequestDocumentTypeEnum document_type = 3;
+  
+  // Quality enhancement level (none, low, medium, high)
+  // Similar to preprocessing in the sample code
+  TesseractInferenceRequestEnhancementLevelEnum enhancement = 4;
+}
+
+// TesseractInferenceRequestDocumentTypeEnum provides hints about the document being processed
+// Used to optimize processing for specific document types
+enum TesseractInferenceRequestDocumentTypeEnum {
+  UNSPECIFIED = 0;
+  RECEIPT = 1;
+  INVOICE = 2;
+  ID_CARD = 3;
+  BUSINESS_CARD = 4;
+  FORM = 5;
+  HANDWRITTEN = 6;
+  BOOK = 7;
+}
+
+// TesseractInferenceRequestEnhancementLevelEnum controls automatic image preprocessing
+// Maps to different levels of preprocessing similar to preprocess_image function
+enum TesseractInferenceRequestEnhancementLevelEnum {
+  NONE = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  HIGH = 3;
+}
+
+// TesseractInferenceRequestImageMetadata provides details about the image being processed
+// Example usage:
+// ```
+// api.set_image(
+//     &image_data,
+//     width as i32,
+//     height as i32,
+//     3,
+//     3 * width as i32,
+// )
+// ```
+message TesseractInferenceRequestImageMetadata {
+  // Image width in pixels
+  // Example: width as i32
+  int32 width = 1;
+  
+  // Image height in pixels
+  // Example: height as i32
+  int32 height = 2;
+  
+  // Bytes per pixel (1 for grayscale, 3 for RGB, 4 for RGBA)
+  // Example: 3 for RGB images, 1 for grayscale
+  int32 bytes_per_pixel = 3;
+  
+  // Bytes per line (usually width * bytes_per_pixel, but can include padding)
+  // Example: 3 * width as i32 for RGB images
+  int32 bytes_per_line = 4;
+  
+  // Image format (optional, for informational purposes)
+  TesseractInferenceRequestImageFormatEnum format = 5;
+}
+// TesseractInferenceRequestImageFormatEnum enumerates supported image formats
+// Used in TesseractInferenceRequestImageMetadata
+enum TesseractInferenceRequestImageFormatEnum {
+  UNKNOWN = 0;
+  JPEG = 1;
+  PNG = 2;
+  BMP = 3;
+  TIFF = 4;
+  RAW = 5;
+}
+
+// TesseractInferenceResponse defines the response from an OCR prediction.
+// This is the main container for OCR results.
+message TesseractInferenceResponse {
+  oneof mode {
+    // Advanced response with detailed OCR results
+    TesseractInferenceAdvancedResponse advanced = 1;
+    
+    // Simplified response for ease of use
+    TesseractInferenceSimplifiedResponse simplified = 2;
+  }
+}
+
+// TesseractInferenceAdvancedResponse provides comprehensive OCR results
+// Example usage:
+// ```
+// let text = api.get_utf8_text().expect("Failed to perform OCR");
+// let confidences = api.get_word_confidences();
+// ```
+message TesseractInferenceAdvancedResponse {
+  // The text extracted from the input image
+  // Example: let text = api.get_utf8_text().expect("Failed to perform OCR");
+  string text = 1;
+  
+  // The time (in milliseconds) taken to process the image
+  int32 elapsed = 2;
+  
+  // Optional error details in case OCR failed
+  string error = 3;
+  
+  // Mean confidence of the OCR result (0-100)
+  // Example: let confidences = api.get_word_confidences();
+  float confidence = 4;
+  
+  // Detailed word-level information
+  repeated TesseractInferenceResponseWord words = 5;
+  
+  // Detailed block-level information (paragraphs)
+  repeated TesseractInferenceResponseRecognizedRegion regions = 6;
+}
+
+// TesseractInferenceSimplifiedResponse provides an intuitive result format
+// For simpler use cases with fewer details in the response
+message TesseractInferenceSimplifiedResponse {
+  // The text extracted from the input image
+  // Example: let text = api.get_utf8_text().expect("Failed to perform OCR");
+  string text = 1;
+  
+ // Overall quality assessment (0-100)
+  int32 quality = 2;
+  
+  // Whether the OCR was successful
+  bool success = 3;
+  
+  // Error message if not successful
+  // Example: test_error_handling test shows error handling
+  string error = 4;
+  
+  // Structured data extracted based on document type hint (if provided)
+  map<string, string> extracted_fields = 5;
+}
+
+// TesseractInferenceResponseWord provides details about a recognized word
+// Example usage:
+// ```
+// let confidences = api.get_word_confidences();
+// println!("Word confidences: {:?}", confidences);
+// assert!(confidences.unwrap().iter().any(|&c| c > 80), "No high confidence words found");
+// ```
+message TesseractInferenceResponseWord {
+  // The recognized text for this word
+  string text = 1;
+  
+  // Confidence score for this word (0-100)
+  // Example: confidences.unwrap().iter().any(|&c| c > 80)
+  float confidence = 2;
+  
+  // Bounding box coordinates
+  TesseractInferenceResponseBoundingBox bounding_box = 3;
+  
+  // Alternative recognitions for this word
+  repeated TesseractInferenceResponseAlternativeRecognition alternatives = 4;
+}
+
+// TesseractInferenceResponseRecognizedRegion provides details about a block of text (paragraph)
+// Contains words grouped into logical text regions
+message TesseractInferenceResponseRecognizedRegion {
+  // The recognized text for this region
+  string text = 1;
+  
+  // Bounding box coordinates
+  TesseractInferenceResponseBoundingBox bounding_box = 2;
+  
+  // Words contained in this region
+  repeated TesseractInferenceResponseWord words = 3;
+}
+
+// TesseractInferenceResponseBoundingBox defines the coordinates of a recognized text element
+// Used to locate text elements in the original image
+message TesseractInferenceResponseBoundingBox {
+  // Top-left x coordinate
+  int32 x1 = 1;
+  
+  // Top-left y coordinate
+  int32 y1 = 2;
+  
+  // Bottom-right x coordinate
+  int32 x2 = 3;
+  
+  // Bottom-right y coordinate
+  int32 y2 = 4;
+}
+
+// TesseractInferenceResponseAlternativeRecognition provides alternative recognition results for a word
+// Used to provide alternative interpretations of recognized text
+message TesseractInferenceResponseAlternativeRecognition {
+  // The alternative text
+  string text = 1;
+  
+  // Confidence score for this alternative (0-100)
+  float confidence = 2;
+}
+
+//------------------------------------------------------------------------------
+// Initialization Messages
+// Pattern: Separate initialization concerns from runtime concerns
+//------------------------------------------------------------------------------
+
+// Message used to initialize a Tesseract inference instance
+// Used in TesseractInferenceService initialization
+// Example:
+//   final service = TesseractInferenceService(initialization: TesseractInferenceInitialization());
+message TesseractInferenceInitialization {
+  // Path to the tessdata directory containing language models
+  // Example: let tessdata_dir = get_tessdata_dir();
+  string tessdata_path = 1;
+  
+  // Default language(s) to load (e.g., "eng", "tur", "eng+tur")
+  // Example: api.init(tessdata_dir.to_str().unwrap(), "eng")
+  string language = 2;
+  
+  // Default OCR engine mode (0: Legacy, 1: LSTM, 2: Legacy+LSTM, 3: Default)
+  // Example: api.set_variable("tessedit_ocr_engine_mode", "4")
+  int32 ocr_engine_mode = 3;
+}
+
+// Message representing an initialized Tesseract inference instance
+// Returned after successful service initialization
+message InitializedTesseractInference {
+  // Whether initialization was successful
+  bool success = 1;
+  
+  // Error message if initialization failed
+  string error = 2;
+  
+  // Loaded language(s)
+  string loaded_language = 3;
+  
+  // Version information
+  string version = 4;
+}

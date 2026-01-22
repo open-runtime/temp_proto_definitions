@@ -1,0 +1,12 @@
+{
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "The capital of France is Paris."
+      },
+      "stop_reason": "stop"
+    }
+  ]
+}

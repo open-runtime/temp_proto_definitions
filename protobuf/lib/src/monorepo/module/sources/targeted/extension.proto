@@ -1,0 +1,15 @@
+syntax = "proto3";
+package runtime.aot.monorepo.module.sources.targeted.extension.regex;
+
+enum ModuleSourcesTargetedExtensionRegexEnum {
+  UNKNOWN = 0;
+  ALL = 2;
+  PROTO_SPEC = 3;
+  STATUS_LOCK = 4;
+  GENERATED_JSON = 5;
+  DART_REFLECTABLE = 6;
+  DART_PROTOBUF = 7;
+  DART_BUILD_RUNNER = 8;
+  DART_PACKAGED_RESOURCE = 9;
+}
+

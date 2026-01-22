@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+import "lib/src/google/protobuf/timestamp.proto";
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+import "lib/src/google/protobuf/duration.proto";
+
+package runtime.aot.core;
+
+// Base signal for simple ping operations
+message Signal {
+  google.protobuf.Timestamp requested = 1;
+  google.protobuf.Timestamp responded = 2;
+  Cancellation cancellation = 3;
+  bool internal = 4;
+  google.protobuf.Duration lifetime = 5;
+  string debug_message = 6;
+}
+
+// Generic streamed signal that can be used for all streaming operations
+// This replaces the specific streaming signal types to match service.proto usage
+message StreamedSignal {
+  google.protobuf.Timestamp requested = 1;
+  google.protobuf.Timestamp responded = 2;
+  Cancellation cancellation = 3;
+  bool internal = 4;
+  google.protobuf.Duration lifetime = 5;
+  string debug_message = 6;
+  int32 sequence_number = 7;
+  string stream_id = 8;
+  bool is_final = 9;
+  google.protobuf.Duration streaming_duration = 10;
+  int64 connection_id = 11;
+  int32 message_count = 12;
+  google.protobuf.Timestamp stream_start_time = 13;
+  google.protobuf.Timestamp connection_start_time = 14;
+  int32 total_rejections = 15;
+  int32 consecutive_rejections = 16;
+  string rpc_method = 17;
+  StreamPhase stream_phase = 18;
+  google.protobuf.Duration connection_age = 19;
+  google.protobuf.Duration stream_age = 20;
+  map<string, string> metadata = 21;
+  
+  // Testing-specific fields for comprehensive server state validation
+  // These fields are populated only when internal=true to avoid exposing
+  // internal security mechanisms in production
+  TestingMetrics testing_metrics = 22;
+}
+
+// Comprehensive testing metrics - only populated when internal=true
+// This message contains all internal server state needed for deep unit testing
+// without exposing security mechanisms in production signals
+message TestingMetrics {
+  // Handler tracking and lifecycle
+  int64 handler_id = 1;
+  google.protobuf.Timestamp handler_start_time = 2;
+  google.protobuf.Duration handler_age = 3;
+  bool handler_is_stuck = 4;
+  int32 total_active_handlers = 5;
+  
+  // Connection lifecycle and security
+  bool connection_is_too_old = 6;
+  bool connection_should_terminate = 7;
+  int32 active_streams_on_connection = 8;
+  bool connection_terminated_for_abuse = 9;
+  
+  // Circuit breaker state
+  bool circuit_breaker_open = 10;
+  google.protobuf.Timestamp circuit_breaker_open_time = 11;
+  
+  // Connection rate limiting
+  int32 connection_attempts_in_window = 12;
+  
+  // Environment and configuration
+  bool is_cloud_run = 13;
+  bool is_server_idle = 14;
+  bool is_server_shutting_down = 15;
+  google.protobuf.Duration server_uptime = 16;
+  int32 server_port = 17;
+  
+  // Transport error tracking
+  string transport_error_type = 18;
+  int32 transport_error_count = 19;
+  map<string, int32> transport_error_stats = 20;
+  
+  // RPC type distribution
+  RpcType rpc_type = 21;
+  map<string, int32> rpc_type_stats = 22;
+  
+  // Stream distribution and limits
+  int32 streams_at_limit_count = 23;
+  double average_streams_per_connection = 24;
+  int32 max_streams_on_single_connection = 25;
+  map<int64, int32> stream_distribution = 26;
+  
+  // Configuration values for test validation
+  ServerConfiguration server_config = 27;
+  
+  // Authentication and security metrics (for testing auth flows)
+  AuthenticationMetrics auth_metrics = 28;
+  
+  // Connection details for transport testing
+  ConnectionDetails connection_details = 29;
+  
+  // Environment variables for configuration testing
+  EnvironmentDetails environment_details = 30;
+  
+  // Server warnings and diagnostics
+  repeated string server_warnings = 31;
+  
+  // Client information for connection testing
+  string client_ip = 32;
+  string client_user_agent = 33;
+}
+
+// Server configuration values for test validation
+message ServerConfiguration {
+  int32 max_streams_per_connection = 1;
+  int32 max_active_handlers = 2;
+  google.protobuf.Duration max_connection_duration = 3;
+  google.protobuf.Duration max_handler_duration = 4;
+  int32 base_auth_delay_ms = 5;
+  int32 auth_timeout_seconds = 6;
+  google.protobuf.Duration tracking_window = 7;
+  int32 max_rejections_per_window = 8;
+  int32 progressive_delay_threshold = 9;
+  int32 max_delay_ms = 10;
+}
+
+// Authentication metrics for testing auth flows and security
+message AuthenticationMetrics {
+  bool authentication_failed = 1;
+  google.protobuf.Duration progressive_delay_applied = 2;
+  string rejection_reason = 3;
+  int32 rejection_count_in_window = 4;
+  google.protobuf.Timestamp last_rejection_time = 5;
+  repeated google.protobuf.Timestamp rejection_timestamps = 6;
+  int32 consecutive_auth_failures = 7;
+  bool auth_delay_applied = 8;
+  google.protobuf.Duration calculated_delay = 9;
+}
+
+// Connection transport details for testing connection management
+message ConnectionDetails {
+  string connection_certificate_subject = 1;
+  string connection_certificate_issuer = 2;
+  bool connection_is_secure = 3;
+  string connection_protocol_version = 4;
+  map<string, string> connection_settings = 5;
+  google.protobuf.Timestamp connection_established_time = 6;
+  int32 connection_stream_count = 7;
+  bool connection_at_stream_limit = 8;
+  string connection_state = 9;
+  repeated string connection_errors = 10;
+}
+
+// Environment details for configuration testing
+message EnvironmentDetails {
+  string environment_k_service = 1;
+  string environment_project_id = 2;
+  string grpc_concurrent_stream_limit = 3;
+  string grpc_service_init_timeout = 4;
+  map<string, string> relevant_env_vars = 5;
+}
+
+enum StreamPhase {
+  STREAM_PHASE_UNKNOWN = 0;
+  STREAM_PHASE_INIT = 1;
+  STREAM_PHASE_MESSAGES = 2;
+  STREAM_PHASE_CLOSING = 3;
+  STREAM_PHASE_CLOSED = 4;
+}
+
+enum RpcType {
+  RPC_TYPE_UNKNOWN = 0;
+  RPC_TYPE_UNARY = 1;
+  RPC_TYPE_CLIENT_STREAMING = 2;
+  RPC_TYPE_SERVER_STREAMING = 3;
+  RPC_TYPE_BIDIRECTIONAL = 4;
+}

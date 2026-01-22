@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/parents/aws_bedrock/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.parents.aws_bedrock;
+
+// =============================================================================
+// AWS Bedrock Inference Service Protocol Buffer Definition
+// =============================================================================
+// This file defines the gRPC service interface for AWS Bedrock inference.
+// It provides methods for interacting with multiple model families including
+// Anthropic Claude, Amazon Titan, Meta Llama, Mistral AI, Cohere, AI21 Labs,
+// Stability AI, and others.
+//
+// Best Practices Implemented:
+// 1. Clear Service Naming: Descriptive and hierarchical
+// 2. Symmetric Methods: Request/Response patterns
+// 3. Stream Support: Handles both unary and streaming responses
+// 4. Method Naming: Verb-first, clear purpose
+// 5. Documentation: Each method documented with purpose
+//
+// AWS Bedrock API Mapping:
+// This gRPC service proxies to AWS Bedrock Runtime HTTP REST API endpoints:
+// - Base URL: https://bedrock-runtime.{region}.amazonaws.com
+// - API Reference: https://docs.aws.amazon.com/bedrock/latest/APIReference/
+// - Runtime Operations: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_Operations_Amazon_Bedrock_Runtime.html
+//
+// Authentication:
+// - AWS Signature Version 4 (SigV4) required for all requests
+// - Reference: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_sigv.html
+// - Common Parameters: https://docs.aws.amazon.com/bedrock/latest/APIReference/CommonParameters.html
+//
+// =============================================================================
+
+service AWSBedrockInferenceService {
+  // Initialize initializes a Bedrock inference service instance
+  // Best Practice: Optional initialization for consistency with GPT/Vertex
+  // Input: AWSBedrockInferenceInitialization - Empty initialization message
+  // Output: InitializedAWSBedrockInference - Confirmation of initialization
+  rpc Initialize(AWSBedrockInferenceInitialization) returns (InitializedAWSBedrockInference);
+  
+  // Predict generates a single response for a given inference request
+  // Best Practice: Unary method for simple request-response pattern
+  // Input: AWSBedrockInferenceRequest - Contains model selection, region, and model-specific request format
+  // Output: AWSBedrockInferenceResponse - Contains model's response or error
+  // Note: Supports multiple model families via oneof request_format field
+  //
+  // Maps to AWS Bedrock InvokeModel HTTP operation:
+  // - Endpoint: POST https://bedrock-runtime.{region}.amazonaws.com/model/{modelId}/invoke
+  // - Content-Type: application/json
+  // - Reference: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModel.html
+  // - User Guide: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-invoke.html
+  rpc Predict(AWSBedrockInferenceRequest) returns (AWSBedrockInferenceResponse);
+  
+  // PredictWithStream generates a stream of responses for a given inference request
+  // Best Practice: Streaming response for real-time/chunked output
+  // Input: AWSBedrockInferenceRequest - Contains model selection, region, and model-specific request format
+  // Output: Stream<AWSBedrockInferenceResponse> - Contains model's responses as they're generated
+  // Note: Internal adapter layer converts AWS Bedrock SSE events to complete inference responses
+  //       Each stream message represents a complete response chunk, consistent with Vertex and Gemini patterns
+  //
+  // Maps to AWS Bedrock InvokeModelWithResponseStream HTTP operation:
+  // - Endpoint: POST https://bedrock-runtime.{region}.amazonaws.com/model/{modelId}/invoke-with-response-stream
+  // - Request Content-Type: application/json
+  // - Response Content-Type: application/vnd.amazon.eventstream (SSE format)
+  // - Reference: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModelWithResponseStream.html
+  // - Response Stream Format: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ResponseStream.html
+  // - Streaming Guide: https://docs.aws.amazon.com/bedrock/latest/userguide/inference-invoke.html
+  rpc PredictWithStream(AWSBedrockInferenceRequest) returns (stream AWSBedrockInferenceResponse);
+  
+  // Embed generates vector embeddings for given inputs
+  // Best Practice: Dedicated endpoint for embedding operations
+  // Input: AWSBedrockEmbedRequest - Contains model selection and embedding-specific parameters
+  // Output: AWSBedrockEmbedResponse - Contains embedding vectors
+  // Note: Supports text, image, video, audio, and multimodal embeddings
+  //
+  // Supported Models:
+  // - Amazon Titan Embeddings (text, multimodal)
+  // - Amazon Nova Multimodal Embeddings
+  // - Cohere Embed v3, v4
+  // - TwelveLabs Marengo Embed 2.7, 3.0
+  //
+  // Maps to AWS Bedrock InvokeModel HTTP operation (same as Predict):
+  // - Endpoint: POST https://bedrock-runtime.{region}.amazonaws.com/model/{modelId}/invoke
+  // - Content-Type: application/json
+  // - Semantically separated for API clarity and type safety
+  rpc Embed(AWSBedrockEmbedRequest) returns (AWSBedrockEmbedResponse);
+  
+  // CountTokens estimates token usage before sending inference requests
+  // Best Practice: Cost estimation without incurring inference charges
+  // Input: AWSBedrockInferenceRequest - Request to estimate tokens for
+  // Output: AWSBedrockTokenCount - Estimated input token count
+  // Note: Does not incur charges, useful for cost optimization
+  rpc CountTokens(AWSBedrockInferenceRequest) returns (AWSBedrockTokenCount);
+}
+

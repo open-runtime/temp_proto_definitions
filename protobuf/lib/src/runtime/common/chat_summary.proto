@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "lib/src/runtime/common/chat_message.proto";
+import "lib/src/google/protobuf/timestamp.proto";
+import "lib/src/runtime/common/temporalization.proto";
+
+package runtime.common;
+
+message ChatSummary {
+    string value = 1; // will be optional 
+
+    string identifier = 2; // will be required
+
+    repeated runtime.common.ChatMessage messages = 3; // could be a list of messages where the only property on the messages is the uuid 
+
+    runtime.common.Temporalization temporalization = 4;
+
+    google.protobuf.Timestamp created = 5; // When the chat summary was created
+
+    google.protobuf.Timestamp updated = 6; // When/if the chat summary was last updated
+}

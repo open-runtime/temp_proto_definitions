@@ -1,0 +1,16 @@
+syntax = "proto3";
+// TODO update path + your package.
+import 'lib/src/data/structures/graph/isar/root/shared/models/models.proto';
+import 'lib/src/data/structures/graph/structure/root/shared/models/models.proto';
+import 'lib/src/data/structures/node/structure/root/shared/models/models.proto';
+
+
+package runtime.aot.data.structures.graph.isar;
+
+// TODO Likely Break Out Into Separate Services
+service IsarNodeGraphService {
+  // We can also have a link process that takes in a graph of identifiers
+  rpc CreateLeaf(runtime.aot.data.structures.graph.structure.SeededLeafNodeGraph) returns (runtime.aot.data.structures.graph.structure.LeafNodeGraph) {}
+  rpc CreateIntermediate(runtime.aot.data.structures.graph.structure.SeededIntermediateNodeGraph) returns (runtime.aot.data.structures.graph.structure.IntermediateNodeGraph) {}
+//  rpc CreateRoot(runtime.aot.data.structures.graph.structure.GraphEdge) returns (runtime.aot.data.structures.graph.structure.RootGraph) {}
+}

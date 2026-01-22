@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "lib/src/runtime/common/chat_summary.proto";
+import "lib/src/runtime/common/chat_message.proto";
+import "lib/src/google/protobuf/timestamp.proto";
+import "lib/src/runtime/common/temporalization.proto";
+
+package runtime.common;
+
+message ChatTitle {
+    string value = 1;
+
+    repeated runtime.common.ChatSummary summaries = 2; // optional right now but a chat title can be generated from relevant summaries and thus those will be linked here, this can a list of summaries where the only property on the summaries is the uuid 
+    
+    repeated runtime.common.ChatMessage messages = 3; // optional right now but a chat title can be generated from relevant messages and thus those will be linked here, this can a list of messages where the only property on the messages is the uuid 
+
+    runtime.common.Temporalization temporalization = 4;
+
+    google.protobuf.Timestamp created = 5; // When the chat title was created
+
+    google.protobuf.Timestamp updated = 6; // When/if the chat title was last updated
+}

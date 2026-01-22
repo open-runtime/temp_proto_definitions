@@ -1,0 +1,1724 @@
+syntax = "proto3";
+
+// ========================================================================
+// OpenAI GPT Models gRPC Specification
+// ========================================================================
+//
+// This proto file defines the gRPC interface for OpenAI models using the
+// Responses API (/v1/responses). It supports all model families including
+// GPT-4o, O-series reasoning models, and GPT-5.
+//
+// API REFERENCE: https://platform.openai.com/docs/api-reference/responses
+//
+// ========================================================================
+// MODEL FAMILIES AND THEIR CAPABILITIES
+// ========================================================================
+//
+// GPT-3.5 Family (DEPRECATED):
+//   - Models: gpt-3.5-turbo, gpt-3.5-turbo-16k
+//   - APIs: Chat Completions only (not Responses API)
+//   - Context: 16k tokens
+//   - Capabilities: text only
+//   - Status: Deprecated, use GPT-4o instead
+//
+// GPT-4 Family:
+//   - Models: gpt-4, gpt-4-turbo, gpt-4.1, gpt-4.1-mini, gpt-4.1-nano
+//   - APIs: Responses + Chat Completions
+//   - Context: 8k (gpt-4) / 128k (turbo/4.1)
+//   - Capabilities: text, vision (turbo only)
+//
+// GPT-4o Family:
+//   - Models: gpt-4o, gpt-4o-mini, gpt-4o-2024-11-20
+//   - APIs: Responses + Chat Completions
+//   - Context: 128k tokens
+//   - Capabilities: text, vision, audio (2024-11-20 only)
+//   - Features: Structured outputs (JSON schema)
+//
+// O1 Family (First-gen Reasoning):
+//   - Models: o1, o1-pro, o1-mini (deprecated)
+//   - APIs: Responses API ONLY (no Chat Completions)
+//   - Context: 200k tokens, 100k max output
+//   - Capabilities: text, reasoning
+//   - reasoning_effort: "low", "medium", "high" (NO "minimal"!)
+//
+// O3 Family (Advanced Reasoning):
+//   - Models: o3, o3-mini, o3-pro (SUBSCRIPTION_PRO required)
+//   - APIs: Responses API ONLY
+//   - Context: 200k tokens, 100k max output
+//   - Capabilities: text, reasoning
+//   - reasoning_effort (VERIFIED via API December 2025):
+//     * o3, o3-mini: "low", "medium", "high" (NO "minimal"!)
+//     * o3-pro: "medium", "high" ONLY (NO low, NO minimal!)
+//
+// GPT-5 Family (SUBSCRIPTION_PRO required):
+//   - Models: gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-pro, gpt-5.1, gpt-5.2
+//   - APIs: Responses + Chat Completions
+//   - Context: 200k (standard) / 400k (nano)
+//   - Max Output: 100k (standard) / 128k (nano)
+//   - Capabilities: text, vision, reasoning
+//   - Features: text.verbosity ("low", "medium", "high")
+//   - reasoning_effort (VERIFIED via API December 2025):
+//     * gpt-5, gpt-5-mini, gpt-5-nano: "minimal", "low", "medium", "high"
+//     * gpt-5-pro: "high" ONLY (very restricted!)
+//     * gpt-5.1, gpt-5.2: "low", "medium", "high" (NO minimal)
+//     * gpt-5.2-pro: "medium", "high" (NO low, NO minimal)
+//
+// ========================================================================
+// RESPONSES API PARAMETERS
+// ========================================================================
+//
+// Core Parameters (all models):
+//   - model: Required model ID
+//   - input/messages: Required conversation input
+//   - instructions: System prompt (does NOT persist with previous_response_id)
+//   - temperature: 0-2, controls randomness (default: 1.0)
+//   - top_p: 0-2, nucleus sampling (default: 1.0)
+//   - max_output_tokens: Maximum output tokens (includes reasoning tokens!)
+//   - stream: Enable streaming (default: false)
+//
+// Reasoning Parameters (O-series and GPT-5 only):
+//   - reasoning.effort: Controls reasoning token allocation
+//     * Default: "medium" (or "high" if model doesn't support "medium")
+//     * VERIFIED support per model (December 2025):
+//       - gpt-5, gpt-5-mini, gpt-5-nano: "minimal", "low", "medium", "high"
+//       - gpt-5-pro: "high" ONLY!
+//       - gpt-5.1, gpt-5.2: "low", "medium", "high"
+//       - gpt-5.2-pro, o3-pro: "medium", "high"
+//       - o1, o1-pro, o3, o3-mini, o4-mini: "low", "medium", "high"
+//   - reasoning.summary: "auto", "detailed"
+//     * Enables reasoning summaries in output
+//     * Response events: response.reasoning_summary_text.delta
+//
+// Tool/Function Calling:
+//   - tools: Array of tool definitions
+//   - tool_choice: "auto", "required", or specific tool
+//   - parallel_tool_calls: Allow multiple simultaneous tool calls
+//   - max_tool_calls: Limit total tool calls
+//
+// Conversation State:
+//   - previous_response_id: Chain to prior response
+//   - truncation: "auto" or "disabled" (context overflow handling)
+//   - store: Persist response for 30 days
+//
+// Advanced:
+//   - text.verbosity: "low", "medium", "high" (GPT-5 only)
+//   - background: Enable async processing for long tasks
+//   - include: Additional output data to include
+//
+// ========================================================================
+// STREAMING EVENTS
+// ========================================================================
+//
+// When streaming (stream: true), the server sends these SSE events:
+//
+// Regular Output:
+//   - response.output_text.delta: Text content chunks
+//     * Appears in message.content
+//     * is_reasoning: false (or not set)
+//     * object: "chat.completion.chunk"
+//
+// Reasoning Output (when reasoning.summary is set):
+//   - response.reasoning_summary_text.delta: Reasoning summary chunks
+//     * Appears in message.content
+//     * is_reasoning: true
+//     * thinking_index: 0 (for backwards compatibility)
+//     * object: "chat.completion.chunk.reasoning"
+//
+// Completion:
+//   - response.completed: Final response with usage tokens
+//   - statusCode: 204 with object: "chat.completion.done"
+//
+// Clients can distinguish reasoning from output by checking:
+//   1. message.is_reasoning (preferred, new field)
+//   2. message.hasThinkingIndex() (legacy, backwards compat)
+//   3. response.object type ("chunk.reasoning" vs "chunk")
+//
+// ========================================================================
+// Last Updated: December 2025
+// ========================================================================
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+import "lib/src/google/protobuf/struct.proto";
+package runtime.aot.machine_learning.parents.gpt;
+
+message ModerationRequest {
+  string input = 1; //TODO: allow images potentially
+  string model = 2;
+}
+
+message ModerationResponse {
+  string id = 1;
+  string model = 2;
+  repeated Result results = 3;
+}
+
+message Result {
+  bool flagged = 1;
+  Categories categories = 2;
+  CategoryScores category_scores = 3;
+  CategoryAppliedInputTypes category_applied_input_types = 4;
+}
+
+message Categories {
+  bool sexual = 1;
+  bool sexual_minors = 2;
+  bool harassment = 3;
+  bool harassment_threatening = 4;
+  bool hate = 5;
+  bool hate_threatening = 6;
+  bool illicit = 7;
+  bool illicit_violent = 8;
+  bool self_harm = 9;
+  bool self_harm_intent = 10;
+  bool self_harm_instructions = 11;
+  bool violence = 12;
+  bool violence_graphic = 13;
+}
+
+message CategoryScores {
+  double sexual = 1;
+  double sexual_minors = 2;
+  double harassment = 3;
+  double harassment_threatening = 4;
+  double hate = 5;
+  double hate_threatening = 6;
+  double illicit = 7;
+  double illicit_violent = 8;
+  double self_harm = 9;
+  double self_harm_intent = 10;
+  double self_harm_instructions = 11;
+  double violence = 12;
+  double violence_graphic = 13;
+}
+
+message CategoryAppliedInputTypes {
+  repeated string sexual = 1;
+  repeated string sexual_minors = 2;
+  repeated string harassment = 3;
+  repeated string harassment_threatening = 4;
+  repeated string hate = 5;
+  repeated string hate_threatening = 6;
+  repeated string illicit = 7;
+  repeated string illicit_violent = 8;
+  repeated string self_harm = 9;
+  repeated string self_harm_intent = 10;
+  repeated string self_harm_instructions = 11;
+  repeated string violence = 12;
+  repeated string violence_graphic = 13;
+}
+
+
+// ========================================================================
+// INPUT MESSAGE
+// ========================================================================
+//
+// API Reference: https://platform.openai.com/docs/api-reference/responses/create
+//
+// This message supports both:
+//   - Responses API (/v1/responses) - preferred for new code
+//   - Chat Completions API (/v1/chat/completions) - legacy support
+//
+// The service automatically selects the appropriate API based on model type:
+//   - O-series models (o1, o3, o4-mini) → Responses API only
+//   - All other models → Can use either API
+
+message GPTInferencePredictionInput {
+  // ========================================================================
+  // CORE PARAMETERS (all models)
+  // ========================================================================
+
+  // (required) Model ID to use for inference.
+  //
+  // Model Families:
+  //   GPT-3.5: 'gpt-3.5-turbo' (DEPRECATED - use GPT-4o instead)
+  //   GPT-4:   'gpt-4', 'gpt-4-turbo', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano'
+  //   GPT-4o:  'gpt-4o', 'gpt-4o-mini' (recommended for most use cases)
+  //   O1:      'o1', 'o1-pro' (reasoning models, Responses API only)
+  //   O3:      'o3', 'o3-mini', 'o3-pro' (advanced reasoning, Responses API only)
+  //   GPT-5:   'gpt-5', 'gpt-5-mini', 'gpt-5-nano', 'gpt-5-pro' (SUBSCRIPTION_PRO)
+  //
+  // See openai_models.yaml for complete list with capabilities.
+  string model = 1;
+
+  // (required) The conversation messages to process.
+  //
+  // For Responses API: Converted to 'input' array.
+  // For Chat Completions: Passed as 'messages' array.
+  repeated GPTInferencePredictionInputChatMessage messages = 2;
+
+  // (optional) Sampling temperature between 0 and 2.
+  //
+  // Higher values (e.g., 0.8) = more random output
+  // Lower values (e.g., 0.2) = more deterministic output
+  // Default: 1.0
+  //
+  // Recommended settings by use case:
+  //   - Code generation: 0.2
+  //   - Creative writing: 0.7
+  //   - Chat/conversation: 0.5
+  //   - Data analysis: 0.2
+  //
+  // NOTE: Modify temperature OR top_p, not both.
+  double temperature = 3;
+
+  // (optional) Nucleus sampling parameter between 0 and 2.
+  //
+  // Controls vocabulary diversity by sampling from smallest token set
+  // whose cumulative probability reaches this threshold.
+  //   - 0.1 = consider only top 10% probability tokens
+  //   - 1.0 = consider all tokens (default)
+  //
+  // NOTE: Modify temperature OR top_p, not both.
+  double top_p = 4;
+
+  // (optional) Number of completion choices to generate.
+  //
+  // Default: 1
+  // Note: Responses API uses different handling than Chat Completions.
+  int32 n = 5;
+
+  // (optional) Enable streaming response.
+  //
+  // When true, partial results sent via Server-Sent Events (SSE):
+  //   - response.output_text.delta: Regular text chunks
+  //   - response.reasoning_summary_text.delta: Reasoning chunks
+  //   - response.completed: Final response with usage
+  //
+  // Default: false
+  bool stream = 6;
+
+  // (optional) Stop sequences.
+  //
+  // Up to 4 sequences where API stops generating tokens.
+  // For multiple sequences, use comma-separated values.
+  string stop = 7;
+
+  // (optional) [LEGACY - Chat Completions API only]
+  // Maximum tokens in generated response.
+  //
+  // Default varies by model (see openai_models.yaml max_output_tokens).
+  // For Responses API, use max_output_tokens instead.
+  //
+  // IMPORTANT: This does NOT apply to reasoning models (O-series).
+  int32 max_tokens = 8;
+
+  // (optional) Presence penalty between -2.0 and 2.0.
+  //
+  // Positive values penalize tokens already in text,
+  // encouraging the model to discuss new topics.
+  // Default: 0
+  double presence_penalty = 9;
+
+  // (optional) Frequency penalty between -2.0 and 2.0.
+  //
+  // Positive values penalize tokens based on frequency,
+  // reducing likelihood of repeating the same phrases.
+  // Default: 0
+  double frequency_penalty = 10;
+
+  // (optional) Logit bias to adjust token probabilities.
+  //
+  // Map of token ID to bias value (-100 to 100).
+  // Use to ban tokens (-100) or increase likelihood (positive values).
+  map<int32, double> logit_bias = 11;
+
+  // (optional) [DEPRECATED - use prompt_cache_key instead]
+  // End-user identifier for abuse monitoring.
+  string user = 12;
+
+  // ========================================================================
+  // AUTHENTICATION
+  // ========================================================================
+
+  // (optional) OpenAI API key override.
+  //
+  // If not provided, uses server-configured key.
+  // For production, always use server-managed keys.
+  string open_AI_api_key = 13;
+
+  // (optional) OpenAI organization ID.
+  //
+  // For users in multiple organizations, specifies which org to bill.
+  string open_AI_organization_key = 14;
+
+  // ========================================================================
+  // TOOL/FUNCTION CALLING
+  // ========================================================================
+
+  // (optional) Tool definitions for function calling.
+  //
+  // Supported by all models except deprecated GPT-3.5.
+  // Tools can be custom functions or built-in tools (web_search, etc.).
+  repeated GPTInferencePredictionInputTool tools = 15;
+
+  // (optional) Tool choice strategy.
+  //
+  // Controls how the model selects which tools to use:
+  //   - "none": Never call tools, generate text only
+  //   - "auto": Model decides when to call tools (DEFAULT)
+  //   - "required": Must call at least one tool
+  //   - Object: Force specific tool {"type": "function", "function": {"name": "X"}}
+  //
+  // ⚠️ GPT-5 LIMITATION (as of August 2025):
+  //    GPT-5 models (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-pro) ONLY support "auto"
+  //    Using "required", "none", or specific tool targeting returns HTTP 400:
+  //    "Tool choices other than 'auto' are not supported with model 'gpt-5'"
+  //
+  // Model support summary:
+  //   - GPT-4, GPT-4o, GPT-4.1: All options supported
+  //   - O-series (o1, o3, o3-pro, o4-mini): All options supported
+  //   - GPT-5 family: ONLY "auto" is supported
+  //
+  // See openai_models.yaml for per-model capability details.
+  oneof tool_choice_oneof {
+    // String value: "none", "auto", "required"
+    string tool_choice_string = 16;
+
+    // Object: Specific tool selection (not supported on GPT-5)
+    google.protobuf.Struct tool_choice_object = 17;
+  }
+
+  // ========================================================================
+  // OUTPUT FORMAT
+  // ========================================================================
+
+  // (optional) Response format configuration.
+  //
+  // For JSON mode: { "type": "json_object" }
+  // For structured outputs: { "type": "json_schema", "json_schema": {...} }
+  //
+  // Structured outputs supported by:
+  //   - GPT-4o, GPT-4.1, GPT-5, all O-series models
+  google.protobuf.Struct response_format = 18;
+
+  // (optional) Seed for deterministic generation.
+  //
+  // Same seed + same input = same output (mostly).
+  // Useful for testing and reproducibility.
+  int32 seed = 19;
+
+  // (optional) [DEPRECATED - use max_output_tokens instead]
+  // Maximum completion tokens for Chat Completions API.
+  //
+  // This field exists for backwards compatibility.
+  // For Responses API, use max_output_tokens (field 33).
+  //
+  // CONSTRAINTS:
+  //   - Minimum: 16 tokens (OpenAI API requirement)
+  //   - Values below 16 will return HTTP 400 error
+  int32 max_completion_tokens = 20;
+
+  // ========================================================================
+  // REASONING CONFIGURATION (O-series and GPT-5 models)
+  // ========================================================================
+
+  // (optional) [DEPRECATED] Reasoning effort level (string format).
+  //
+  // DEPRECATED: Use reasoning_effort_level (field 42) instead.
+  // This field is kept for backwards compatibility with existing clients.
+  //
+  // Valid values: "minimal", "low", "medium", "high"
+  // Default: "medium"
+  //
+  // Controls how many reasoning tokens the model generates before answering.
+  // More effort = better quality but higher latency and cost.
+  string reasoning_effort = 21 [deprecated = true];
+
+  // (optional) Reasoning summary configuration.
+  //
+  // When set, model includes reasoning summaries in streaming response
+  // via response.reasoning_summary_text.delta events.
+  //
+  // Values:
+  //   - AUTO: Let model decide (typically detailed)
+  //   - CONCISE: Abbreviated reasoning summaries
+  //   - DETAILED: Full reasoning summaries
+  //
+  // Client receives reasoning in GPTInferencePredictionInputChatMessage:
+  //   - is_reasoning = true
+  //   - thinking_index = 0 (for backwards compatibility)
+  //   - object = "chat.completion.chunk.reasoning"
+  ReasoningSummaryLevel reasoning_summary = 32;
+
+  // (optional) [FUTURE] Enable developer role messages.
+  //
+  // Developer role provides implementation-specific guidance separate
+  // from user-facing instructions.
+  bool developer_messages_enabled = 22;
+
+  // (optional) Prediction hints for o-series models.
+  //
+  // Provides expected output format or structure hints to guide generation.
+  google.protobuf.Struct prediction = 23;
+
+  // ========================================================================
+  // CONVERSATION STATE & STORAGE
+  // ========================================================================
+
+  // (optional) Store response for later retrieval.
+  //
+  // When true, response persists for 30 days and appears in API logs.
+  // Required when using background mode.
+  //
+  // Default: true (for normal requests)
+  bool store = 24;
+
+  // (optional) Request metadata for tracking/debugging.
+  //
+  // Key-value pairs stored with the request.
+  // Keys: max 64 chars, Values: max 512 chars.
+  map<string, string> metadata = 25;
+
+  // (optional) Service tier for processing priority.
+  //
+  // See ServiceTier enum for available options.
+  // Default: SERVICE_TIER_AUTO (uses project settings)
+  ServiceTier service_tier = 26;
+
+  // ========================================================================
+  // MULTIMODAL (audio/vision)
+  // ========================================================================
+
+  // (optional) Audio output configuration.
+  //
+  // Supported by: gpt-4o-2024-11-20 and later with audio capability.
+  GPTAudioConfig audio = 27;
+
+  // (optional) Output modalities to include.
+  //
+  // Values: ["text"], ["text", "audio"]
+  // Default: ["text"]
+  repeated string modalities = 28;
+
+  // ========================================================================
+  // ADVANCED PARAMETERS
+  // ========================================================================
+
+  // (optional) Enable parallel tool calls.
+  //
+  // When true, model can invoke multiple tools simultaneously.
+  // Improves efficiency for independent operations.
+  //
+  // Default: true (for supporting models)
+  bool parallel_tool_calls = 29;
+
+  // (optional) Enable log probabilities in output.
+  //
+  // When true, includes log probabilities for each output token.
+  bool logprobs = 30;
+
+  // (optional) Number of most likely tokens to return (0-20).
+  //
+  // Requires logprobs = true.
+  // Default: 0 (only return selected token)
+  int32 top_logprobs = 31;
+
+  // ========================================================================
+  // NEW RESPONSES API PARAMETERS
+  // ========================================================================
+
+  // (optional) Maximum output tokens for Responses API.
+  //
+  // This is the primary token limit parameter for Responses API.
+  // Applies to BOTH visible output AND reasoning tokens.
+  //
+  // CONSTRAINTS:
+  //   - Minimum: 16 tokens (OpenAI API requirement)
+  //   - Maximum: Model-specific (see openai_models.yaml max_output_tokens)
+  //
+  // Values below 16 will return HTTP 400 error:
+  //   "Invalid 'max_output_tokens': integer below minimum value. Expected a value >= 16"
+  //
+  // Recommended allocations by model:
+  //   - GPT-4o: up to 16,384
+  //   - GPT-4.1: up to 32,768
+  //   - O-series: up to 100,000 (reserve space for reasoning!)
+  //   - GPT-5: up to 100,000
+  //   - GPT-5-nano: up to 128,000
+  //
+  // If reasoning model reaches this limit, response.status = "incomplete".
+  int32 max_output_tokens = 33;
+
+  // (optional) System-level instructions for Responses API.
+  //
+  // Equivalent to system message but handled specially by Responses API.
+  //
+  // IMPORTANT: Does NOT persist when using previous_response_id!
+  // If you need persistent instructions, either:
+  //   - Resend instructions in each request
+  //   - Use developer role messages in the messages array
+  string instructions = 34;
+
+  // (optional) Previous response ID for conversation chaining.
+  //
+  // Automatically prepends output items from referenced response.
+  // Creates efficient multi-turn conversations without resending history.
+  //
+  // Note: All input tokens from previous responses are billed
+  // as input tokens in the current request.
+  string previous_response_id = 35;
+
+  // (optional) Truncation strategy for context overflow.
+  //
+  // See TruncationStrategy enum for available options.
+  // Default: TRUNCATION_DISABLED (returns error if context exceeded)
+  //
+  // With TRUNCATION_AUTO, model preserves most recent exchanges
+  // by dropping items from the middle of the conversation.
+  TruncationStrategy truncation = 36;
+
+  // (optional) Enable background/async processing.
+  //
+  // When true, returns immediately with response in "queued" status.
+  // Poll the response endpoint until status is "completed" or "failed".
+  //
+  // Useful for:
+  //   - Deep research tasks
+  //   - Complex reasoning that may exceed request timeout
+  //   - O3-pro with high reasoning effort
+  //
+  // Requires: store = true (automatically set)
+  bool background = 37;
+
+  // (optional) Maximum tool calls allowed.
+  //
+  // Limits total tool calls across all tool types.
+  // Prevents runaway tool usage in agentic workflows.
+  int32 max_tool_calls = 38;
+
+  // (optional) Additional output data to include in response.
+  //
+  // See ResponseIncludeOption enum for available options.
+  // Multiple options can be specified.
+  //
+  // Common combinations:
+  //   - [INCLUDE_REASONING_ENCRYPTED_CONTENT] for multi-turn reasoning
+  //   - [INCLUDE_MESSAGE_LOGPROBS] for analysis/debugging
+  //   - [INCLUDE_WEB_SEARCH_SOURCES, INCLUDE_FILE_SEARCH_RESULTS] for tool output details
+  repeated ResponseIncludeOption include = 39;
+
+  // (optional) Prompt cache key for optimization.
+  //
+  // Stable identifier for end-user to improve cache hit rates.
+  // Replaces the 'user' field for Responses API.
+  string prompt_cache_key = 40;
+
+  // (optional) Text verbosity level (GPT-5 models only).
+  //
+  // See TextVerbosityLevel enum for available options.
+  // Default: VERBOSITY_MEDIUM (balanced detail)
+  //
+  // Note: Does NOT provide hard limits on length.
+  // Use max_output_tokens for actual token limits.
+  //
+  // Supported by: GPT-5 family only (gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-pro)
+  // Other models: Parameter ignored
+  TextVerbosityLevel text_verbosity = 41;
+
+  // ========================================================================
+  // REASONING CONFIGURATION (Enum versions)
+  // ========================================================================
+
+  // (optional) Reasoning effort level (enum format).
+  //
+  // Replaces deprecated string field reasoning_effort (field 21).
+  // Use this field for new implementations.
+  //
+  // Controls how many reasoning tokens the model generates before answering.
+  // More effort = better quality but higher latency and cost.
+  //
+  // See ReasoningEffortLevel enum for available options.
+  // Default: MEDIUM
+  //
+  // Model support:
+  //   - o3, o3-pro, o4-mini: All levels including MINIMAL
+  //   - o1, o3-mini:         LOW, MEDIUM, HIGH only (no MINIMAL)
+  //   - Other models:        Parameter ignored
+  //
+  // IMPORTANT: Reasoning tokens count against max_output_tokens limit
+  // and are billed as output tokens even when not visible in response.
+  ReasoningEffortLevel reasoning_effort_level = 42;
+}
+
+// Audio configuration for models that support audio output
+message GPTAudioConfig {
+  // Voice to use: "alloy", "echo", "fable", "onyx", "nova", "shimmer"
+  string voice = 1;
+  
+  // Output format: "mp3", "opus", "aac", "flac", "wav", "pcm"
+  string format = 2;
+}
+
+// ========================================================================
+// REASONING CONFIGURATION ENUMS
+// ========================================================================
+
+// Reasoning effort level for reasoning models.
+//
+// Controls how many reasoning tokens the model generates before responding.
+// Higher effort = better quality but higher cost and latency.
+//
+// ========================================================================
+// MODEL SUPPORT (VERIFIED VIA ACTUAL API TESTING - December 2025)
+// ========================================================================
+//
+// Supports ALL levels (MINIMAL, LOW, MEDIUM, HIGH):
+//   - gpt-5 (base model)
+//   - gpt-5-mini
+//   - gpt-5-nano
+//
+// Supports ONLY HIGH (very restricted!):
+//   - gpt-5-pro
+//   API returns: "Supported values are: 'high'."
+//
+// Supports MEDIUM and HIGH only:
+//   - gpt-5.2-pro
+//   - o3-pro
+//
+// Supports LOW, MEDIUM, HIGH (NO minimal):
+//   - gpt-5.1, gpt-5.2 (non-pro versions)
+//   - o1, o1-mini, o1-pro
+//   - o3, o3-mini
+//   - o4-mini
+//
+// Non-reasoning models: Parameter ignored
+//
+// ========================================================================
+// IMPORTANT: "minimal" was introduced with base GPT-5 (gpt-5, gpt-5-mini,
+// gpt-5-nano) for fastest time-to-first-token with very few reasoning tokens.
+// Pro variants have DIFFERENT restrictions - gpt-5-pro only accepts "high"!
+// ========================================================================
+//
+// Default: MEDIUM (or HIGH if model doesn't support MEDIUM)
+enum ReasoningEffortLevel {
+  // Unspecified/unknown effort level.
+  // Falls back to model default (typically MEDIUM).
+  UNKNOWN_EFFORT = 0;
+
+  // Minimal reasoning effort.
+  //
+  // Fastest response with very few reasoning tokens.
+  // Best for simple queries where speed (time-to-first-token) matters.
+  //
+  // SUPPORTED BY: gpt-5, gpt-5-mini, gpt-5-nano ONLY
+  // NOT supported by: gpt-5-pro, gpt-5.x, or ANY O-series models
+  //
+  // API returns error if used with unsupported models:
+  //   "Unsupported value: 'minimal' is not supported with the '[model]' model"
+  //
+  // WARNING: gpt-5-pro is extremely restricted and only accepts HIGH!
+  MINIMAL = 1;
+
+  // Low reasoning effort.
+  //
+  // Quick responses with light reasoning.
+  // Good for straightforward tasks.
+  //
+  // Supported by: All reasoning models (GPT-5 family, O-series)
+  LOW = 2;
+
+  // Medium reasoning effort (DEFAULT).
+  //
+  // Balanced reasoning for most use cases.
+  // Recommended starting point.
+  //
+  // Supported by: All reasoning models (GPT-5 family, O-series)
+  MEDIUM = 3;
+
+  // High reasoning effort.
+  //
+  // Maximum reasoning for complex problems.
+  // Highest quality but slowest and most expensive.
+  //
+  // Use for: Complex math, coding, multi-step reasoning
+  //
+  // Supported by: All reasoning models (GPT-5 family, O-series)
+  HIGH = 4;
+}
+
+// Reasoning summary level for streaming responses.
+//
+// Controls whether and how reasoning summaries are included.
+// When enabled, reasoning appears in response.reasoning_summary_text.delta events.
+//
+// IMPORTANT: Only supported by O-series models (o1, o3, o4)
+// NOT supported by GPT-5 despite having reasoning capabilities.
+//
+// API Parameter: reasoning.summary
+// Supported values: "auto", "concise", "detailed"
+//
+// Model Support (December 2024 - verified via Perplexity research):
+//   - o1, o3, o4-mini, GPT-5: "auto", "detailed" ONLY (concise NOT supported)
+//   - computer-use-preview: "auto", "concise", "detailed" (only model supporting concise)
+//
+// See: https://platform.openai.com/docs/guides/reasoning
+enum ReasoningSummaryLevel {
+  // Unspecified/unknown summary level.
+  UNKNOWN_REASONING_SUMMARY_LEVEL = 0;
+
+  // Let model decide summary detail.
+  // 
+  // Maps to API: "auto"
+  // Typically defaults to DETAILED behavior.
+  // Works with all reasoning models.
+  AUTO = 1;
+
+  // Concise/abbreviated reasoning summaries.
+  //
+  // Maps to API: "concise"
+  // 
+  // ⚠️ ONLY supported by: computer-use-preview model
+  // NOT supported by: o1, o3, o4-mini, GPT-5 (will return 400 error)
+  //
+  // Error example: "Unsupported value: 'concise' is not supported with the 'o3' model."
+  CONCISE = 2;
+
+  // Full detailed reasoning summaries.
+  //
+  // Maps to API: "detailed"
+  // Maximum visibility into model's thinking process.
+  // Works with all reasoning models.
+  DETAILED = 3;
+}
+
+// ========================================================================
+// ADDITIONAL CONFIGURATION ENUMS
+// ========================================================================
+
+// Text verbosity level (GPT-5 models only).
+//
+// Controls the detail level of model responses.
+// Does NOT provide hard limits on length - use max_output_tokens for that.
+enum TextVerbosityLevel {
+  // Unspecified/unknown verbosity.
+  // Falls back to model default (typically VERBOSITY_MEDIUM).
+  UNKNOWN_VERBOSITY = 0;
+
+  // Concise responses.
+  //
+  // Model provides brief, to-the-point answers.
+  // Best for: Simple queries, quick lookups.
+  VERBOSITY_LOW = 1;
+
+  // Balanced detail (DEFAULT).
+  //
+  // Standard response length with appropriate context.
+  // Recommended starting point.
+  VERBOSITY_MEDIUM = 2;
+
+  // Comprehensive responses.
+  //
+  // Model provides detailed explanations with full context.
+  // Best for: Complex topics, educational content.
+  VERBOSITY_HIGH = 3;
+}
+
+// Truncation strategy for context overflow.
+//
+// Determines how the API handles requests that exceed the model's context window.
+enum TruncationStrategy {
+  // Unspecified/unknown strategy.
+  // Falls back to TRUNCATION_DISABLED.
+  UNKNOWN_TRUNCATION = 0;
+
+  // Disabled - return error if context exceeded (DEFAULT).
+  //
+  // Returns HTTP 400 error if input + expected output exceeds context window.
+  // Safest option - ensures you know when context is exceeded.
+  TRUNCATION_DISABLED = 1;
+
+  // Auto - automatically truncate to fit context window.
+  //
+  // Drops items from the MIDDLE of the conversation to fit.
+  // Preserves most recent exchanges while staying within limits.
+  //
+  // Use for: Long-running conversations where losing some history is acceptable.
+  TRUNCATION_AUTO = 2;
+}
+
+// Service tier for processing priority.
+//
+// Controls how requests are prioritized and billed.
+enum ServiceTier {
+  // Unspecified/unknown tier.
+  // Falls back to project settings.
+  UNKNOWN_SERVICE_TIER = 0;
+
+  // Auto - use project default settings.
+  //
+  // Inherits service tier from project configuration.
+  SERVICE_TIER_AUTO = 1;
+
+  // Default - standard pricing and performance.
+  //
+  // Standard processing with normal latency.
+  SERVICE_TIER_DEFAULT = 2;
+
+  // Flex - cost-optimized tier.
+  //
+  // Lower cost, potentially higher latency.
+  // Supported by: o4-mini, o3
+  SERVICE_TIER_FLEX = 3;
+
+  // Priority - higher priority processing.
+  //
+  // Lower latency, higher cost.
+  // Use for: Latency-sensitive production applications.
+  SERVICE_TIER_PRIORITY = 4;
+}
+
+// Include options for additional output data.
+//
+// Specifies what additional data to include in the response.
+// Multiple options can be combined.
+enum ResponseIncludeOption {
+  // Unspecified/unknown option.
+  UNKNOWN_INCLUDE_OPTION = 0;
+
+  // Include encrypted reasoning content for multi-turn support.
+  //
+  // Enables reasoning items to be preserved and reused across turns
+  // when using store=false or zero data retention.
+  //
+  // Use for: Stateless deployments with reasoning models.
+  INCLUDE_REASONING_ENCRYPTED_CONTENT = 1;
+
+  // Include log probabilities with output text.
+  //
+  // Adds probability information for each generated token.
+  //
+  // Use for: Analysis, debugging, confidence scoring.
+  INCLUDE_MESSAGE_LOGPROBS = 2;
+
+  // Include sources from web search tool calls.
+  //
+  // When using web_search tool, includes URLs and source metadata.
+  INCLUDE_WEB_SEARCH_SOURCES = 3;
+
+  // Include outputs from code interpreter tool calls.
+  //
+  // When using code_interpreter tool, includes execution outputs.
+  INCLUDE_CODE_INTERPRETER_OUTPUTS = 4;
+
+  // Include results from file search tool calls.
+  //
+  // When using file_search tool, includes search result details.
+  INCLUDE_FILE_SEARCH_RESULTS = 5;
+
+  // Include image URLs from computer use tool calls.
+  //
+  // When using computer_call tool, includes generated images.
+  INCLUDE_COMPUTER_CALL_IMAGES = 6;
+
+  // Include image URLs from input messages.
+  //
+  // Includes URLs for images in the input.
+  INCLUDE_INPUT_IMAGE_URLS = 7;
+}
+
+// ========================================================================
+// TOOL DEFINITIONS
+// ========================================================================
+//
+// The Responses API supports two categories of tools:
+//
+// 1. BUILT-IN TOOLS (hosted by OpenAI):
+//    - web_search: Real-time web search with citations
+//    - file_search: Search files in vector stores (RAG)
+//    - code_interpreter: Execute Python code
+//    - computer_use: Interact with computer interfaces
+//    - image_generation: Generate images with gpt-image-1
+//    - mcp: Connect to remote MCP servers
+//
+// 2. CUSTOM FUNCTION TOOLS:
+//    - Define your own functions the model can call
+//    - You execute the function and provide results
+//
+// Tool support by model:
+//   - GPT-4, GPT-4o, GPT-4.1: All tools supported
+//   - O-series (o3, o4-mini): All tools, can call within chain-of-thought
+//   - GPT-5: All tools, but tool_choice limited to "auto"
+//
+// ========================================================================
+
+// Enum for built-in tool types provided by OpenAI
+enum BuiltInToolType {
+  UNKNOWN_BUILT_IN_TOOL = 0;
+
+  // Web search tool - searches the internet for real-time information
+  // Returns results with URL citations
+  // Supported by: GPT-4o, GPT-4.1, GPT-5, O-series
+  WEB_SEARCH = 1;
+
+  // File search tool - searches files in vector stores (RAG)
+  // Requires vector_store_ids to be configured
+  // Supported by: GPT-4o, GPT-4.1, GPT-5, O-series
+  FILE_SEARCH = 2;
+
+  // Code interpreter tool - executes Python code
+  // Can create and manipulate files, generate visualizations
+  // Supported by: GPT-4o, GPT-4.1, GPT-5, O-series
+  CODE_INTERPRETER = 3;
+
+  // Computer use tool - interacts with computer interfaces
+  // Can control mouse, keyboard, take screenshots
+  // Supported by: computer-use-preview model
+  COMPUTER_USE = 4;
+
+  // Image generation tool - generates images using gpt-image-1
+  // Supports streaming previews and multi-turn edits
+  // Supported by: GPT-4o, GPT-4.1, GPT-5, O-series
+  IMAGE_GENERATION = 5;
+
+  // MCP tool - connects to remote Model Context Protocol servers
+  // Enables unlimited external tool integrations
+  // Supported by: GPT-4o, GPT-4.1, GPT-5, O-series
+  MCP = 6;
+}
+
+// Configuration for web search tool
+message GPTWebSearchToolConfig {
+  // Amount of context window to use for search results
+  // Values: "low", "medium" (default), "high"
+  string search_context_size = 1;
+
+  // User's approximate location for localized results
+  GPTUserLocation user_location = 2;
+
+  // List of domains to restrict search to (optional)
+  repeated string allowed_domains = 3;
+
+  // List of domains to exclude from search (optional)
+  repeated string blocked_domains = 4;
+}
+
+// User location for localized search results
+message GPTUserLocation {
+  // Location type: "approximate"
+  string type = 1;
+
+  // ISO 3166-1 alpha-2 country code (e.g., "US", "GB")
+  string country = 2;
+
+  // City name
+  string city = 3;
+
+  // Region/state name
+  string region = 4;
+}
+
+// Configuration for file search tool (RAG)
+message GPTFileSearchToolConfig {
+  // Vector store IDs to search within (required)
+  repeated string vector_store_ids = 1;
+
+  // Maximum number of results to return (1-50, default: 20)
+  int32 max_num_results = 2;
+
+  // Filters to apply to search
+  GPTFileSearchFilter filters = 3;
+
+  // Ranking options for search results
+  GPTFileSearchRankingOptions ranking_options = 4;
+}
+
+// Filter for file search
+message GPTFileSearchFilter {
+  // Filter type: "eq" (equals), "ne" (not equals)
+  string type = 1;
+
+  // Metadata key to filter on
+  string key = 2;
+
+  // Value to filter for
+  string value = 3;
+}
+
+// Ranking options for file search
+message GPTFileSearchRankingOptions {
+  // Ranker to use (e.g., "default_2024_11_15")
+  string ranker = 1;
+
+  // Score threshold (0-1), higher = more relevant but fewer results
+  float score_threshold = 2;
+}
+
+// Configuration for code interpreter tool
+message GPTCodeInterpreterToolConfig {
+  // Container configuration
+  GPTCodeInterpreterContainer container = 1;
+}
+
+// Container configuration for code interpreter
+message GPTCodeInterpreterContainer {
+  // Container type: "auto" (default) or custom container ID
+  string type = 1;
+
+  // File IDs to make available in the container
+  repeated string file_ids = 2;
+}
+
+// Configuration for computer use tool
+message GPTComputerUseToolConfig {
+  // Display width in pixels (e.g., 1024)
+  int32 display_width = 1;
+
+  // Display height in pixels (e.g., 768)
+  int32 display_height = 2;
+
+  // Environment: "browser", "desktop", etc.
+  string environment = 3;
+}
+
+// Configuration for image generation tool
+message GPTImageGenerationToolConfig {
+  // Quality: "low", "medium", "high"
+  string quality = 1;
+
+  // Size: "1024x1024", "1792x1024", "1024x1792"
+  string size = 2;
+
+  // Partial images to stream during generation
+  bool partial_images = 3;
+}
+
+// Configuration for MCP (Model Context Protocol) tool
+message GPTMCPToolConfig {
+  // MCP server URL
+  string server_url = 1;
+
+  // Server name/label
+  string server_label = 2;
+
+  // Allowed tools from this MCP server (empty = all)
+  repeated string allowed_tools = 3;
+
+  // Headers to send with MCP requests
+  map<string, string> headers = 4;
+}
+
+// Unified tool definition - can be function or built-in
+message GPTInferencePredictionInputTool {
+  // Tool type determines which configuration to use:
+  //   - "function": Use function field for custom function
+  //   - "web_search_preview": Use web_search_config (or defaults)
+  //   - "file_search": Use file_search_config (requires vector_store_ids)
+  //   - "code_interpreter": Use code_interpreter_config (or defaults)
+  //   - "computer_use_preview": Use computer_use_config
+  //   - "image_generation": Use image_generation_config (or defaults)
+  //   - "mcp": Use mcp_config
+  string type = 1;
+
+  // For custom function tools (type="function")
+  GPTInferencePredictionInputToolFunction function = 2;
+
+  // For built-in tool configurations
+  GPTWebSearchToolConfig web_search_config = 3;
+  GPTFileSearchToolConfig file_search_config = 4;
+  GPTCodeInterpreterToolConfig code_interpreter_config = 5;
+  GPTComputerUseToolConfig computer_use_config = 6;
+  GPTImageGenerationToolConfig image_generation_config = 7;
+  GPTMCPToolConfig mcp_config = 8;
+}
+
+// Custom function tool definition
+message GPTInferencePredictionInputToolFunction {
+  // (optional) Description of what the function does
+  // Be detailed - helps the model decide when to use it
+  string description = 1;
+
+  // (required) Function name - must be unique
+  string name = 2;
+
+  // (optional) JSON Schema for function parameters
+  // Follows OpenAPI 3.0 specification
+  google.protobuf.Struct parameters = 3;
+
+  // (optional) Enable strict mode for structured outputs
+  // When true, function arguments will exactly match the schema
+  bool strict = 4;
+}
+
+// ========================================================================
+// CHAT MESSAGE
+// ========================================================================
+//
+// Represents a single message in the conversation.
+// Used for both input (request) and output (response) messages.
+//
+// INPUT USAGE:
+//   Client sends messages with role and content.
+//   For multimodal, use multimodal_content instead of content.
+//
+// OUTPUT USAGE (streaming):
+//   Server streams back messages with:
+//   - Regular output: is_reasoning=false, object="chat.completion.chunk"
+//   - Reasoning output: is_reasoning=true, object="chat.completion.chunk.reasoning"
+//
+// DISTINGUISHING REASONING FROM REGULAR OUTPUT:
+//   Clients should check in order:
+//   1. is_reasoning field (preferred, explicit boolean)
+//   2. hasThinkingIndex() (legacy, backwards compat)
+//   3. Response object type (chunk.reasoning vs chunk)
+
+message GPTInferencePredictionInputChatMessage {
+  // (required) Role of the message author.
+  //
+  // Values:
+  //   - SYSTEM: System prompt/instructions (use for setup)
+  //   - USER: User's message (human input)
+  //   - ASSISTANT: Model's response (AI output)
+  //   - DEVELOPER: Implementation-specific guidance (Responses API)
+  //
+  // For Responses API, system role is often replaced by 'instructions' parameter.
+  GPTInferencePredictionInputChatMessageRoleEnum role = 1;
+
+  // ========================================================================
+  // REASONING INDICATORS
+  // ========================================================================
+  //
+  // These fields indicate whether this message contains reasoning/thinking
+  // content from models like o1, o3, or GPT-5.
+  //
+  // When the model produces reasoning summaries (via reasoning.summary parameter),
+  // streaming responses include response.reasoning_summary_text.delta events.
+  // These events are converted to messages with:
+  //   - is_reasoning = true
+  //   - thinking_index = 0
+  //   - object = "chat.completion.chunk.reasoning"
+  //
+  // Regular output text comes from response.output_text.delta events with:
+  //   - is_reasoning = false (or unset)
+  //   - thinking_index = unset
+  //   - object = "chat.completion.chunk"
+
+  // [DEPRECATED] Legacy reasoning indicator.
+  //
+  // This field is maintained for backwards compatibility with older clients
+  // that check hasThinkingIndex() to detect reasoning content.
+  //
+  // When set (hasThinkingIndex() == true):
+  //   - This message contains reasoning/thinking content
+  //   - Value 0 = first reasoning block
+  //   - Increments for subsequent blocks (rare)
+  //
+  // NEW CLIENTS: Use is_reasoning field instead!
+  //
+  // Migration guide:
+  //   OLD: if (message.hasThinkingIndex()) { /* reasoning */ }
+  //   NEW: if (message.is_reasoning) { /* reasoning */ }
+  int32 thinking_index = 8;
+
+  // (optional) Explicit flag indicating reasoning content.
+  //
+  // When true, this message contains internal reasoning from reasoning models.
+  // This is populated from response.reasoning_summary_text.delta events.
+  //
+  // PREFERRED over checking thinking_index for new client implementations.
+  //
+  // Both is_reasoning and thinking_index are set for reasoning content to
+  // support both legacy and new clients during migration.
+  bool is_reasoning = 9;
+
+  // ========================================================================
+  // CONTENT
+  // ========================================================================
+
+  // Content can be text or multimodal (images, audio, text).
+  oneof content_type {
+    // Simple text content.
+    //
+    // For input: User's text message.
+    // For output: Model's generated text or reasoning summary.
+    //
+    // Backwards compatible with older proto versions.
+    string content = 2;
+
+    // Multimodal content parts (images, audio, text).
+    //
+    // Use for:
+    //   - Image inputs (GPT-4o, GPT-4-turbo, GPT-5)
+    //   - Audio inputs (GPT-4o-2024-11-20+)
+    //   - Mixed content types
+    GPTMultimodalContent multimodal_content = 4;
+  }
+
+  // ========================================================================
+  // TOOL CALLING (output only)
+  // ========================================================================
+
+  // (output only) Tool calls requested by the model.
+  //
+  // When model decides to call tools, this array contains:
+  //   - id: Unique identifier for this call
+  //   - type: "function" (currently only supported type)
+  //   - function: Name and arguments
+  //
+  // Client should execute tools and return results in subsequent message
+  // with role=TOOL and matching tool_call_id.
+  repeated GPTInferencePredictionInputChatMessageToolCall toolCalls = 3;
+
+  // ========================================================================
+  // METADATA
+  // ========================================================================
+
+  // (optional) Author name for multi-participant conversations.
+  //
+  // Helps model distinguish between multiple users in group chat scenarios.
+  string name = 5;
+
+  // (optional) Tool call ID this message responds to.
+  //
+  // Required when providing tool execution results.
+  // Must match the id from the tool call request.
+  string tool_call_id = 6;
+
+  // (optional) Refusal message if model declined to respond.
+  //
+  // Set when model refuses due to content policy or safety filters.
+  string refusal = 7;
+}
+
+// Container for multimodal content
+message GPTMultimodalContent {
+  repeated GPTContentPart parts = 1;
+}
+
+// Individual content part (text, image, audio, file)
+//
+// Multimodal input types supported:
+//   - text: Plain text content
+//   - image_url: Image via URL or base64 data URI
+//   - audio: Audio data (GPT-4o-2024-11-20+)
+//   - video: Video data (future GPT-5 support)
+//   - file: File reference by ID (PDFs, docs, etc.)
+//
+message GPTContentPart {
+  oneof part_type {
+    // Plain text content
+    GPTTextContent text = 1;
+
+    // Image content - can be URL or base64
+    // Supported by: GPT-4-turbo, GPT-4o, GPT-5
+    GPTImageContent image_url = 2;
+
+    // Audio content
+    // Supported by: GPT-4o-2024-11-20+
+    GPTAudioContent audio = 3;
+
+    // Video content (future support)
+    GPTVideoContent video = 4;
+
+    // File reference by ID
+    // Supported by: GPT-4o, GPT-5 (for PDFs, docs, etc.)
+    GPTFileContent file = 5;
+  }
+}
+
+// Text content part
+message GPTTextContent {
+  string text = 1;
+}
+
+// Image content part
+//
+// Supports two input methods:
+//   1. URL: Direct link to image (use `url` field)
+//   2. Base64: Raw base64 data (use `base64_data` + `media_type` fields)
+//
+// Supported formats: JPEG, PNG, GIF, WebP
+// Max size: 20MB per image
+//
+// Examples:
+//   URL input:
+//     { url: "https://example.com/image.png", detail: "high" }
+//
+//   Base64 input:
+//     { base64_data: "iVBORw0KGgo...", media_type: "image/png", detail: "high" }
+//
+message GPTImageContent {
+  // Option 1: Image URL (HTTP/HTTPS)
+  // Can also be a data URI: "data:image/png;base64,..."
+  string url = 1;
+
+  // Option 2: Raw base64-encoded image data
+  // If set, media_type should also be set
+  // Do NOT include the "data:..." prefix - just the raw base64 string
+  string base64_data = 3;
+
+  // Media type for base64 data (required if base64_data is set)
+  // Values: "image/jpeg", "image/png", "image/gif", "image/webp"
+  string media_type = 4;
+
+  // Detail level for image processing:
+  //   - "auto": Let model decide (default)
+  //   - "low": 512x512, faster, fewer tokens (~85 tokens)
+  //   - "high": Full resolution, more detail (~170-1105 tokens)
+  string detail = 2;
+}
+
+// File content part
+//
+// ========================================================================
+// FILE INPUT SUPPORT
+// ========================================================================
+//
+// ⚠️ IMPORTANT: Currently only PDF files are supported for DIRECT input.
+// Other file types (txt, docx, csv) require File Search tool with vector stores.
+//
+// THREE INPUT METHODS (choose one):
+//
+//   1. FILE ID (Responses API ONLY):
+//      Upload file first via Files API, then reference by ID.
+//      file_id: "file-abc123"
+//
+//   2. BASE64 DATA (Both APIs):
+//      Encode file as base64 data URI inline in request.
+//      file_data: "data:application/pdf;base64,JVBERi0xLjQ..."
+//
+//   3. URL REFERENCE (Responses API ONLY):
+//      Reference publicly accessible HTTPS URL.
+//      file_url: "https://example.com/document.pdf"
+//
+// SIZE LIMITS:
+//   - Max 10MB per PDF file
+//   - Max 32MB total per request
+//   - Max 100 pages per request (across all files)
+//
+// TOKEN CONSUMPTION:
+//   - PDFs are processed as BOTH text AND images
+//   - Each page generates text tokens + image tokens
+//   - Significantly more expensive than plain text input
+//   - Chat Completions API uses ~30x fewer tokens than Responses API for PDFs
+//
+// SUPPORTED MODELS (requires vision capability):
+//   - GPT-4o, GPT-4o-mini
+//   - GPT-4.1
+//   - GPT-5 family
+//   - O-series (o1, o3, o4-mini)
+//
+// FILE SEARCH vs DIRECT INPUT:
+//   - Direct input (this message): For one-off PDF analysis, summarization
+//   - File Search tool: For querying document collections, RAG, repeated access
+//
+message GPTFileContent {
+  // Method 1: File ID from Files API upload
+  //
+  // Upload file first via POST /v1/files with purpose="user_data"
+  // Then reference the returned file ID here.
+  //
+  // ⚠️ Responses API ONLY - Chat Completions API does NOT support file_id
+  string file_id = 1;
+
+  // Method 2: Base64-encoded file data
+  //
+  // Format: "data:<mime_type>;base64,<base64_data>"
+  // Example: "data:application/pdf;base64,JVBERi0xLjQ..."
+  //
+  // ✅ Works with BOTH Responses API and Chat Completions API
+  string file_data = 3;
+
+  // Method 3: Public URL to file
+  //
+  // Must be publicly accessible HTTPS URL.
+  // Example: "https://example.com/reports/q4-2024.pdf"
+  //
+  // ⚠️ Responses API ONLY - Chat Completions API does NOT support URLs
+  string file_url = 4;
+
+  // Optional: filename for display purposes
+  // Used when file_data is provided to give context about the file
+  string filename = 2;
+}
+
+// Audio content part (for models with audio support)
+message GPTAudioContent {
+  string data = 1;  // Base64 encoded audio
+  string format = 2;  // "wav", "mp3", etc.
+}
+
+// Video content part (future support)
+message GPTVideoContent {
+  string url = 1;  // URL or base64 data URI
+  string format = 2;  // "mp4", "webm", etc.
+  int32 max_frames = 3;  // Maximum frames to extract
+}
+
+message GPTInferencePredictionInputChatMessageToolCall {
+  string id = 1;
+  string type = 2;
+  GPTInferencePredictionInputChatMessageToolCallFunction function = 3;
+}
+
+message GPTInferencePredictionInputChatMessageToolCallFunction {
+  string name = 1;
+  // this is a String (but actually Json decode-able)
+  string arguments = 2;
+}
+
+// Message role enum.
+//
+// Defines who is speaking in the conversation.
+// Maps to lowercase strings in API calls: SYSTEM → "system", etc.
+enum GPTInferencePredictionInputChatMessageRoleEnum {
+  // System message for setting context and behavior.
+  //
+  // Use for: Initial instructions, persona definition, constraints.
+  // For Responses API: Consider using 'instructions' parameter instead.
+  //
+  // API value: "system"
+  SYSTEM = 0;
+
+  // User message (human input).
+  //
+  // Use for: User queries, requests, conversation input.
+  //
+  // API value: "user"
+  USER = 1;
+
+  // Assistant message (AI output).
+  //
+  // Use for:
+  //   - Model's responses (output)
+  //   - Few-shot examples (input)
+  //   - Continuing a prior conversation
+  //
+  // API value: "assistant"
+  ASSISTANT = 2;
+
+  // Developer message (Responses API only).
+  //
+  // Use for: Implementation-specific guidance separate from user-facing prompts.
+  // Helps model understand how to structure tool calls and outputs.
+  //
+  // Note: Developer messages persist with previous_response_id
+  // (unlike 'instructions' parameter which doesn't).
+  //
+  // API value: "developer"
+  DEVELOPER = 3;
+
+  // Tool message (function result).
+  //
+  // Use for: Returning tool execution results to the model.
+  // Must include tool_call_id matching the original request.
+  //
+  // API value: "tool"
+  TOOL = 4;
+}
+// this is used to map the gpt enum -> the enum we have ^^
+message GPTInferencePredictionInputChatMessageRoleType {
+  string SYSTEM = 1;
+  string USER = 2;
+  string ASSISTANT = 3;
+  string DEVELOPER = 4;
+}
+
+
+// ========================================================================
+// Output
+// ========================================================================
+message GPTInferencePredictionOutput {
+  runtime.aot.core.Cancellation cancellation = 1;
+  // (optional) if the request when through this will be present, if there was an internal error we will not return a status code.
+  int32 statusCode = 2;
+
+  // (optional) the error message, this will only be present if there was an error.(internal or external from GPT)
+  string error = 3;
+
+  // (optional) If the request was successful we will return this.
+  GPTInferencePredictionOutputResponse response = 4;
+
+}
+
+message GPTInferencePredictionOutputResponse {
+  // this is the id of the response
+  string id = 1;
+
+  // Object type, typically "chat.completion" or "chat.completion.chunk" for streaming
+  string object = 2;
+
+  // created timestamp
+  int64 created = 3;
+
+  // this is the chat response choices returned from the endpoint.
+  repeated GPTInferencePredictionOutputResponseChoice choices = 4;
+
+  // This is the amount of token usage for the endpoint
+  GPTInferencePredictionOutputResponseUsage usage = 5;
+
+  // (optional) System fingerprint for reproducibility (gpt-4o and newer)
+  string system_fingerprint = 6;
+
+  // (optional) The model used for this completion
+  string model = 7;
+
+  // (optional) Service tier used for this request
+  string service_tier = 8;
+}
+
+message GPTInferencePredictionOutputResponseChoice {
+  // this is the current position within the array.
+  int32 index = 1;
+
+  // This is the message response for this specific choice.
+  GPTInferencePredictionInputChatMessage message = 2;
+
+  // (optional) This is the reason for the choice
+  GPTInferencePredictionOutputResponseChoiceFinishReasonEnum finish_reason = 3;
+  
+  // (optional) Log probabilities for the output tokens
+  GPTLogprobs logprobs = 4;
+}
+
+// Log probability information
+message GPTLogprobs {
+  // Log probability information for each token
+  repeated GPTTokenLogprob content = 1;
+  
+  // (optional) Refusal log probabilities if model refused
+  repeated GPTTokenLogprob refusal = 2;
+}
+
+// Log probability for a single token
+message GPTTokenLogprob {
+  // The token string
+  string token = 1;
+  
+  // Log probability of this token
+  double logprob = 2;
+  
+  // UTF-8 byte representation of the token
+  repeated int32 bytes = 3;
+  
+  // Top alternative tokens and their log probabilities
+  repeated GPTTopLogprob top_logprobs = 4;
+}
+
+// Top alternative token with its log probability
+message GPTTopLogprob {
+  string token = 1;
+  double logprob = 2;
+  repeated int32 bytes = 3;
+}
+
+// ** ensure we map the lowerCase to uppercase on the response.. **
+// (not great docs but here is the enums (https://platform.openai.com/docs/guides/chat/introduction))
+enum GPTInferencePredictionOutputResponseChoiceFinishReasonEnum {
+  STOP = 0;
+  LENGTH = 1;
+  CONTENT_FILTER = 2;
+  TOOL_CALLS = 3;
+}
+message GPTInferencePredictionOutputResponseChoiceFinishReasonType {
+  string STOP = 1;
+  string LENGTH = 2;
+  string CONTENT_FILTER = 3;
+  string TOOL_CALLS = 4;
+}
+
+message GPTInferencePredictionOutputResponseUsage {
+  int32 prompt_tokens = 1;
+  int32 completion_tokens = 2;
+  int32 total_tokens = 3;
+  
+  // (optional) Reasoning tokens used (for o1/o3 models)
+  int32 reasoning_tokens = 4;
+  
+  // (optional) Cached tokens that were reused
+  int32 prompt_tokens_cached = 5;
+  
+  // (optional) Audio tokens if audio was processed
+  int32 audio_tokens = 6;
+  
+  // (optional) Detailed breakdown of completion tokens
+  GPTCompletionTokensDetails completion_tokens_details = 7;
+  
+  // (optional) Detailed breakdown of prompt tokens  
+  GPTPromptTokensDetails prompt_tokens_details = 8;
+}
+
+// Detailed breakdown of completion tokens
+message GPTCompletionTokensDetails {
+  int32 reasoning_tokens = 1;
+  int32 audio_tokens = 2;
+  int32 text_tokens = 3;
+  int32 rejected_prediction_tokens = 4;
+}
+
+// Detailed breakdown of prompt tokens
+message GPTPromptTokensDetails {
+  int32 cached_tokens = 1;
+  int32 text_tokens = 2;
+  int32 audio_tokens = 3;
+  int32 image_tokens = 4;
+}
+
+// ========================================================================
+// Initialized Class.
+// ========================================================================
+
+message GPTInferenceInitialization {
+}
+
+
+message InitializedGPTInference {
+}
+
+
+// ========================================================================
+// Embed Classes
+// ========================================================================
+// Note: here is the spec. (https://platform.openai.com/docs/guides/embeddings/what-are-embeddings)
+message GPTInferenceEmbeddingInput {
+  // (required) will throw an error internally if this is not present
+  string model = 1;
+
+  // (required)
+  string input = 2;
+}
+
+message GPTInferenceEmbeddingOutput {
+  runtime.aot.core.Cancellation cancellation = 1;
+
+  // (optional) if the request when through this will be present, if there was an internal error we will not return a status code.
+  int32 statusCode = 2;
+
+  // (optional) the error message, this will only be present if there was an error.(internal or external from GPT)
+  string error = 3;
+
+  // (optional) If the request was successful we will return this.
+  GPTInferenceEmbeddingOutputResponse response = 4;
+}
+
+message GPTInferenceEmbeddingOutputResponse {
+  // required
+  string model = 1;
+
+  // required ; ex: 'list'
+  string object = 2;
+
+  // required
+  GPTInferencePredictionOutputResponseUsage usage = 3;
+
+  // required
+  repeated GPTInferenceEmbeddingOutputResponseDataEntry data = 4;
+}
+
+message GPTInferenceEmbeddingOutputResponseDataEntry {
+  repeated float embedding = 1;
+  int32 index = 2;
+
+  // required ; ex: 'embedding'
+  string object = 3;
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}

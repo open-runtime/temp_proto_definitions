@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "lib/src/runtime/common/chat.proto";
+import "lib/src/runtime/common/chat_summary.proto";
+import "lib/src/runtime/common/chat_message.proto";
+import "lib/src/google/protobuf/timestamp.proto";
+
+package runtime.aot.machine_learning.text.conversational_language.chat.descriptors.summarization.gemini;
+
+
+// i.e. non_summarized_chat.chat.messages[0].uuid
+message NonSummarizedChat {
+  runtime.common.Chat chat = 1;
+
+  google.protobuf.Timestamp now = 2;
+  // additional metadata can be added here if needed i.e. config, etc. 
+}
+
+
+// i.e. summarized_chat.summary.messages[0].uuid
+message SummarizedChat {
+  runtime.common.ChatSummary summary = 1; // this will have messages in them where the only property on the messages is the uuid 
+  // additional metadata can be added here if needed
+}

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.module.asset.name;
+
+enum ModuleAssetNameConventionEnum {
+  UNKNOWN = 0; // This can be used with fuzzy matching or best match to find the right one
+  GIT_HUB_UNKNOWN = 1; // This can be used with fuzzy matching or best match to find the right one
+  GIT_HUB_RUNTIME = 2; // TODO Document
+  RUNTIME = 3; // TODO DOCUMENT
+}
+
+
+message ModuleAssetNameReflection {
+  string value = 1;
+  bool fuzzy = 2;
+  bool assembled = 3;
+  ModuleAssetNameConventionEnum convention = 4;
+}

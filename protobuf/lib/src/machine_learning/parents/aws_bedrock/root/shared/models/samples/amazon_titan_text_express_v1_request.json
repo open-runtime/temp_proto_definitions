@@ -1,0 +1,7 @@
+{
+    "inputText": "What is the capital of France? Answer in one sentence.",
+    "textGenerationConfig": {
+        "maxTokenCount": 100,
+        "temperature": 0.7
+    }
+}

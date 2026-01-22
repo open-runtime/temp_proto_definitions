@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package runtime.aot.core;
+
+message UserProfile {
+  // (required)
+  string identifier = 1;
+  // optional
+  string email = 2;
+  // optional
+  string name = 3;
+}

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "lib/src/algorithmic_processing/text/technical_language/code/parents/tree_sitter/root/shared/models/models.proto";
+import "lib/src/core/root/grpc/shared/models/transferable.proto";
+import "lib/src/google/protobuf/empty.proto";
+
+package runtime.aot.algorithmic_processing.text.technical_language.code.treesitter;
+
+
+service TreeSitterService {
+  rpc Initialize(google.protobuf.Empty) returns (google.protobuf.Empty) {};
+  rpc TraverseTree (TraverseTreeRequest) returns (TreeNodes) {};
+  rpc DirectedDiscovery (DirectedDiscoveryRequest) returns (TreeNodes) {};
+  rpc HasLanguage (runtime.aot.core.Transferable) returns (HasLanguageResponse) {};
+  rpc MatchNode (MatchNodeRequest) returns (MatchedNodes) {};
+}

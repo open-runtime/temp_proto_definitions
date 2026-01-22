@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package runtime.aot.monorepo.module.deployment.reflection;
+
+// TODO Proto for knative deployment i.e. contains commands, properties, paths etc.
+
+// TODO Proto for google cloud run deployment i.e. contains commands, properties, paths etc.
+
+// TODO Proto for envoy configuration i.e. contains commands, properties, paths etc.
+
+// TODO Proto for kubernetes deployment i.e. contains commands, properties, paths etc.
+
+// this will be super similar to the asset reflection protos found here: https://github.com/open-runtime/aot_monorepo/blob/41afaee9958123b5df6d3137a699736aad609d3f/packages/definitions/protobuf/lib/src/monorepo/module/asset/reflection.proto
+message ModuleDeploymentReflection {
+
+}

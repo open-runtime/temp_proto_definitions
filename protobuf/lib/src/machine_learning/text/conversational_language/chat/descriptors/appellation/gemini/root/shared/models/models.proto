@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "lib/src/runtime/common/chat.proto";
+import "lib/src/runtime/common/chat_title.proto";
+
+package runtime.aot.machine_learning.text.conversational_language.chat.descriptors.appellation.gemini;
+
+// i.e. untitled.chat.value = ...
+message UntitledChat {
+  runtime.common.Chat chat = 1;
+}
+
+// i.e. titled.title.value = ...
+message TitledChat {
+  runtime.common.ChatTitle title = 1; // this is the updated title which can simply have value and optionally have the summaries and messages( which can simply contain their uuids) clients can check if the message value exists with the hasValue() method
+}
+
+

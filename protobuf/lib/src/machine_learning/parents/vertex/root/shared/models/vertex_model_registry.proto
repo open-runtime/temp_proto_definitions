@@ -1,0 +1,581 @@
+syntax = "proto3";
+
+// ========================================================================
+// VERTEX AI MODEL REGISTRY SCHEMA
+// ========================================================================
+//
+// This proto defines the schema for the Vertex AI Gemini model registry.
+// The registry stores comprehensive metadata about all supported Gemini models
+// including capabilities, token limits, parameter defaults, and lifecycle status.
+//
+// USAGE:
+//   The actual model data lives in vertex_models.yaml which is packed into
+//   the binary at build time. This proto defines the wire format for the YAML.
+//
+// TO UPDATE MODEL DATA:
+//   1. Run: melos sync:vertex:models
+//      This fetches latest data from Google APIs and updates the YAML.
+//   2. Or manually edit:
+//      packages/aot/machine_learning/parents/vertex/tool/pack_spec/vertex_models.yaml
+//
+// SYNC SCRIPT:
+//   packages/aot/machine_learning/parents/vertex/configs/dynamic/sync_vertex_models.dart
+//
+// ========================================================================
+// DATA SOURCE DOCUMENTATION
+// ========================================================================
+//
+// Fields populated from Gemini API /v1beta/models:
+//   - input_token_limit (inputTokenLimit)
+//   - output_token_limit (outputTokenLimit)
+//   - supports_thinking (from 'thinking' boolean field)
+//   - default_temperature, max_temperature
+//   - default_top_p, default_top_k
+//   - supported_generation_methods
+//   - display_name, description
+//
+// Fields from Vertex AI Model Garden API:
+//   - launch_stage (GA, Preview, Experimental)
+//   - Model availability/deprecation status
+//
+// Fields requiring hardcoded matrix (not in API):
+//   - thinking_mode ("budget" vs "level")
+//   - thinking_budget_min/max/default
+//   - supported_thinking_levels
+//   - supports_code_execution
+//   - supports_google_search
+//   - supports_url_context
+//   - cost_tier, speed_tier
+//   - subscription (internal business logic)
+//   - family, size (computed from model ID patterns)
+//
+// DATA PRIORITY (highest to lowest):
+//   1. Hardcoded capability matrix (official Google docs, highest accuracy)
+//   2. Gemini API /v1beta/models endpoint
+//   3. Vertex AI Model Garden API
+//   4. Computed/inferred values
+//
+// ========================================================================
+// THINKING CONFIGURATION EXPLAINED
+// ========================================================================
+//
+// Gemini models support two different thinking configuration modes:
+//
+// 1. BUDGET MODE (Gemini 2.5 models):
+//    - Use: thinkingBudget (int32 token count)
+//    - Range: thinking_budget_min to thinking_budget_max
+//    - Special: -1 = dynamic (model decides), 0 = disabled (Flash only)
+//    - Example: gemini-2.5-pro uses budget 128-32768
+//
+// 2. LEVEL MODE (Gemini 3 models):
+//    - Use: thinkingLevel (enum: MINIMAL/LOW/MEDIUM/HIGH)
+//    - Levels: supported_thinking_levels lists valid options
+//    - Example: gemini-3-flash supports MINIMAL/LOW/MEDIUM/HIGH
+//
+// IMPORTANT: Budget and Level modes are MUTUALLY EXCLUSIVE.
+// The API will error if both thinkingBudget and thinkingLevel are set.
+//
+// The thinking_mode field tells clients which configuration style to use:
+//   - "budget" -> Use thinkingBudget parameter
+//   - "level"  -> Use thinkingLevel enum
+//   - ""       -> Model does not support thinking
+//
+// ========================================================================
+// CAPABILITY VERIFICATION
+// ========================================================================
+//
+// All capabilities can be verified with: melos sync:vertex:models --verify
+//
+// The verification tests:
+//   - Basic generation (generateContent)
+//   - Streaming (streamGenerateContent)
+//   - Thinking configuration (budget/level modes)
+//   - Structured outputs (JSON mode with schema)
+//   - Function calling (tool declarations)
+//   - Code execution
+//   - Token limit accuracy
+//   - Thinking budget boundaries
+//   - Thinking level validation
+//
+// ========================================================================
+// SUBSCRIPTION LEVELS
+// ========================================================================
+//
+// Models are gated by subscription level:
+//   - FREE_PLAN: Available to all users (most Flash models)
+//   - PERSONAL_PRO_ONLY: Requires Pro subscription (Pro models)
+//   - ENTERPRISE_ONLY: Enterprise tier only
+//
+// ========================================================================
+// LAST UPDATED: December 2025
+// Added: thinking_mode, supported_thinking_levels, tool support flags,
+//        comprehensive API verification, enhanced documentation
+// ========================================================================
+
+package runtime.aot.machine_learning.parents.vertex;
+
+import "lib/src/core/root/grpc/shared/models/subscription.proto";
+
+// Model size/performance classification
+// This represents the performance vs cost tradeoff within a model family
+enum VertexModelSize {
+  VERTEX_MODEL_SIZE_UNKNOWN = 0;
+  VERTEX_MODEL_SIZE_ULTRA = 1;       // Top performance (future gemini-ultra)
+  VERTEX_MODEL_SIZE_PRO = 2;         // High performance (gemini-X-pro)
+  VERTEX_MODEL_SIZE_FLASH = 3;       // Balanced speed/quality (gemini-X-flash)
+  VERTEX_MODEL_SIZE_FLASH_LITE = 4;  // Lightweight/fast (gemini-X-flash-lite)
+  VERTEX_MODEL_SIZE_NANO = 5;        // On-device (gemini-nano)
+  VERTEX_MODEL_SIZE_EMBEDDING = 6;   // Embedding models
+}
+
+// Model family/generation
+enum VertexModelFamily {
+  VERTEX_MODEL_FAMILY_UNKNOWN = 0;
+  VERTEX_MODEL_FAMILY_GEMINI_1_0 = 1;    // gemini-1.0 (deprecated)
+  VERTEX_MODEL_FAMILY_GEMINI_1_5 = 2;    // gemini-1.5 (deprecated)
+  VERTEX_MODEL_FAMILY_GEMINI_2_0 = 3;    // gemini-2.0 (sunset Feb 2026)
+  VERTEX_MODEL_FAMILY_GEMINI_2_5 = 4;    // gemini-2.5 (current production)
+  VERTEX_MODEL_FAMILY_GEMINI_3 = 5;      // gemini-3 (preview)
+  VERTEX_MODEL_FAMILY_EMBEDDING = 6;     // gemini-embedding, text-embedding
+}
+
+// Location support for model deployment
+enum VertexLocationSupport {
+  VERTEX_LOCATION_REGIONAL_ONLY = 0;  // Only regional endpoints (us-central1)
+  VERTEX_LOCATION_GLOBAL = 1;         // Supports global endpoint
+}
+
+// Model launch stage / lifecycle status
+enum VertexModelLaunchStage {
+  VERTEX_LAUNCH_STAGE_UNKNOWN = 0;
+  VERTEX_LAUNCH_STAGE_EXPERIMENTAL = 1;  // Earliest preview, may change significantly
+  VERTEX_LAUNCH_STAGE_PREVIEW = 2;       // More stable testing, not production-ready
+  VERTEX_LAUNCH_STAGE_GA = 3;            // Generally available, production-ready
+  VERTEX_LAUNCH_STAGE_DEPRECATED = 4;    // End-of-life, migration recommended
+}
+
+// Cost tier for developer guidance
+// Relative cost compared to other Vertex AI models
+enum VertexCostTier {
+  VERTEX_COST_TIER_UNKNOWN = 0;
+  VERTEX_COST_TIER_VERY_CHEAP = 1;     // Flash-Lite models (~$0.075/1M input)
+  VERTEX_COST_TIER_CHEAP = 2;          // Flash models (~$0.075/1M input)
+  VERTEX_COST_TIER_STANDARD = 3;       // Pro models standard pricing (~$1.25/1M)
+  VERTEX_COST_TIER_EXPENSIVE = 4;      // Pro models >200K context (~$2.50/1M)
+  VERTEX_COST_TIER_VERY_EXPENSIVE = 5; // Gemini 3 Pro, image generation
+}
+
+// Speed tier for developer guidance
+// Typical response latency compared to other Vertex AI models
+enum VertexSpeedTier {
+  VERTEX_SPEED_TIER_UNKNOWN = 0;
+  VERTEX_SPEED_TIER_VERY_FAST = 1;   // Flash-Lite models, sub-second
+  VERTEX_SPEED_TIER_FAST = 2;        // Flash models
+  VERTEX_SPEED_TIER_AVERAGE = 3;     // Standard models
+  VERTEX_SPEED_TIER_SLOW = 4;        // Pro models, thinking enabled
+  VERTEX_SPEED_TIER_VERY_SLOW = 5;   // High thinking budget models
+}
+
+// Individual model definition
+// Each field is documented with its data source in [brackets]
+message VertexModel {
+  // ========================================================================
+  // CORE IDENTITY
+  // ========================================================================
+
+  // The canonical model ID as recognized by Vertex AI (e.g., "gemini-2.5-flash-001")
+  // [Source: Gemini API /v1beta/models - "name" field stripped of "models/" prefix]
+  string id = 1;
+  
+  // Subscription level required to use this model (uses shared Pieces subscription enum)
+  // [Source: HARDCODED - internal business logic based on pricing tier]
+  runtime.aot.core.UserSubscriptionLevel subscription = 2;
+  
+  // Model size/performance level within its family
+  // [Source: COMPUTED - inferred from model ID pattern (pro, flash, flash-lite, etc.)]
+  VertexModelSize size = 3;
+  
+  // Model family/generation (gemini-2.0, gemini-2.5, gemini-3, etc.)
+  // [Source: COMPUTED - inferred from model ID pattern (gemini-X.X)]
+  VertexModelFamily family = 4;
+  
+  // Aliases that resolve to this model (e.g., ["gemini-2.5-flash", "gemini-2.5-flash-latest"])
+  // [Source: HARDCODED/MANUAL - maintained list of known aliases]
+  repeated string aliases = 5;
+  
+  // Model capabilities (e.g., ["text", "vision", "audio", "thinking", "embedding"])
+  // [Source: COMPUTED + Gemini API - derived from supportedGenerationMethods + hardcoded overrides]
+  repeated string capabilities = 6;
+  
+  // ISO timestamp when we detected this model was deprecated
+  // Empty string if not deprecated
+  // [Source: Vertex AI Model Garden API - launch stage changes]
+  string deprecated = 7;
+  
+  // Owner/organization that created the model (e.g., "google")
+  // [Source: HARDCODED - always "google" for Vertex AI models]
+  string owned_by = 8;
+
+  // Human-readable display name (e.g., "Gemini 2.5 Flash")
+  // [Source: Gemini API /v1beta/models - "displayName" field]
+  string display_name = 9;
+
+  // Short description of the model
+  // [Source: Gemini API /v1beta/models - "description" field]
+  string description = 10;
+
+  // ========================================================================
+  // API SUPPORT
+  // ========================================================================
+
+  // Which generation methods this model supports
+  // - generateContent: Standard text/multimodal generation
+  // - streamGenerateContent: Streaming generation
+  // - embedContent: Text embeddings (embedding models only)
+  // - batchEmbedContents: Batch text embeddings
+  // - countTokens: Token counting
+  // [Source: Gemini API /v1beta/models - "supportedGenerationMethods" array]
+  repeated string supported_generation_methods = 11;
+
+  // Supported values for thinking configuration (for thinking-capable models)
+  // - Gemini 3 Pro: ["low", "high"]
+  // - Gemini 3 Flash: ["minimal", "low", "medium", "high"]
+  // - Gemini 2.5 (budget-based): Not applicable, uses thinking_budget instead
+  // - Non-thinking models: empty
+  // [Source: HARDCODED - from official Google documentation]
+  repeated string thinking_levels = 12;
+
+  // Launch stage / lifecycle status of the model
+  // [Source: Vertex AI Model Garden API - launchStage field]
+  VertexModelLaunchStage launch_stage = 13;
+
+  // ========================================================================
+  // TOKEN LIMITS
+  // ========================================================================
+
+  // Maximum number of input tokens allowed for this model
+  // Examples:
+  //   - Gemini 2.5/3: 1,048,576 (1M tokens)
+  //   - Gemini 2.0: 1,048,576 (1M tokens)
+  //   - Embedding models: 2,048
+  // [Source: Gemini API /v1beta/models - "inputTokenLimit" field]
+  // [Verified: Yes, via API calls during sync]
+  int32 input_token_limit = 14;
+
+  // Maximum number of output tokens available for this model
+  // Examples:
+  //   - Gemini 2.5/3: 65,535
+  //   - Gemini 2.0: 8,192
+  //   - Embedding models: N/A (embeddings not tokens)
+  // [Source: Gemini API /v1beta/models - "outputTokenLimit" field]
+  // [Verified: Yes, via API calls during sync]
+  int32 output_token_limit = 15;
+
+  // ========================================================================
+  // THINKING BUDGET CONFIGURATION (Gemini 2.5 specific)
+  // ========================================================================
+  // Note: These fields apply ONLY to models with thinking_mode="budget"
+  // For models with thinking_mode="level", use supported_thinking_levels instead.
+
+  // Minimum thinking budget in tokens (for Gemini 2.5 models)
+  // - Gemini 2.5 Pro: 128
+  // - Gemini 2.5 Flash: 1
+  // - Gemini 2.5 Flash-Lite: 512
+  // [Source: HARDCODED - from official Google documentation]
+  // [Verified: Yes, via --verify mode testing budget boundaries]
+  int32 thinking_budget_min = 16;
+
+  // Maximum thinking budget in tokens
+  // - Gemini 2.5 Pro: 32,768
+  // - Gemini 2.5 Flash: 24,576
+  // - Gemini 2.5 Flash-Lite: 24,576
+  // [Source: HARDCODED - from official Google documentation]
+  // [Verified: Yes, via --verify mode testing budget boundaries]
+  int32 thinking_budget_max = 17;
+
+  // Default thinking budget when not specified (auto mode)
+  // Most models default to 8,192 tokens for auto budgeting
+  // [Source: HARDCODED - from official Google documentation]
+  int32 thinking_budget_default = 18;
+
+  // ========================================================================
+  // PARAMETER SUPPORT FLAGS
+  // ========================================================================
+  // These flags indicate which API parameters each model supports.
+  // Clients should check these before sending requests to avoid errors.
+  //
+  // Data source notes:
+  // - Most flags come from HARDCODED matrix (official docs)
+  // - supports_thinking can be partially inferred from Gemini API "thinking" boolean
+  // - All flags are verified via --verify mode if model is accessible
+
+  // Whether this model supports system instructions
+  // All current Gemini models support this.
+  // [Source: HARDCODED - all current Gemini models support this]
+  bool supports_system_instructions = 19;
+
+  // Whether this model supports streaming responses
+  // All current Gemini models support this.
+  // [Source: COMPUTED - derived from "streamGenerateContent" in supportedGenerationMethods]
+  // [Verified: Yes, via --verify mode streaming test]
+  bool supports_streaming = 20;
+
+  // Whether this model supports structured outputs (JSON schema mode)
+  // Supported by: All Gemini 2.0+, Gemini 3 models
+  // [Source: HARDCODED - from official Google documentation]
+  // [Verified: Yes, via --verify mode JSON mode test]
+  bool supports_structured_outputs = 21;
+
+  // Whether this model supports function/tool calling
+  // All current Gemini generation models support tool calling.
+  // [Source: HARDCODED - all generation models support this]
+  // [Verified: Yes, via --verify mode function calling test]
+  bool supports_function_calling = 22;
+
+  // Whether this model supports thinking/chain-of-thought reasoning
+  // Supported by: Gemini 2.5 Pro/Flash/Flash-Lite, Gemini 3 Pro/Flash
+  // [Source: Gemini API /v1beta/models - "thinking" boolean field + HARDCODED overrides]
+  // [Verified: Yes, via --verify mode thinking test]
+  bool supports_thinking = 23;
+
+  // Whether this model supports code execution
+  // Supported by: Gemini 2.5+, Gemini 3 models
+  // [Source: HARDCODED - from official Google documentation]
+  // [Verified: Yes, via --verify mode code execution test]
+  bool supports_code_execution = 24;
+
+  // Whether this model supports context caching for reduced costs
+  // Supported by: Most Gemini 2.5+ models
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_context_caching = 25;
+
+  // ========================================================================
+  // MEDIA INPUT SUPPORT
+  // ========================================================================
+  // These flags indicate which input media types each model can process.
+  // [Source: All flags HARDCODED based on official Google documentation]
+
+  // Whether this model can accept image inputs (vision capability)
+  // Supported formats: JPEG, PNG, GIF, WebP
+  // Max 3,000 images per request, 7MB per image
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_image_input = 26;
+
+  // Whether this model can accept video inputs
+  // Max 10 files per request, ~60 minutes total
+  // Videos tokenized at ~70 tokens per frame
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_video_input = 27;
+
+  // Whether this model can accept audio inputs
+  // Max 1 file per request, ~8.4 hours duration
+  // Audio tokenized at 32 tokens per second
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_audio_input = 28;
+
+  // Whether this model can accept PDF/document inputs
+  // Max 50MB or 1,000 pages per PDF
+  // Each page ~258 tokens
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_pdf_input = 29;
+
+  // ========================================================================
+  // GENERATION PARAMETERS DEFAULTS
+  // ========================================================================
+  // Default values for sampling parameters as defined by Google.
+  // These are applied when parameters are not explicitly specified.
+  //
+  // [Source: All values from Gemini API /v1beta/models endpoint]
+
+  // Default temperature value (controls randomness)
+  // Range: 0.0 - max_temperature
+  // Default for most models: 1.0
+  // [Source: Gemini API /v1beta/models - "temperature" field]
+  float default_temperature = 30;
+
+  // Maximum temperature value allowed for this model
+  // Most Gemini models: 2.0
+  // [Source: HARDCODED - from official Google documentation]
+  float max_temperature = 31;
+
+  // Default top_p value (nucleus sampling)
+  // Range: 0.0 - 1.0
+  // Controls cumulative probability threshold for token selection
+  // [Source: Gemini API /v1beta/models - "topP" field]
+  float default_top_p = 32;
+
+  // Default top_k value (top-k sampling)
+  // Number of top probable tokens to consider
+  // Default varies by model (often 40 or 64)
+  // [Source: Gemini API /v1beta/models - "topK" field]
+  int32 default_top_k = 33;
+
+  // ========================================================================
+  // EMBEDDING MODEL SPECIFIC
+  // ========================================================================
+  // These fields are only populated for embedding models.
+  // [Source: All embedding-specific fields from HARDCODED matrix + documentation]
+
+  // Output embedding dimensions (for embedding models)
+  // - gemini-embedding-001: 3072 (default), supports MRL for 128-3072
+  // - text-embedding-004: 768
+  // [Source: HARDCODED - from official Google documentation]
+  // [Verified: Yes, via --verify mode embedding dimension check]
+  int32 embedding_dimensions = 34;
+
+  // Supported output dimensionality options (for MRL-enabled embeddings)
+  // e.g., [128, 256, 512, 768, 1024, 1536, 3072]
+  // [Source: HARDCODED - from official Google documentation]
+  repeated int32 embedding_dimension_options = 35;
+
+  // Maximum number of texts per batch embedding request
+  // - gemini-embedding-001: 250
+  // [Source: HARDCODED - from official Google documentation]
+  int32 max_batch_size = 36;
+
+  // ========================================================================
+  // LOCATION & AVAILABILITY
+  // ========================================================================
+
+  // Location support - whether model supports global endpoint
+  // [Source: HARDCODED - from official Google documentation]
+  VertexLocationSupport location_support = 37;
+
+  // Available regions for this model
+  // e.g., ["us-east5", "europe-west1", "asia-southeast1"]
+  // [Source: HARDCODED - from official Google documentation]
+  repeated string available_regions = 38;
+
+  // ========================================================================
+  // DEVELOPER GUIDANCE TIERS
+  // ========================================================================
+  // Qualitative indicators to help developers choose appropriate models.
+  // Based on relative pricing and latency characteristics.
+  // [Source: All tier values HARDCODED based on Google pricing documentation]
+
+  // Cost tier relative to other Vertex AI models
+  // [Source: HARDCODED - derived from Google pricing documentation]
+  // Reference: https://cloud.google.com/vertex-ai/generative-ai/pricing
+  VertexCostTier cost_tier = 39;
+
+  // Speed tier based on typical response latency
+  // [Source: HARDCODED - based on internal benchmarks and documentation]
+  VertexSpeedTier speed_tier = 40;
+
+  // ========================================================================
+  // LIFECYCLE INFORMATION
+  // ========================================================================
+  // [Source: All lifecycle fields HARDCODED based on Google announcements]
+
+  // Scheduled shutdown date (ISO timestamp) if model is being deprecated
+  // Empty string if no shutdown date announced
+  // [Source: HARDCODED - from Google deprecation announcements]
+  string sunset_date = 41;
+
+  // ID of recommended successor model for migration
+  // Empty if model is current generation
+  // [Source: HARDCODED - from Google migration guides]
+  string successor_model = 42;
+
+  // Knowledge cutoff date (ISO date format, e.g., "2025-01")
+  // [Source: HARDCODED - from official Google documentation]
+  string knowledge_cutoff = 43;
+
+  // ========================================================================
+  // MULTIMODAL OUTPUT SUPPORT
+  // ========================================================================
+  // These flags indicate output capabilities beyond text.
+
+  // Whether this model can generate audio output (native TTS)
+  // Supported by: gemini-2.5-flash-preview-tts, Live API models
+  bool supports_audio_output = 44;
+
+  // Whether this model can generate image output
+  // Supported by: gemini-2.5-flash-image
+  bool supports_image_output = 45;
+
+  // ========================================================================
+  // LEGACY/COMPATIBILITY (preserving old field numbers for wire compatibility)
+  // Note: These are remapped from original positions but kept for compatibility
+  // ========================================================================
+
+  // Maps to another model ID (for aliased/versioned models)
+  // e.g., "gemini-2.5-flash" maps to "gemini-2.5-flash-001"
+  string maps_to = 46;
+
+  // ========================================================================
+  // NEW FIELDS (Dec 2025) - Thinking configuration and tool support
+  // ========================================================================
+  // These fields were added to support Gemini 3's level-based thinking and
+  // expanded tool capabilities. All fields here are from HARDCODED matrix
+  // based on official Google documentation.
+
+  // Thinking configuration mode for this model.
+  // Determines which thinking parameter to use:
+  // - "budget": Use thinking_budget (token count) - Gemini 2.5 models
+  // - "level": Use thinking_level (LOW/MEDIUM/HIGH) - Gemini 3 models
+  // - "": Model does not support thinking
+  // [Source: HARDCODED - based on model family and official documentation]
+  // [Critical for clients: Use this to determine which thinkingConfig to send]
+  string thinking_mode = 47;
+
+  // Supported thinking levels for this model (Gemini 3 only).
+  // Empty for Gemini 2.5 models (use thinking_budget_min/max instead).
+  // - Gemini 3 Pro: ["LOW", "HIGH"]
+  // - Gemini 3 Flash: ["MINIMAL", "LOW", "MEDIUM", "HIGH"]
+  // [Source: HARDCODED - from official Google documentation]
+  // [Verified: Yes, via --verify mode thinking level tests]
+  repeated string supported_thinking_levels = 48;
+
+  // Whether this model supports JSON mode (response_mime_type: "application/json").
+  // Ensures output is valid JSON, but no schema validation.
+  // Supported by: All Gemini 2.0+ models
+  // [Source: HARDCODED - from official Google documentation]
+  // [Verified: Yes, via --verify mode JSON mode test]
+  bool supports_json_mode = 49;
+
+  // Whether this model supports Google Search grounding.
+  // When enabled, the model can search the web for current information.
+  // Supported by: Gemini 2.5+, Gemini 3 models
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_google_search = 50;
+
+  // Whether this model supports URL context retrieval.
+  // When enabled, the model can fetch and process content from URLs.
+  // Supported by: Gemini 3 Pro/Flash (preview)
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_url_context = 51;
+
+  // Whether this model can be disabled for thinking.
+  // - Gemini 2.5 Pro: false (cannot disable thinking)
+  // - Gemini 2.5 Flash/Flash-Lite: true (thinking_budget=0 disables)
+  // - Gemini 3 Pro: false (cannot disable thinking)
+  // - Gemini 3 Flash: true (thinking_level="MINIMAL" is lowest)
+  // [Source: HARDCODED - from official Google documentation]
+  // [Verified: Yes, via --verify mode testing budget=0]
+  bool thinking_can_be_disabled = 52;
+
+  // Whether this model supports file search tool.
+  // Enables searching through uploaded files.
+  // Supported by: Gemini 3 Pro/Flash
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_file_search = 53;
+
+  // Whether this model supports computer use tool.
+  // Enables controlling a browser environment.
+  // Supported by: Select Gemini 3 models
+  // [Source: HARDCODED - from official Google documentation]
+  bool supports_computer_use = 54;
+}
+
+// Root registry message containing all models
+message VertexModelRegistry {
+  // Schema version for future compatibility
+  int32 schema_version = 1;
+  
+  // ISO timestamp of last sync with Vertex AI API
+  string last_synced = 2;
+  
+  // All registered models
+  repeated VertexModel models = 3;
+}

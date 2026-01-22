@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+// TODO Ensure you update your package.
+package runtime.aot.data_persistence.parents.isar;
+
+message IsarInitialization {
+  // TODO Potentially have a location here? It will likely just be at the cache level?
+}
+
+message InitializedIsar {
+  string path = 1;
+}

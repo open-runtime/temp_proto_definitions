@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package runtime.common;
+
+enum OriginApplicationEnum {
+  UNKNOWN_APPLICATION = 0;
+  OS_SERVER = 1;
+  // Potentially others at some point
+}
+
+message OriginApplication {
+  OriginApplicationEnum enumeration = 1; // the application that is registered
+  string identifier = 2; // the identifier of the application
+  string name = 3; // optional name of the application
+  string version = 4; // optional version of the application
+}

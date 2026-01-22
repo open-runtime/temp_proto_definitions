@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+// TODO ensure that you update your import here.
+import "lib/src/data/persistence/parents/isar/root/shared/models/models.proto";
+
+// TODO Ensure you update your package.
+package runtime.aot.data_persistence.parents.isar;
+
+
+service IsarService {
+  rpc Initialize(IsarInitialization) returns (InitializedIsar) {};
+}

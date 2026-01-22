@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.machine_learning.text.technical_language.code.generators.templatization.gpt;
+
+message UntemplatedCode {
+  // Code Input
+  string value = 1;
+}
+
+message TemplatedCode {
+  runtime.aot.core.Cancellation cancellation = 1;
+  // Title Output
+  string value = 2;
+}

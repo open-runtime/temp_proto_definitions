@@ -1,0 +1,42 @@
+// =============================================================================
+// Gemini Inference Service Protocol Buffer Definition
+// =============================================================================
+// This file defines the gRPC service interface for the Gemini inference service.
+// It follows strict naming and structure conventions for maintainability and
+// consistency.
+//
+// Best Practices Implemented:
+// 1. Clear Service Naming: Descriptive and hierarchical
+// 2. Symmetric Methods: Request/Response patterns
+// 3. Stream Support: Handles both unary and streaming responses
+// 4. Method Naming: Verb-first, clear purpose
+// 5. Documentation: Each method documented with purpose
+// =============================================================================
+
+syntax = "proto3";
+
+// Import the models used by this service
+// Models are kept separate for better organization and reuse
+import "lib/src/machine_learning/parents/gemini/root/shared/models/models.proto";
+
+// Package Definition
+// Using hierarchical naming for clear organization and scope
+package runtime.aot.machine_learning.parents.gemini;
+
+// GeminiInferenceService provides methods for interacting with the Gemini AI model
+// Best Practice: Service name clearly indicates purpose and scope
+// Pattern: Methods are organized by complexity (unary before streaming)
+service GeminiInferenceService {
+  // Predict generates a single response for a given inference request
+  // Best Practice: Unary method for simple request-response pattern
+  // Input: GeminiInferenceRequest - Contains model selection and prompt
+  // Output: GeminiInferenceResponse - Contains model's response
+  rpc Predict(GeminiInferenceRequest) returns (GeminiInferenceResponse);
+  
+  // PredictWithStream generates a stream of responses for a given inference request
+  // Best Practice: Streaming response for real-time/chunked output
+  // Input: GeminiInferenceRequest - Contains model selection and prompt
+  // Output: Stream<GeminiInferenceResponse> - Contains model's responses as they're generated
+  // Note: Future enhancement may include bi-directional streaming
+  rpc PredictWithStream(GeminiInferenceRequest) returns (stream GeminiInferenceResponse);
+}

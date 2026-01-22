@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+import "lib/src/core/root/grpc/shared/models/user.proto";
+
+package runtime.aot.machine_learning.text.technical_language.code.descriptors.tagification.vertex;
+
+message UntaggedCode {
+  // Code Input
+  string value = 1;
+  // optional user
+  runtime.aot.core.UserProfile user = 2;
+  // note: this is the os_identifier
+  string os = 3;
+}
+
+message TaggedCode {
+  runtime.aot.core.Cancellation cancellation = 1;
+  // Tags
+  repeated string values = 2;
+}
+
+// ========================================================================
+// Initialized Class.
+// ========================================================================
+
+message VertexCodeTagificationDescriptorInitialization {
+}
+
+
+message InitializedVertexCodeTagificationDescriptor {
+}

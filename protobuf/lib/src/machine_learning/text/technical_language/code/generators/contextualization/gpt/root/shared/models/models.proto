@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.machine_learning.text.technical_language.code.generators.contextualization.gpt;
+
+message CodeContext {
+  repeated string tags = 1;
+  string title = 2;
+  string classification = 3;
+  string description = 4;
+  repeated string search_terms = 5;
+  repeated string related_links = 6;
+}
+
+message ContextualizedCodeSamples {
+  runtime.aot.core.Cancellation cancellation = 1;
+  // Summary Output
+  repeated string values = 2;
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import 'lib/src/algorithmic_processing/text/technical_language/code/tiling/root/shared/models/models.proto';
+package runtime.aot.algorithmic_processing.text.technical_language.code.tiling;
+
+
+service CodeTilingService {
+  rpc Tile(UntiledCode) returns (TiledCode) {};
+}

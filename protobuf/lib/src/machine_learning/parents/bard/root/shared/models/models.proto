@@ -1,0 +1,29 @@
+syntax = "proto3";
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.machine_learning.bard;
+
+
+// ======================================================
+// ======================================================
+// Models needed for prediction
+
+// anything that's returnable should always have a cancellation
+message BardInferencePredictionInput {
+  runtime.aot.core.Cancellation cancellation = 1;
+  string value = 2;
+}
+
+message BardInferencePredictionOutput {
+  runtime.aot.core.Cancellation cancellation = 1;
+  string value = 2;
+}
+
+message BardInferenceInitialization {
+  string metadata = 1;
+}
+
+
+message  InitializedBardInference {
+  string metadata = 1;
+}

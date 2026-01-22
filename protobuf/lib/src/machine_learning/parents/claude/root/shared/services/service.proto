@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/parents/claude/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.parents.claude;
+
+service ClaudeInferenceService {
+
+  rpc Predict(ClaudeInferenceRequest) returns (ClaudeInferenceResponse);
+
+  rpc PredictWithStream(ClaudeInferenceRequest) returns (stream StreamMessage);
+
+}

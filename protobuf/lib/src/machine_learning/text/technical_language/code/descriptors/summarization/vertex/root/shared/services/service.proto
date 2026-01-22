@@ -1,0 +1,9 @@
+syntax = "proto3";
+import 'lib/src/machine_learning/text/technical_language/code/descriptors/summarization/vertex/root/shared/models/models.proto';
+
+package runtime.aot.machine_learning.text.technical_language.code.descriptors.summarization.vertex;
+
+service VertexCodeSummarizationDescriptorService {
+  rpc Initialize(VertexCodeSummarizationDescriptorInitialization) returns (InitializedVertexCodeSummarizationDescriptor) {};
+  rpc Summarize (NonSummarizedCode) returns (SummarizedCode) {};
+}

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "lib/src/runtime/common/chat_message.proto";
+import "lib/src/google/protobuf/timestamp.proto";
+
+package runtime.aot.machine_learning.text.conversational_language.message.protractors.temporalization.gemini;
+
+
+
+// Represents an individual chat message before temporal analysis.
+// You can include additional fields (e.g., timestamps, user metadata) as needed.
+message NonTemporalizedChatMessage {
+  repeated runtime.common.ChatMessage messages = 1; // messages, all containing value and identity
+  google.protobuf.Timestamp now = 2; // current localized/iso time of the client ?
+}
+
+
+// Represents a collection of chat messages after temporal analysis.
+message TemporalizedChatMessages {
+  repeated runtime.common.ChatMessage messages = 1; // messages, all containing value and identity, AND containing a temporalization object i.e. ChatMessageTemporalization gets populated by the service
+  // other metadata? High level summary, etc?
+}

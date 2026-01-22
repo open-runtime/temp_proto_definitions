@@ -1,0 +1,11 @@
+syntax = "proto3";
+package runtime.aot.monorepo.module.assets;
+
+enum ModuleAssetsSubdirectoryLocationEnum {
+  UNKNOWN = 0;
+  EXECUTABLES = 1;
+  ONNX_MODELS = 2;
+  DIRECTORIES = 3;
+  GENERICS = 4;
+  LIBRARIES = 5;
+}

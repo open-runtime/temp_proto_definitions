@@ -1,0 +1,44 @@
+syntax = "proto3";
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.core;
+
+// In Protobuf these types may be redundant
+message TransferableBytes {
+  // https://developers.google.com/protocol-buffers/docs/encoding
+  // Typical conversion UTF8 -> array[int] or UTF8 -> array[bytes(in hexidecimal)] -> array[int]
+  // May contain any arbitrary sequence of bytes no longer than 232.	string
+  // Decodes into Dart as List<int>
+  bytes raw = 1;
+
+  // string and bytes are compatible as long as the bytes are valid UTF-8. https://developers.google.com/protocol-buffers/docs/proto3
+  // A string must always contain UTF-8 encoded or 7-bit ASCII text, and cannot be longer than 232.
+  // Decodes into Dart as String
+  string base64 = 2;
+  string base64_url = 3;
+  string data_url = 4;
+
+}
+
+message TransferableString {
+  // https://developers.google.com/protocol-buffers/docs/encoding
+  // Typical conversion UTF8 -> array[int] or UTF8 -> array[bytes(in hexidecimal)] -> array[int]
+  // May contain any arbitrary sequence of bytes no longer than 232.	string
+  // Decodes into Dart as List<int>
+  string raw = 1;
+
+  // string and bytes are compatible as long as the bytes are valid UTF-8. https://developers.google.com/protocol-buffers/docs/proto3
+  // A string must always contain UTF-8 encoded or 7-bit ASCII text, and cannot be longer than 232.
+  // Decodes into Dart as String
+  string base64 = 2;
+  string base64_url = 3;
+  string data_url = 4;
+}
+
+
+
+message Transferable {
+  TransferableString string = 1;
+  TransferableBytes bytes = 2;
+  Cancellation cancellation = 3;
+}

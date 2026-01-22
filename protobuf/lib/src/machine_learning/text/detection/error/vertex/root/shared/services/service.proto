@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/text/detection/error/vertex/root/shared/models/models.proto";
+
+package runtime.aot.machine_learning.text.detection.error.vertex;
+
+service TextualContentDomainErrorDetectionService {
+  rpc Initialize(TextualContentDomainErrorDetectionInitialization) returns (InitializedTextualContentDomainErrorDetection) {};
+  rpc Detect (UndetectedTextualContentDomain) returns (TextualContentDomainErrorDetection) {};
+}

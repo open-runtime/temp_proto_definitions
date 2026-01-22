@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/signal.proto";
+import "lib/src/core/root/grpc/shared/models/termination.proto";
+import "lib/src/core/root/grpc/shared/models/health.proto";
+
+package runtime.aot.core;
+
+// Interface exported by the server.
+service GRPCService {
+
+  // Health Check RPC - Standard gRPC health checking protocol
+  rpc Check(HealthCheckRequest) returns (HealthCheckResponse) {}
+  
+  // Health Watch RPC - Stream health status changes
+  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse) {}
+
+  // Stream In Future Out
+  rpc  Ping(Signal) returns (Signal) {}
+
+  // Server Streaming RPC (Half-Duplex) - Single request, stream of responses
+  rpc ServerStreamingHalfDuplexPing(Signal) returns (stream StreamedSignal) {}
+
+  // Bidirectional Streaming RPC (Full-Duplex) - Stream of requests and responses
+  rpc BidirectionalFullDuplexPing(stream StreamedSignal) returns (stream StreamedSignal) {}
+
+  // Client Streaming RPC (Half-Duplex) - Stream of requests, single response
+  rpc ClientStreamingHalfDuplexPing(stream StreamedSignal) returns (Signal) {}
+
+  // Stream In Future Out
+  rpc  Terminate(Termination) returns (Termination) {}
+}

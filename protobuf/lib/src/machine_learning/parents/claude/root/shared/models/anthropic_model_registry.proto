@@ -1,0 +1,500 @@
+syntax = "proto3";
+
+// ========================================================================
+// Anthropic Model Registry Schema
+// ========================================================================
+// This proto defines the schema for the Anthropic Claude model registry YAML config.
+// It is used as a fromJson wrapper - the actual data lives in anthropic_models.yaml
+// which gets packed into the binary at build time.
+//
+// To update model data:
+//   1. Run: melos sync:anthropic:models
+//   2. Do NOT manually edit anthropic_models.yaml - it is auto-generated
+//
+// The YAML contains comprehensive capability information for each model:
+//   - context_window / max_output_tokens: Token limits
+//   - supports_extended_thinking: Budget-based reasoning (Claude 4.x)
+//   - supports_interleaved_thinking: Thinking between tool calls (Claude 4+)
+//   - supports_effort_parameter: Effort levels for Opus 4.5 only
+//   - supports_*: Boolean flags for parameter support
+//   - cost_tier / speed_tier: Developer guidance
+//
+// CLAUDE-SPECIFIC CONSTRAINTS:
+//   - Extended thinking requires min 1024 budget_tokens
+//   - Temperature and top_p are MUTUALLY EXCLUSIVE on Claude 4.5 models
+//   - 1M context beta available for Sonnet 4/4.5 only (requires beta header)
+//   - Interleaved thinking requires beta header: interleaved-thinking-2025-05-14
+//   - Effort parameter requires beta header: effort-2025-11-24
+//   - Structured outputs require beta header: structured-outputs-2025-11-13
+//
+// Last Updated: December 2025
+// ========================================================================
+
+package runtime.aot.machine_learning.parents.claude;
+
+import "lib/src/core/root/grpc/shared/models/subscription.proto";
+
+// Model size/performance classification
+// This represents the performance vs cost tradeoff within a model family
+// Anthropic uses haiku (fast), sonnet (balanced), opus (most capable)
+enum AnthropicModelSize {
+  ANTHROPIC_MODEL_SIZE_UNKNOWN = 0;
+  ANTHROPIC_MODEL_SIZE_HAIKU = 1;   // Fast, cost-efficient
+  ANTHROPIC_MODEL_SIZE_SONNET = 2;  // Balanced performance
+  ANTHROPIC_MODEL_SIZE_OPUS = 3;    // Most capable
+}
+
+// Model family/generation
+enum AnthropicModelFamily {
+  ANTHROPIC_MODEL_FAMILY_UNKNOWN = 0;
+  ANTHROPIC_MODEL_FAMILY_CLAUDE_3 = 1;    // claude-3-* series
+  ANTHROPIC_MODEL_FAMILY_CLAUDE_3_5 = 2;  // claude-3-5-* series
+  ANTHROPIC_MODEL_FAMILY_CLAUDE_3_7 = 3;  // claude-3-7-* series
+  ANTHROPIC_MODEL_FAMILY_CLAUDE_4 = 4;    // claude-4-* series
+  ANTHROPIC_MODEL_FAMILY_CLAUDE_4_1 = 5;  // claude-4.1-* series
+  ANTHROPIC_MODEL_FAMILY_CLAUDE_4_5 = 6;  // claude-4.5-* series
+}
+
+// Cost tier for developer guidance
+// Relative cost compared to other Anthropic models
+//
+// Pricing reference (per million tokens):
+//   - Haiku: $1 input / $5 output (VERY_CHEAP)
+//   - Sonnet: $3 input / $15 output (STANDARD)
+//   - Opus: $5 input / $25 output (EXPENSIVE)
+//
+// Note: Prompt caching reduces costs:
+//   - 5-min cache: 10% of input cost
+//   - 1-hour cache: 20% of input cost
+//   - Batch processing: 50% discount (stacks with caching)
+enum AnthropicCostTier {
+  ANTHROPIC_COST_TIER_UNKNOWN = 0;
+  ANTHROPIC_COST_TIER_VERY_CHEAP = 1;     // Haiku models (~$1/1M input)
+  ANTHROPIC_COST_TIER_CHEAP = 2;          // Budget options
+  ANTHROPIC_COST_TIER_STANDARD = 3;       // Sonnet models (~$3/1M input)
+  ANTHROPIC_COST_TIER_EXPENSIVE = 4;      // Opus models (~$5/1M input)
+  ANTHROPIC_COST_TIER_VERY_EXPENSIVE = 5; // Premium/extended features
+}
+
+// Speed tier for developer guidance
+// Typical response latency compared to other Anthropic models
+//
+// Latency factors:
+//   - Model size (haiku < sonnet < opus)
+//   - Extended thinking enabled (adds significant latency)
+//   - Context window usage (larger contexts = slower)
+//   - Batch processing (async, not real-time)
+enum AnthropicSpeedTier {
+  ANTHROPIC_SPEED_TIER_UNKNOWN = 0;
+  ANTHROPIC_SPEED_TIER_VERY_FAST = 1;     // Haiku, sub-second responses
+  ANTHROPIC_SPEED_TIER_FAST = 2;          // Optimized models
+  ANTHROPIC_SPEED_TIER_AVERAGE = 3;       // Sonnet, typical latency
+  ANTHROPIC_SPEED_TIER_SLOW = 4;          // Opus, extended thinking enabled
+  ANTHROPIC_SPEED_TIER_VERY_SLOW = 5;     // Maximum reasoning depth
+}
+
+// Beta headers required for specific features on this model
+//
+// Each field contains the beta header string required for that feature.
+// Empty string means the feature doesn't require a header or isn't supported.
+//
+// These headers are dynamically composed per-request based on which features
+// are actually used, avoiding unnecessary headers for GA features or unused features.
+message AnthropicBetaHeaders {
+  // Header for 1M context window (if supported)
+  // Value: "context-1m-2025-08-07"
+  // Required when: native_context_mode = EXTENDED_1M
+  // Supported by: Claude Sonnet 4, Claude Sonnet 4.5
+  string context_1m = 1;
+  
+  // Header for interleaved thinking (if supported)
+  // Value: "interleaved-thinking-2025-05-14"
+  // Required when: thinking.type = ENABLED AND model supports interleaved thinking
+  // Supported by: Claude 4+ models
+  string interleaved_thinking = 2;
+  
+  // Header for effort parameter (if supported)
+  // Value: "effort-2025-11-24"
+  // Required when: output_config.effort is set
+  // Supported by: Claude Opus 4.5 ONLY
+  string effort_parameter = 3;
+  
+  // Header for structured outputs (if supported)
+  // Value: "structured-outputs-2025-11-13"
+  // Required when: output_format.type = JSON_SCHEMA
+  // Supported by: Claude 4+ models
+  string structured_outputs = 4;
+  
+  // Header for computer use (version-specific)
+  // Value: "computer-use-2025-01-24" (Claude 4+/3.7) or "computer-use-2024-10-22" (Claude 3.5)
+  // Required when: tools include computer use tool
+  // Supported by: Claude 3.5 Sonnet v2, Claude 4+ models, Claude 3.7 Sonnet
+  string computer_use = 5;
+  
+  // Header for extended cache TTL (if used)
+  // Value: "extended-cache-ttl-2025-04-11"
+  // Required when: cache_control.ttl = 1H
+  // Supported by: All models with prompt caching
+  string extended_cache_ttl = 6;
+}
+
+// Individual model definition
+message AnthropicModel {
+  // ========================================================================
+  // CORE IDENTITY (Fields 1-10)
+  // ========================================================================
+
+  // The canonical model ID as recognized by Anthropic API (e.g., "claude-3-7-sonnet-20250219")
+  string id = 1;
+  
+  // Subscription level required to use this model (uses shared Pieces subscription enum)
+  runtime.aot.core.UserSubscriptionLevel subscription = 2;
+  
+  // Model size/performance level within its family
+  AnthropicModelSize size = 3;
+  
+  // Model family/generation (claude_3, claude_3_5, claude_3_7, claude_4, etc.)
+  AnthropicModelFamily family = 4;
+  
+  // Aliases that resolve to this model (e.g., ["claude-3-haiku", "claude-3.5-haiku"])
+  repeated string aliases = 5;
+  
+  // Model capabilities (e.g., ["text", "vision", "extended_thinking"])
+  repeated string capabilities = 6;
+  
+  // ISO timestamp when we detected this model was deprecated
+  // Empty string if not deprecated
+  string deprecated = 7;
+  
+  // RFC 3339 datetime from Anthropic API indicating when model was created
+  string created_at = 8;
+  
+  // Human-readable name from API
+  string display_name = 9;
+  
+  // Owner/organization that created the model (from Anthropic API)
+  string owned_by = 10;
+
+  // ========================================================================
+  // TOKEN LIMITS (Fields 11-12)
+  // ========================================================================
+
+  // Maximum context window size in tokens (input + output)
+  //
+  // Standard values:
+  //   - All current models: 200,000 tokens
+  //   - With 1M context beta (Sonnet 4/4.5): 1,000,000 tokens
+  //
+  // Context window behavior with extended thinking:
+  //   context = (input_tokens - previous_thinking_tokens) + current_turn_tokens
+  //   Thinking blocks from previous turns are automatically stripped.
+  int32 context_window = 11;
+
+  // Maximum output tokens the model can generate
+  //
+  // Values vary by model and configuration:
+  //   - Claude 3/3.5: 4,096 - 8,192 tokens
+  //   - Claude 3.7 Sonnet: Up to 128,000 with extended thinking
+  //   - Claude 4.x: 16,384 tokens standard
+  //
+  // Note: Thinking tokens count toward this limit when extended thinking is enabled.
+  int32 max_output_tokens = 12;
+
+  // ========================================================================
+  // EXTENDED THINKING CONFIGURATION (Fields 13-17)
+  // ========================================================================
+  // Extended thinking provides enhanced reasoning through configurable "thinking budgets".
+  // Reference: https://platform.claude.com/docs/en/build-with-claude/extended-thinking
+
+  // Whether this model supports extended thinking (budget_tokens parameter)
+  //
+  // Supported by:
+  //   - Claude 3.7 Sonnet
+  //   - Claude 4 Sonnet, Claude 4 Opus
+  //   - Claude 4.1 Opus
+  //   - Claude 4.5 Haiku, Claude 4.5 Sonnet, Claude 4.5 Opus
+  //
+  // NOT supported by:
+  //   - Claude 3/3.5 models
+  //   - Free tier Claude.ai (Pro/Team/Enterprise only)
+  bool supports_extended_thinking = 13;
+
+  // Minimum thinking budget tokens when extended thinking is enabled
+  //
+  // The thinking budget is a TARGET, not a strict limit - actual usage varies.
+  // Minimum is 1,024 tokens for all thinking-capable models.
+  //
+  // Setting budget_tokens = 0 disables thinking on models that support it.
+  int32 min_thinking_budget_tokens = 14;
+
+  // Maximum thinking budget tokens
+  //
+  // Higher budgets enable more comprehensive analysis but with diminishing returns.
+  // Anthropic recommends starting at minimum (1,024) and increasing incrementally.
+  // Values above 32,000 tokens rarely provide additional benefit.
+  int32 max_thinking_budget_tokens = 15;
+
+  // Default thinking budget tokens (recommended starting point)
+  //
+  // A balanced default that provides good reasoning without excessive cost.
+  // Can be adjusted based on task complexity.
+  int32 default_thinking_budget_tokens = 16;
+
+  // Whether this model supports interleaved thinking (beta feature)
+  //
+  // Interleaved thinking allows Claude to think BETWEEN tool calls and after
+  // receiving tool results, enabling dynamic plan adjustment without completing
+  // full event loop iterations.
+  //
+  // Requires beta header: interleaved-thinking-2025-05-14
+  //
+  // Supported by Claude 4+ models only.
+  //
+  // CONSTRAINTS when interleaved thinking is enabled:
+  //   - Cannot modify temperature, top_p, or top_k parameters
+  //   - Cannot use forced tool use
+  //   - Cannot toggle mid-turn
+  bool supports_interleaved_thinking = 17;
+
+  // ========================================================================
+  // EFFORT PARAMETER (Fields 18-19) - Claude Opus 4.5 Only
+  // ========================================================================
+  // The effort parameter is an alternative to explicit thinking budgets.
+  // Reference: https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-anthropic-claude-messages-request-response.html
+
+  // Whether this model supports the effort parameter
+  //
+  // The effort parameter tells Claude how liberally to spend tokens across
+  // thinking, tool calls, and user communication.
+  //
+  // Requires beta header: effort-2025-11-24
+  //
+  // ONLY supported by Claude Opus 4.5.
+  bool supports_effort_parameter = 18;
+
+  // Supported effort levels for this model
+  //
+  // Values:
+  //   - "high" (default): Spend as many tokens as needed for best results
+  //   - "medium": Balanced token usage
+  //   - "low": Conservative token spending
+  //
+  // Only populated for models where supports_effort_parameter = true.
+  repeated string effort_levels = 19;
+
+  // ========================================================================
+  // PARAMETER SUPPORT FLAGS (Fields 20-26)
+  // ========================================================================
+  // These flags indicate which API parameters each model supports.
+  // Clients should check these before sending requests to avoid errors.
+
+  // Whether this model supports streaming responses (stream: true)
+  //
+  // All Claude models support streaming.
+  // Stream events include: message_start, content_block_start, content_block_delta,
+  // content_block_stop, message_delta, message_stop
+  //
+  // For extended thinking: thinking_delta events with signature_delta verification.
+  bool supports_streaming = 20;
+
+  // Whether this model supports function/tool calling
+  //
+  // All Claude models support tool calling.
+  // Tools are defined with name, description, and input_schema (JSON Schema).
+  // Tool use incurs token overhead: 735 tokens for Claude 4.x tool definitions.
+  bool supports_tool_calling = 21;
+
+  // Whether this model supports structured outputs (JSON schema validation)
+  //
+  // Structured outputs constrain responses to follow a specific JSON schema.
+  // Uses response_format parameter with type: "json_schema".
+  //
+  // Requires beta header: structured-outputs-2025-11-13
+  //
+  // Supported by Claude 4+ models.
+  bool supports_structured_outputs = 22;
+
+  // Whether this model supports prompt caching
+  //
+  // Prompt caching optimizes repeated API usage by caching prompt prefixes.
+  //
+  // Cache options:
+  //   - 5-minute TTL (default): Best for frequently used prompts (>5min cadence)
+  //   - 1-hour TTL: Best for regular but less frequent prompts
+  //
+  // Pricing:
+  //   - Cache write: 1.25x input cost (5-min) or 2x input cost (1-hour)
+  //   - Cache read: 10% input cost (5-min) or 20% input cost (1-hour)
+  //
+  // All Claude models support prompt caching.
+  bool supports_prompt_caching = 23;
+
+  // Whether this model supports batch processing
+  //
+  // The Message Batches API enables asynchronous processing with 50% cost reduction.
+  // Most batches complete in <1 hour, some take up to 24 hours.
+  //
+  // Batch processing stacks with prompt caching for maximum savings.
+  //
+  // All Claude models support batch processing.
+  bool supports_batch_processing = 24;
+
+  // Whether temperature and top_p are mutually exclusive
+  //
+  // CRITICAL CONSTRAINT for Claude 4.5 models:
+  //   Claude Sonnet 4.5 and Haiku 4.5 ONLY support specifying ONE of
+  //   temperature OR top_p, but CANNOT handle both simultaneously.
+  //
+  // For Claude 4.5: Choose either temperature OR top_p, not both.
+  // For other models: Both can be specified together.
+  bool temperature_top_p_exclusive = 25;
+
+  // Whether this model supports 1M context window (beta feature)
+  //
+  // Extended context window (1,000,000 tokens) is available for:
+  //   - Claude Sonnet 4
+  //   - Claude Sonnet 4.5
+  //
+  // Requires:
+  //   - Beta header: context-1m-2025-08-07
+  //   - Usage tier 4 or custom rate limits
+  //
+  // Note: Long-context requests have separate rate limits and do NOT
+  // benefit from automatic caching beyond 200K tokens.
+  bool supports_1m_context_beta = 26;
+
+  // ========================================================================
+  // MEDIA SUPPORT (Fields 27-28)
+  // ========================================================================
+
+  // Whether this model can accept image inputs (vision capability)
+  //
+  // Supported formats: JPEG, PNG, GIF, WebP
+  // Maximum: 8000x8000 pixels, 32MB per image
+  // Recommended: At least 1000x1000 pixels for detailed analysis
+  // Maximum: 100 images per request (32MB total request limit)
+  //
+  // Token cost: approximately (width_px * height_px) / 750
+  //
+  // Supported by all Claude models EXCEPT Haiku variants.
+  bool supports_vision = 27;
+
+  // Whether this model can accept PDF file inputs
+  //
+  // PDF support uses vision capability - each page is rendered as an image.
+  // Maximum: 32MB or 100 pages per request
+  //
+  // Token estimate: 1,500-3,000 tokens per page depending on complexity.
+  //
+  // Note: Encrypted/password-protected PDFs are NOT supported.
+  // Note: In Claude Projects knowledge bases, only text is extracted (no images).
+  //
+  // Supported by all models with vision capability.
+  bool supports_pdf_input = 28;
+
+  // ========================================================================
+  // SERVER TOOLS (Fields 29-31)
+  // ========================================================================
+  // Server tools execute on Anthropic's infrastructure.
+
+  // Whether this model supports web search tool
+  //
+  // Web search provides real-time web content access.
+  // Tool type: web_search_20250305
+  //
+  // Cost: $10 per 1,000 searches plus standard token costs.
+  //
+  // Supported by: Claude Opus 4.x, Claude Sonnet 4.5
+  bool supports_web_search = 29;
+
+  // Whether this model supports computer use tool (beta)
+  //
+  // Computer use enables Claude to interact with computer environments
+  // through screenshots and mouse/keyboard control.
+  // Tool versions: computer_20251124, computer_20250124, computer_20241022
+  //
+  // Token overhead: 466-499 tokens for system prompt + 735 for tool definition.
+  //
+  // Currently in beta with acknowledged limitations for scrolling, dragging, zooming.
+  bool supports_computer_use = 30;
+
+  // Whether this model supports bash/code execution tool
+  //
+  // Bash tool (bash_20250124) enables shell command execution in persistent sessions.
+  // Token overhead: 245 input tokens.
+  //
+  // Also includes text_editor_20250728 for file viewing/modification.
+  bool supports_code_execution = 31;
+
+  // ========================================================================
+  // DEVELOPER GUIDANCE TIERS (Fields 32-33)
+  // ========================================================================
+
+  // Cost tier relative to other Anthropic models
+  //
+  // Helps developers quickly assess cost implications:
+  //   - VERY_CHEAP: Haiku models (~$1/1M input)
+  //   - STANDARD: Sonnet models (~$3/1M input)
+  //   - EXPENSIVE: Opus models (~$5/1M input)
+  //
+  // Note: Extended thinking tokens are billed as OUTPUT tokens.
+  AnthropicCostTier cost_tier = 32;
+
+  // Speed tier based on typical response latency
+  //
+  // Helps developers choose based on latency requirements:
+  //   - VERY_FAST: Haiku models, sub-second responses
+  //   - AVERAGE: Sonnet models, typical latency
+  //   - SLOW: Opus models, extended thinking enabled
+  //
+  // Note: Extended thinking adds significant latency due to reasoning time.
+  AnthropicSpeedTier speed_tier = 33;
+
+  // ========================================================================
+  // LIFECYCLE & KNOWLEDGE (Fields 34-35)
+  // ========================================================================
+
+  // Knowledge cutoff date (YYYY-MM format)
+  //
+  // Indicates when a model's knowledge base is most extensive and reliable.
+  //
+  // Examples:
+  //   - Claude Sonnet 4.5: "2025-01"
+  //   - Claude Haiku 4.5: "2025-02"
+  //   - Claude Opus 4.5: "2025-05"
+  //   - Claude 3.7 Sonnet: "2024-10"
+  string knowledge_cutoff = 34;
+
+  // Training data cutoff date (YYYY-MM format)
+  //
+  // Date through which training data extends (may be later than knowledge_cutoff).
+  //
+  // Examples:
+  //   - Claude Sonnet 4.5: "2025-07"
+  //   - Claude Haiku 4.5: "2025-07"
+  //   - Claude Opus 4.5: "2025-08"
+  string training_data_cutoff = 35;
+
+  // ========================================================================
+  // BETA HEADERS (Field 36)
+  // ========================================================================
+  // Beta headers required for each feature this model supports.
+  // These are dynamically composed per-request based on which features are used.
+  //
+  // NOTE: GA features (prompt caching, message batches) no longer require headers
+  // and are NOT included here. Only active beta features are tracked.
+  AnthropicBetaHeaders beta_headers = 36;
+}
+
+// Root registry message containing all models
+message AnthropicModelRegistry {
+  // Schema version for future compatibility
+  // Increment when adding breaking changes to schema structure
+  int32 schema_version = 1;
+  
+  // ISO timestamp of last sync with Anthropic API
+  string last_synced = 2;
+  
+  // All registered models
+  repeated AnthropicModel models = 3;
+}

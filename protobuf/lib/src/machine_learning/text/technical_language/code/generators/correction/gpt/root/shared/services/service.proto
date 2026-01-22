@@ -1,0 +1,8 @@
+syntax = "proto3";
+import 'lib/src/machine_learning/text/technical_language/code/generators/correction/gpt/root/shared/models/models.proto';
+
+package runtime.aot.machine_learning.text.technical_language.code.generators.correction.gpt;
+
+service GPTCodeGeneratorCorrectionService {
+  rpc Correct (IncorrectCode) returns (CorrectedCode) {};
+}

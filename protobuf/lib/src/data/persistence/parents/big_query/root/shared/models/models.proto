@@ -1,0 +1,234 @@
+syntax = "proto3";
+
+import "lib/src/core/root/grpc/shared/models/cancellation.proto";
+
+package runtime.aot.data.persistence.parents.big_query;
+
+// **Note: modeled after "https://pub.dev/documentation/googleapis/latest/bigquery.v2/TableDataInsertAllRequest-class.html"
+
+/// ===================================================================================
+/// Initialize Models.
+/// ===================================================================================
+message BigQueryInitialization {
+  // (optional now.) this is the service account that we will use for BigQuery.
+//  optional ServiceAccount serviceAccount = 1;
+}
+
+// This is a service account for Google TODO consider moving this to a base class.
+// ** NOTE all of these properties mapp to the Google Service account.
+message ServiceAccount {
+  // (required)
+  string type = 1;
+  // (required)
+  string project_id = 2;
+  // (required)
+  string private_key_id = 3;
+  // (required)
+  string private_key = 4;
+  // (required)
+  string client_email = 5;
+  // (required)
+  string client_id = 6;
+  // (required)
+  string auth_uri = 7;
+  // (required)
+  string token_uri = 8;
+  // (required)
+  string auth_provider_x509_cert_url = 9;
+  // (required)
+  string client_x509_cert_url = 10;
+}
+
+message InitializedBigQuery {
+}
+
+/// ===================================================================================
+/// Insert All Request/Response
+/// ===================================================================================
+message BigQueryInsertAllRequest {
+  // (required) This is body that will be sent to BQ.
+  BigQueryInsertAllRequestBody body = 1;
+  // (required) Project ID of the destination table.
+  string projectId = 2;
+  // (required) Dataset ID of the destination table.
+  string datasetId = 3;
+  // (required) Table ID of the destination table.
+  string tableId = 4;
+  // (optional) Selector specifying which fields to include in a partial
+  string fields = 5;
+}
+
+message BigQueryInsertAllRequestBody {
+  // (optional) Accept rows that contain values that do not match the schema.
+  bool ignoreUnknownValues = 1;
+  // (optional) The resource type of the response.
+  string kind = 2;
+  // (required) The rows to insert.
+  repeated BigQueryInsertAllRequestBodyRow rows = 3;
+  // (optional) Insert all valid rows of a request, even if invalid rows exist.
+  bool skipInvalidRows = 4;
+  // (optional) If specified, treats the destination table as a base template, and inserts
+  // the rows into an instance table named "{destination}{templateSuffix}".
+  string templateSuffix = 5;
+}
+
+message BigQueryInsertAllRequestBodyRow {
+  // (optional) A unique ID for each row.
+  string insertId = 1;
+  // (required) A JSON object that contains a row of data.(This will be jsonEncoded) <-- This need to be generic b/c this is the parent.(so will need to support all types)unless there was a map<string,dynamic>
+  string json = 2;
+}
+
+message BigQueryInsertAllResponse {
+  runtime.aot.core.Cancellation cancellation = 1;
+  // An array of errors for rows that were not inserted.
+  repeated BigQueryInsertAllResponseInsertError insertErrors = 2;
+  // The resource type of the response.
+  string kind = 3;
+}
+
+message BigQueryInsertAllResponseInsertError {
+  // Error information for the row indicated by the index property.
+  repeated BigQueryErrorProto errors = 1;
+  // The index of the row that error applies to.
+  int32 index = 2;
+}
+
+message BigQueryErrorProto {
+  // This property is internal to Google and should not be used.
+  string debugInfo = 1;
+  // Specifies where the error occurred, if present.
+  string location = 2;
+  // A human-readable description of the error.
+  string message = 3;
+  // A short error code that summarizes the error.
+  string reason = 4;
+}
+
+/// ===================================================================================
+/// Query Request/Response
+/// ===================================================================================
+// *** NOTE Built off of the "QueryRequest" class within "/Users/markwidman/.pub-cache/hosted/pub.dev/googleapis-7.0.0/lib/bigquery/v2.dart"
+message BigQueryQueryRequest {
+  // (required)
+  BigQueryQueryRequestBody body = 1;
+  // (required)
+  string projectId = 2;
+  // (optional)
+  string fields = 3;
+}
+// *** note: you really only need to pass in the query. to use this api.
+message BigQueryQueryRequestBody {
+  // (optional)
+  repeated BigQueryQueryRequestBodyConnectionProperty connectionProperties = 1;
+  // (optional)
+  bool createSession = 2;
+  // (optional)
+  BigQueryQueryRequestBodyDatasetReference defaultDataset = 3;
+  // (optional)
+  bool dryRun = 4;
+  // (optional)
+  string kind = 5;
+  // (optional)
+  map<string, string> labels = 6;
+  // (optional)
+  string location = 7;
+  // (optional)
+  int32 maxResults = 8;
+  // (optional)
+  string maximumBytesBilled = 9;
+  // (optional)
+  string parameterMode = 10;
+  // (optional)
+  bool preserveNulls = 11;
+  // (optional)
+  string query = 12;
+  // NOTE: DO NOT support this property as it is recursive.
+  // repeated BigQueryQueryRequestBodyQueryParameter queryParameters = 13;
+  // (optional)
+  string requestId = 13;
+  // (optional)
+  int32 timeoutMs = 14;
+  // (optional)
+  bool useLegacySql = 15;
+  // (optional)
+  bool useQueryCache = 16;
+}
+message BigQueryQueryRequestBodyConnectionProperty{
+  string key = 1;
+  string value = 2;
+}
+message BigQueryQueryRequestBodyDatasetReference {
+  string datasetId = 1;
+  string projectId = 2;
+}
+
+// *** Note: this is build based on the "QueryResponse" in /Users/markwidman/.pub-cache/hosted/pub.dev/googleapis-7.0.0/lib/bigquery/v2.dart
+message BigQueryQueryResponse {
+  runtime.aot.core.Cancellation cancellation = 1;
+  bool cacheHit = 2;
+  DmlStatistics dmlStats = 3;
+  repeated BigQueryErrorProto errors = 4;
+  bool jobComplete = 5;
+  JobReference jobReference = 6;
+  string kind = 7;
+  string numDmlAffectedRows = 8;
+  string pageToken = 9;
+  repeated TableRow rows = 10;
+  TableSchema schema = 11;
+  SystemInfo sessionInfo = 12;
+  string totalBytesProcessed = 13;
+  string totalRows = 14;
+}
+
+message DmlStatistics {
+  string deletedRowCount = 1;
+  string insertedRowCount = 2;
+  string updatedRowCount = 3;
+}
+
+message JobReference {
+  string jobId = 1;
+  string location = 2;
+  string projectId = 3;
+}
+
+message TableRow {
+  repeated TableCell f = 1;
+}
+
+message TableCell {
+  ///**** NOTE COULD NOT SUPPORT THE PRECISE TYPE, b/c the type is "Object?" so we will have to jsonEncode this value.
+  string v = 1;
+}
+
+message SystemInfo {
+  string sessionId = 1;
+}
+
+message TableSchema {
+  repeated TableFieldSchema fields = 1;
+}
+
+message TableFieldSchema {
+  TableFieldSchemaCategories categories = 1;
+  string collation = 2;
+  string description = 3;
+  string defaultValueExpression = 4;
+  repeated TableFieldSchema fields = 5;
+  string maxLength = 6;
+  string mode = 7;
+  string name = 8;
+  TableFieldSchemaPolicyTags policyTags = 9;
+  string precision = 10;
+  string scale = 11;
+  string type = 12;
+}
+
+message TableFieldSchemaPolicyTags {
+  repeated string names = 1;
+}
+
+message TableFieldSchemaCategories {
+  repeated string names = 1;
+}

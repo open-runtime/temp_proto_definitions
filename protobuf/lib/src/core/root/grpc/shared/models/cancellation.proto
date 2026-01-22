@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package runtime.aot.core;
+
+message Cancellation {
+  bool canceled = 1;
+  string message = 2;
+  string identifier = 3;
+}

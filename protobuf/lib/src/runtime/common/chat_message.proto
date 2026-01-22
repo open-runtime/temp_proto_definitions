@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+import "lib/src/google/protobuf/timestamp.proto";
+import "lib/src/runtime/common/temporalization.proto";
+
+package runtime.common;
+
+
+// NonTemporalizedChatMessage {
+//     current_time: google.protobuf.Timestamp
+//     repeated ChatMessage messages = 1; // uuid and value
+// }
+
+// TODO scope out relationship model which has an identifier, a parent type enum, a "reason" field, a "match/fragment/subsection" field to know what part of the larger data input was the driver of forming this relationship i.e. "just now"
+// i.e. ChatMessage: "What was i up to yesterday evening?"
+// i.e. ChatMessage.identifier: "message-33"
+// i.e. ChatMessage.temporal_ranges: [
+//      {
+//        identifier: "temporal-range-33",
+//        start: 2025-01-28T18:00:00Z,  
+//        end: 2025-01-28T20:00:00Z
+//        parent: Relationship: {
+//          type: PARENT_TYPE_ENUM.CHAT_MESSAGE,
+//          identifier: "message-33",
+//          reason: "yesterday evening relates to xyz time",
+//          match: "yesterday evening"
+//        }
+//      }
+//    ]
+
+enum ChatMessageAuthorEnum {
+  UNKNOWN_AUTHOR = 0;
+  USER = 1; // User
+  ASSISTANT = 2; // Pieces Copilot i.e. the AI assistant (LLM)
+  // Pass in an assistant name? (note this would be for promtping purposes specifically)
+  // COULD HAVE OTHER AUTHORS LIKE SYSTEM, NOTIFICATION, ETC..
+}
+
+// EXAMPLE #1
+// what was i up to yesterday evening or earlier in the afternoon? 
+// {
+//     google.protobuf.Timestamp to = 1; // to is relative of from 
+//     google.protobuf.Timestamp from = 2; // from is in the past
+//     string substring = 3; //"yesterday evening" from 6-9pm
+// }
+
+// {
+//     google.protobuf.Timestamp to = 1; // to is relative of from 
+//     google.protobuf.Timestamp from = 2; // from is in the past
+//     string substring = 3; //"earlier in the afternoon" 2-4pm
+// }
+
+// {
+//     google.protobuf.Timestamp to = 1; // to is relative of from 
+//     google.protobuf.Timestamp from = 2; // from is in the past
+//     string substring = 3; //"yesterday evening or earlier in the afternoon" 4-6pm
+// }
+
+
+
+message ChatMessage {
+  string value = 1;
+  ChatMessageAuthorEnum author = 2; // LEAVE THIS OUT FOR NOW, will adjust in the future
+  google.protobuf.Timestamp created = 3; // When the message was initially sent 
+  google.protobuf.Timestamp updated = 4; // If the message was edited, the timestamp of the edit
+  string identifier = 5; // The uuid identifier of the message
+  runtime.common.Temporalization temporalization = 6;
+}

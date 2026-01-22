@@ -1,0 +1,622 @@
+syntax = "proto3";
+
+package html;
+
+import 'lib/src/css/tailwind/tailwind.proto';
+
+//    <div>: A generic container for other elements, often used for layout purposes.
+//    <section>: Represents a standalone section within the content, usually with a thematic grouping.
+//    <header>: Represents the header of a page or section, typically containing a logo, navigation, and other related content.
+//    <nav>: Represents a navigation section, usually containing links to other pages or sections.
+//    <footer>: Represents the footer of a page or section, typically containing copyright information, contact details, and other supplementary content.
+//    <article>: Represents a self-contained piece of content that can be independently distributed or reused, such as a blog post or news article.
+//    <aside>: Represents content that is tangentially related to the content around it, like a sidebar or pull quote.
+//    <main>: Represents the main content of a document, excluding headers, footers, and sidebars.
+//    <h1> to <h6>: Heading elements that define the structure and hierarchy of a document.
+//    <p>: Represents a paragraph of text.
+//    <ul> and <ol>: Represent unordered and ordered lists, respectively.
+//    <li>: Represents a list item within an unordered or ordered list.
+//    <a>: Represents a hyperlink that navigates to another document or section.
+//    <button>: Represents a button that can trigger an action.
+//    <form>: Represents a section containing form elements and controls for user input.
+//    <input>: Represents an input field that allows users to enter data.
+//    <textarea>: Represents a multi-line text input field.
+//    <label>: Represents a label for an input element.
+//    <select>: Represents a drop-down list for selecting options.
+//    <option>: Represents an individual option within a drop-down list.
+//    <figure>: Represents self-contained content, such as images, diagrams, or illustrations, with optional captions. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure
+//    <figcaption>: Represents a caption or legend for a <figure> element. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption
+//    <img>: Represents an image, either raster or vector. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
+//    <video>: Represents a video or movie, with optional controls and fallback content. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video
+//    <audio>: Represents audio content, such as music or sound effects, with optional controls and fallback content. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio
+//    <source>: Represents a media source for use within <video>, <audio>, or <picture> elements. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source
+//    <picture>: Represents a container for multiple <source> elements and an <img> element, allowing the browser to choose the most suitable image based on its capabilities and context. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture
+//    <table>: Represents a table for displaying tabular data. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table
+//    <thead>, <tbody>, <tfoot>, <tr>, <th>, <td>: Represent the structure and content of a table, including header, body, footer, rows, header cells, and data cells. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element#Table_content
+//    <iframe>: Represents an inline frame that embeds external content, such as a video, map, or a complete web page. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe
+//    <details>: Represents a disclosure widget from which users can retrieve additional information or controls. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details
+//    <summary>: Represents a summary or heading for a <details> element. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary
+//    <progress>: Represents the progress of a task, such as a download or file transfer. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress
+//    <meter>: Represents a scalar measurement within a known range, such as disk usage or a voting score. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter
+//    <datalist>: Represents a set of pre-defined options for use with an <input> element. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
+//    <fieldset>: Represents a group of related form controls, usually with a common label. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset
+//    <legend>: Represents a caption for a <fieldset> element. Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend
+
+message AriaProperties {
+  string label = 7; // The aria-label of the element
+  string labelledby = 8; // The aria-labelledby of the element
+  string describedby = 9; // The aria-describedby of the element
+  string current = 10; // The aria-current of the element
+  bool disabled = 11; // The aria-disabled of the element
+  bool hidden = 12; // The aria-hidden of the element
+  bool invalid = 13; // The aria-invalid of the element
+  string keyshortcuts = 14; // The aria-keyshortcuts of the element
+  string roledescription = 15; // The aria-roledescription of the element
+  string autocomplete = 16; // The aria-autocomplete of the element
+  bool checked = 17; // The aria-checked of the element
+  bool expanded = 18; // The aria-expanded of the element
+  bool haspopup = 19; // The aria-haspopup of the element
+  string level = 20; // The aria-level of the element
+  string modal = 21; // The aria-modal of the element
+  string multiline = 22; // The aria-multiline of the element
+  string multiselectable = 23; // The aria-multiselectable of the element
+  string orientation = 24; // The aria-orientation of the element
+}
+
+message StructureProperties {
+  // Represents an HTML attribute with key-value pairs
+  message CustomProperty {
+    string key = 1; // The attribute name
+    string value = 2; // The attribute value
+  }
+
+  string id = 1; // The unique identifier of the element
+  repeated string classes = 2; // The CSS class(es) applied to the element
+  string text = 3; // The inner text of the element
+  repeated string styles = 4; // The CSS styles applied to the element
+  repeated CustomProperty custom = 5; // Custom properties for the element
+  tailwind.TailwindProperties tailwind = 6; // Custom properties for the element
+  string role = 7; // The role of the element
+  AriaProperties aria = 8; // The aria properties of the element
+  int32 tabindex = 9; // The tabindex of the element
+}
+
+
+
+// Represents an HTML <header> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header
+message HeaderStructure {
+  StructureProperties properties = 1; // The properties of the header element
+}
+
+// Represents an HTML <nav> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav
+message NavStructure {
+  StructureProperties properties = 1; // The properties of the nav element
+}
+
+// Represents an HTML <footer> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer
+message FooterStructure {
+  StructureProperties properties = 1; // The properties of the footer element
+}
+
+// Represents an HTML <article> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article
+message ArticleStructure {
+  StructureProperties properties = 1; // The properties of the article element
+}
+
+// Represents an HTML <aside> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside
+message AsideStructure {
+  StructureProperties properties = 1; // The properties of the aside element
+}
+
+// Represents an HTML <main> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main
+message MainStructure {
+  StructureProperties properties = 1; // The properties of the main element
+}
+
+// Represents an HTML <h1> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1
+message H1Structure {
+  StructureProperties properties = 1; // The properties of the h1 element
+}
+
+// Represents an HTML <h2> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h2
+message H2Structure {
+  StructureProperties properties = 1; // The properties of the h2 element
+}
+
+// Represents an HTML <h3> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h3
+message H3Structure {
+  StructureProperties properties = 1; // The properties of the h3 element
+}
+
+// Represents an HTML <h4> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h4
+message H4Structure {
+  StructureProperties  shared = 1; // The properties of the h4 element
+}
+
+// Represents an HTML <h5> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h5
+message H5Structure {
+  StructureProperties properties = 1; // The properties of the h5 element
+}
+
+// Represents an HTML <h6> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h6
+message H6Structure {
+  StructureProperties properties = 1; // The properties of the h6 element
+}
+
+// Represents an HTML <p> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p
+message ParagraphStructure {
+  StructureProperties properties = 1; // The properties of the p element
+}
+
+// Represents an HTML <ul> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul
+message UnorderedListStructure {
+  StructureProperties properties = 1; // The properties of the ul element
+}
+
+// Represents an HTML <ol> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol
+message OrderedListStructure {
+  StructureProperties properties = 1; // The properties of the ol element
+}
+
+// Represents an HTML <li> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li
+message ListItemStructure {
+  StructureProperties properties = 1; // The properties of the li element
+}
+
+// Represents an HTML <a> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a
+message AnchorStructure {
+  StructureProperties properties = 1; // The properties of the a element
+  string href = 2; // The URL the hyperlink points to
+  string target = 3; // Specifies where to open the linked document (e.g., "_blank" for a new window or tab)
+  string rel = 4; // The relationship between the linked resource and the current document
+}
+
+// Represents an HTML <button> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button
+message ButtonStructure {
+    enum TypeEnum {
+  // A submit button input field.
+      SUBMIT = 0;
+  // A reset button input field.
+      RESET = 1;
+  // A generic button input field.
+      BUTTON = 2;
+}
+
+  StructureProperties properties = 1; // The properties of the button element
+  TypeEnum type = 2; // The type of the button: "button", "submit", or "reset"
+  string value = 3; // The value to be sent to the server when the button is clicked
+  string onclick = 4; // The JavaScript to execute when the button is clicked
+  bool disabled = 5; // Indicates if the button is disabled
+}
+
+
+
+// Represents an HTML <input> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
+message InputStructure {
+
+  // An enum representing the type of an HTML input element.
+  enum TypeEnum {
+    // A text input field.
+    TEXT = 0;
+    // A password input field.
+    PASSWORD = 1;
+    // A checkbox input field.
+    CHECKBOX = 2;
+    // A radio button input field.
+    RADIO = 3;
+    // A file upload input field.
+    FILE = 4;
+    // An input field for entering a date. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
+    DATE = 5;
+    // An input field for entering an email address. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email
+    EMAIL = 6;
+    // An input field for entering a numeric value. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/number
+    NUMBER = 7;
+    // An input field for entering a telephone number. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/tel
+    TEL = 8;
+    // An input field for entering a URL. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/url
+    URL = 9;
+    // An input field for entering search text. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/search
+    SEARCH = 10;
+    // An input field for selecting a color. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color
+    COLOR = 11;
+    // An input field for entering a time value. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time
+    TIME = 12;
+    // An input field for selecting a month and year. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/month
+    MONTH = 13;
+    // An input field for selecting a week and year. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/week
+    WEEK = 14;
+  }
+
+  StructureProperties properties = 1; // The properties of the input element
+  TypeEnum type = 2; // The type of the input element (e.g., "text", "password", "checkbox", etc.)
+  string name = 3; // The name of the input element, used when submitting the form
+  string value = 4; // The initial value of the input element
+  string placeholder = 5; // A hint to the user of what can be entered in the input element
+  bool required = 6; // Indicates whether the input element is required for form submission
+  bool disabled = 7; // Indicates whether the input element is disabled
+}
+
+
+// Represents an HTML <textarea> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea
+message TextareaStructure {
+  StructureProperties properties = 1; // The properties of the textarea element
+  string name = 2; // The name of the textarea element, used when submitting the form
+  string value = 3; // The initial value of the textarea element
+  string placeholder = 4; // A hint to the user of what can be entered in the textarea element
+  int32 rows = 5; // The number of visible text lines in the textarea element
+  int32 cols = 6; // The number of visible characters in a line within the textarea element
+  bool required = 7; // Indicates whether the textarea element is required for form submission
+  bool disabled = 8; // Indicates whether the textarea element is disabled
+}
+
+// Represents an HTML <span> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span
+message SpanStructure {
+  StructureProperties properties = 1; // The properties of the span element
+}
+
+// Represents an HTML <label> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label
+message LabelStructure {
+  StructureProperties properties = 1; // The properties of the label element
+}
+
+// Represents an HTML <div> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div
+message DivStructure {
+  StructureProperties properties = 1; // The properties of the div element
+  string inner_html = 2; // The HTML content of the div element
+}
+
+// Represents an HTML <section> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section
+message SectionStructure {
+  StructureProperties properties = 1; // The properties of the section element
+}
+
+// Represents an HTML <form> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form
+message FormStructure {
+  // An enum representing the encoding type used to submit an HTML form.
+  enum EncodingEnum {
+    // The default encoding type, which sends form data as URL-encoded key-value pairs in the HTTP request body.
+    APPLICATION_X_WWW_FORM_URLENCODED = 0;
+    // Used when you need to submit binary data, such as files, in addition to text data.
+    MULTIPART_FORM_DATA = 1;
+    // Sends form data as plain text, with spaces represented as `+` characters and special characters URL-encoded.
+    TEXT_PLAIN = 2;
+  }
+
+  // An enum representing the HTTP method used to submit an HTML form.
+  enum MethodEnum {
+    // The "GET" method sends form data as URL parameters in the request URL. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-method
+    GET = 0;
+    // The "POST" method sends form data in the body of the HTTP request. See: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-method
+    POST = 1;
+  }
+
+  StructureProperties properties = 1; // The properties of the form element
+  string action = 2; // The URL to send the form data to
+  MethodEnum method = 3; // The HTTP method to use when submitting the form: "GET" or "POST"
+  EncodingEnum enctype = 4; // The encoding type for the form data
+  string target = 5; // The browsing context for form submission
+  string onsubmit = 6; // The JavaScript to execute when the form is submitted
+}
+
+
+
+
+
+// Represents an HTML <select> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select
+message SelectStructure {
+  StructureProperties properties = 1; // The unique identifier of the select element
+  string name = 2; // The name of the select element (used when submitting form data)
+  string size = 3; // The number of visible options in the drop-down list
+  bool multiple = 4; // Indicates if multiple options can be selected at once
+  string onchange = 6; // The JavaScript to execute when the selected option changes
+}
+
+// Represents an HTML <option> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option
+message OptionStructure {
+  StructureProperties properties = 1; // The properties of the option element
+  string value = 2; // The value to be sent to the server when the option is selected
+  bool selected = 3; // Indicates if the option is initially selected
+}
+
+// Represents an HTML image element
+message ImageStructure {
+  enum LoadingTypeEnum {
+    AUTO = 0; // The browser decides the loading behavior
+    LAZY = 1; // The browser defers loading of the image until it reaches a calculated distance from the viewport
+    EAGER = 2; // The browser loads the image immediately, regardless of its position relative to the viewport
+  }
+
+  StructureProperties properties = 1; // The properties of the image element
+  string src = 2; // The URL of the image source
+  string alt = 3; // Alternative text for the image
+  uint32 width = 4; // The width of the image in pixels
+  uint32 height = 5; // The height of the image in pixels
+  string crossorigin = 6; // The crossorigin attribute for CORS requests
+  string longdesc = 7; // The URL of a detailed description of the image
+  string referrerpolicy = 8; // The referrer policy for fetching the image
+  bool ismap = 9; // Indicates if the image is a server-side image map
+  string usemap = 10; // The URL of a client-side image map
+  string decoding = 11; // The decoding hint for the browser
+  LoadingTypeEnum loading = 12; // The loading behavior (0 = auto, 1 = lazy, 2 = eager)
+
+}
+
+// Enum for the possible values of the "loading" attribute
+
+
+
+// Represents an HTML <video> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video
+message VideoStructure {
+  // An enum representing the crossorigin attribute for HTML video elements.
+  enum CrossOriginEnum {
+    // The default value, indicating that the video should be loaded without sending any credentials.
+    ANONYMOUS = 0;
+    // Indicates that the video should be loaded with credentials, such as cookies or HTTP authentication.
+    USE_CREDENTIALS = 1;
+  }
+
+  StructureProperties properties = 1; // The properties of the video element
+  string src = 2; // The URL of the video file
+  string poster = 3; // The URL of an image to be shown while the video is downloading or until the user hits the play button
+  int32 width = 4; // The width of the video, in pixels
+  int32 height = 5; // The height of the video, in pixels
+  bool controls = 6; // Indicates whether the video should have playback controls
+  bool autoplay = 7; // Indicates whether the video should start playing as soon as it's ready
+  bool loop = 8; // Indicates whether the video should start over again after it has finished
+  bool muted = 9; // Indicates whether the audio output of the video should be muted
+  repeated VideoSourceStructure sources = 10; // The <source> elements for the video
+  CrossOriginEnum crossorigin = 11; // The crossorigin attribute for CORS requests
+}
+
+// Represents an HTML <source> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source
+message VideoSourceStructure {
+  // An enum representing the MIME types that can be used for HTML video sources.
+  enum MimeTypeEnum {
+    // The most widely-supported video format. See: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs
+    VIDEO_MP4 = 0;
+    // An open, royalty-free video format designed for use on the web. See: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs
+    VIDEO_WEBM = 1;
+    // Another open, royalty-free video format. See: https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs
+    VIDEO_OGG = 2;
+  }
+
+
+  StructureProperties properties = 1; // The properties of the source element
+  string src = 2; // The URL of the media file
+  MimeTypeEnum type = 3; // The MIME type of the media file
+  string media = 4; // Optional media query for responsive design
+  string sizes = 5; // Optional sizes attribute for images in a <picture> element
+}
+
+
+
+
+
+// Represents an HTML <audio> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio
+message AudioStructure {
+  // An enum representing the preload attribute for HTML audio elements.
+  enum PreloadTypeEnum {
+    // Indicates that the audio should not be preloaded.
+    NONE = 0;
+    // Indicates that only audio metadata (e.g. length) is fetched.
+    METADATA = 1;
+    // Indicates that the whole audio file can be downloaded, even if the user is not expected to use it.
+    AUTO = 2;
+  }
+
+  StructureProperties properties = 1; // The properties of the audio element
+  string src = 2; // The URL of the audio file
+  bool controls = 3; // Indicates whether the audio should have playback controls
+  bool autoplay = 4; // Indicates whether the audio should start playing as soon as it's ready
+  bool loop = 5; // Indicates whether the audio should start over again after it has finished
+  bool muted = 6; // Indicates whether the audio output should be muted
+  PreloadTypeEnum preload = 7; // Indicates whether the audio should be preloaded
+  repeated AudioSourceStructure sources = 8; // The <source> elements for the audio
+}
+
+// Represents an HTML <source> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source
+message AudioSourceStructure {
+  // An enum representing the MIME types that can be used for HTML audio sources.
+  enum MimeTypeEnum {
+    // The most widely-supported audio format.
+    AUDIO_MPEG = 0;
+    // An open, royalty-free audio format.
+    AUDIO_OGG = 1;
+    // An uncompressed audio format that delivers high-quality audio with large file sizes.
+    AUDIO_WAV = 2;
+    // An open, royalty-free audio format designed for use on the web.
+    AUDIO_WEBM = 3;
+    // A popular audio format commonly used for streaming and high-quality audio applications.
+    AUDIO_AAC = 4;
+  }
+
+  StructureProperties properties = 1; // The properties of the source element
+  string src = 2; // The URL of the media file
+  MimeTypeEnum type = 3; // The MIME type of the media file
+}
+
+
+// Represents an HTML <table> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table
+message TableStructure {
+  StructureProperties properties = 1; // The properties of the table element
+  TableHeadStructure thead = 3; // The table header
+  repeated TableBodyStructure tbodies = 4; // The table bodies
+  TableFooterStructure tfoot = 5; // The table footer
+}
+
+// Represents an HTML <thead> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead
+message TableHeadStructure {
+  StructureProperties properties = 1;
+  repeated TableRowStructure rows = 2; // The header rows
+}
+
+// Represents an HTML <tbody> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody
+message TableBodyStructure {
+  StructureProperties properties = 1; // The properties of the tbody element
+  repeated TableRowStructure rows = 2; // The body rows
+}
+
+// Represents an HTML <tfoot> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot
+message TableFooterStructure {
+  StructureProperties properties = 1; // The properties of the tfoot element
+  repeated TableRowStructure rows = 2; // The footer rows
+}
+
+// Represents an HTML <tr> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr
+message TableRowStructure {
+  StructureProperties properties = 1; // The properties of the tr element
+  repeated TableHeaderCellStructure headers = 2; // The header cells in the row
+  repeated TableDataCellStructure data = 3; // The data cells in the row
+}
+
+// Represents an HTML <th> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th
+message TableHeaderCellStructure {
+  StructureProperties properties = 1; // The properties of the th element
+  string scope = 4; // Specifies the set of cells the header cell relates to
+}
+
+// Represents an HTML <td> element
+// Documentation: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td
+message TableDataCellStructure {
+  StructureProperties properties = 1; // The properties of the td element
+}
+
+
+
+message IFrameYouTubeEmbeddedVideoStructure {
+  // An enum representing the permissions granted to a YouTube embed.
+  enum PermissionsEnum {
+    // Allows the use of the device's accelerometer to provide better interactivity.
+    ACCELEROMETER = 0;
+    // Allows the video to autoplay when the page is loaded.
+    AUTOPLAY = 1;
+    // Allows the use of the clipboard to copy and paste content.
+    CLIPBOARD_WRITE = 2;
+    // Allows the video to be played back with encryption enabled.
+    ENCRYPTED_MEDIA = 3;
+    // Allows the use of the device's gyroscope to provide better interactivity.
+    GYROSCOPE = 4;
+    // Allows the video to be played in a picture-in-picture mode.
+    PICTURE_IN_PICTURE = 5;
+    // Allows the use of the Web Share API to share content with other apps.
+    WEB_SHARE = 6;
+  }
+  string title = 1; // The title of the YouTube video.
+  repeated PermissionsEnum permissions = 2; // The permissions granted to the embedded video player.
+  uint32 start = 3; // The time in seconds from which the video should start playing.
+}
+
+message IFrameStructure {
+  // An enum representing the various loading states that can be used on web pages.
+  enum LoadingTypeEnum {
+    // Specifies that the resource should be loaded asynchronously.
+    ASYNC = 0;
+    // Specifies that the resource should be loaded in the background, but not executed until the page has finished loading.
+    DEFER = 1;
+    // Specifies that the resource should be loaded lazily.
+    LAZY = 2;
+    // Specifies that the resource should be preloaded.
+    PRELOAD = 3;
+  }
+
+  //https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe todo implement more
+  StructureProperties properties = 1; // The properties of the iframe element
+  string src = 2; // The URL of the page to embed in the iframe.
+  string name = 3; // The name of the iframe.
+  int32 width = 4; // The width of the iframe.
+  int32 height = 5; // The height of the iframe.
+  bool allowfullscreen = 6; // Whether to allow fullscreen mode in the embedded page.
+  bool allowpaymentrequest = 7; // Whether to allow payment requests in the embedded page.
+  LoadingTypeEnum loading = 8; // Whether the iframe should be loaded lazily.
+  IFrameYouTubeEmbeddedVideoStructure youtube = 9; // The YouTube video to embed in the iframe.
+  uint32 frameborder = 10; // The width of the iframe's border.
+}
+
+// Description list
+
+message DescriptionListStructure {
+  StructureProperties properties = 1; // The properties of the dl element
+  repeated DescriptionListTermStructure terms = 2; // The terms in the description list
+  repeated DescriptionListDetailsStructure descriptions = 3; // The descriptions in the description list
+}
+
+// Description List Term Element
+message DescriptionListTermStructure {
+  StructureProperties properties = 1; // The properties of the dt element
+}
+
+// Description List Description Element
+message DescriptionListDetailsStructure {
+  StructureProperties properties = 1; // The properties of the dd element
+}
+
+message SVGStructure {
+  StructureProperties properties = 1;
+  string fill = 2;
+  string width = 3;
+  uint32 height = 4;
+  string viewBox = 5;
+  string preserveAspectRatio = 6;
+  string stroke = 7;
+}
+
+
+
+message SVGPathStructure {
+  enum RuleEnum {
+    NONZERO = 0;
+    EVENODD = 1;
+    INHERIT = 2;
+    NONE = 3;
+  }
+
+  StructureProperties properties = 1;
+  RuleEnum clip = 2;
+  RuleEnum fill = 3;
+  string d = 4;
+}
+
+
+
+
+
+
+

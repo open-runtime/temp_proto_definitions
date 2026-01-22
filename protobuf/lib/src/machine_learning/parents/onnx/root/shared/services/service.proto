@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "lib/src/machine_learning/parents/onnx/root/shared/models/models.proto";
+import "lib/src/google/protobuf/empty.proto";
+
+package runtime.aot.machine_learning.onnx;
+
+// Note, Service Extensions are not possible, @brian-pieces we should discuss architecture here
+service OnnxInferenceService {
+  rpc Initialize(stream OnnxInferenceInitialization) returns (InitializedOnnxInference) {};
+  rpc Status(google.protobuf.Empty) returns (OnnxInferenceStatus) {};
+  // TODO - need to determine if there is ever a case where the output should be streamed?
+  rpc Predict (OnnxInferencePredictionInput) returns (OnnxInferencePredictionOutput) {};
+}
